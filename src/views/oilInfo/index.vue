@@ -210,16 +210,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-/deep/ .van-popup--bottom {
+::v-deep .van-popup--bottom {
   width: 90%;
   left: 5%;
   border-radius: 0.3rem;
 }
-/deep/ .van-dialog__header {
+::v-deep .van-dialog__header {
   padding: 0.7rem;
   background-color: #ffcd11;
 }
-/deep/ .van-dialog {
+::v-deep .van-dialog {
   border-radius: 1rem;
 }
 .cardFlex {
@@ -248,7 +248,7 @@ export default {
     }
   }
 }
-/deep/ .van-icon {
+::v-deep .van-icon {
   transform: scale(0.5);
 }
 .timeTile {
@@ -264,7 +264,7 @@ export default {
   background: linear-gradient(to right, #fee568 0%, #fbd01f 100%);
   padding: 0.5rem 1rem;
   height: 2rem;
-  /deep/ .van-field {
+  ::v-deep .van-field {
     border-radius: 0.3rem;
     margin: 0 auto;
     width: 90%;
@@ -298,7 +298,7 @@ export default {
   }
 }
 .card {
-  /deep/ .van-cell {
+  ::v-deep .van-cell {
     font-size: 1.1rem;
     overflow: visible;
     padding: 0.5rem 0 0 0;
@@ -339,7 +339,7 @@ export default {
     }
   }
 }
-/deep/ .van-field {
+::v-deep .van-field {
   padding: 1rem 0 1rem 1rem;
   &__value {
     width: 90%;
@@ -359,7 +359,7 @@ export default {
   }
   .select {
     width: 20%;
-    /deep/ .cell {
+    ::v-deep .cell {
       font-weight: normal;
       border: 0.05rem solid rgba(0, 0, 0, 0.08);
       border-radius: 1rem;

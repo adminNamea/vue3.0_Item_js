@@ -645,7 +645,7 @@ export default {
 .min {
   transform: scale(0.6);
 }
-/deep/.dialog.delDialog {
+::v-deep.dialog.delDialog {
   .info {
     display: inline-block;
     margin: 1rem;
@@ -658,11 +658,11 @@ export default {
 .vanButton {
   display: flex;
   justify-content: space-around;
-  /deep/ .van-button {
+  ::v-deep .van-button {
     border-radius: 0.3rem;
     width: 35%;
   }
-  /deep/ .van-button__content {
+  ::v-deep .van-button__content {
     color: #ffffff;
   }
 }
@@ -670,7 +670,7 @@ export default {
   font-size: 0.8rem;
 }
 .card {
-  /deep/ .van-field {
+  ::v-deep .van-field {
     &__label {
       color: #333333;
       align-items: center;
@@ -686,17 +686,17 @@ export default {
       border-radius: 0.08rem;
     }
   }
-  /deep/ .van-cell::after {
+  ::v-deep .van-cell::after {
     display: none;
   }
 }
 .textarea {
-  /deep/ .van-field__control {
+  ::v-deep .van-field__control {
     height: 5rem;
   }
 }
 .flex {
-  /deep/ {
+  ::v-deep {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -727,7 +727,7 @@ export default {
   font-size: 0.8rem;
 }
 .top {
-  /deep/ .van-cell {
+  ::v-deep .van-cell {
     font-size: 1.1rem;
     overflow: visible;
     align-items: center;
@@ -768,18 +768,18 @@ export default {
     }
   }
 }
-/deep/ .van-dialog__header {
+::v-deep .van-dialog__header {
   padding: 0.7rem;
   background-color: #ffcd11;
 }
-/deep/ .van-dialog {
+::v-deep .van-dialog {
   border-radius: 1rem;
 }
 .stations {
   display: flex;
   justify-content: space-between;
   min-height: 3rem !important;
-  /deep/ .body {
+  ::v-deep .body {
     width: 100%;
   }
 }
@@ -789,7 +789,7 @@ export default {
   background: linear-gradient(to right, #fee568 0%, #fbd01f 100%);
   padding: 0.5rem 1rem;
   height: 2rem;
-  /deep/ .van-field {
+  ::v-deep .van-field {
     border-radius: 0.3rem;
     margin: 0 auto;
     width: 90%;
@@ -834,7 +834,7 @@ export default {
     }
   }
 }
-/deep/ .van-popup--bottom {
+::v-deep .van-popup--bottom {
   width: 90%;
   left: 5%;
   border-radius: 0.3rem;

@@ -225,11 +225,11 @@ export default {
   margin-top: 1rem;
   font-size: 0.8rem;
 }
-/deep/ .van-dialog__header {
+::v-deep .van-dialog__header {
   padding: 0.7rem;
   background-color: #ffcd11;
 }
-/deep/ .van-dialog {
+::v-deep .van-dialog {
   border-radius: 1rem;
 }
 h3 {
@@ -260,7 +260,7 @@ h3 {
   background: #434343;
   color: #ffffff;
 }
-/deep/ .van-uploader__preview-delete {
+::v-deep .van-uploader__preview-delete {
   background: rgba(0, 0, 0, 0);
   top: -0.8rem;
   right: -0.5rem;
@@ -268,7 +268,7 @@ h3 {
     content: url("del.png");
   }
 }
-/deep/ .van-uploader__preview-image {
+::v-deep .van-uploader__preview-image {
   height: 4rem;
   width: 4.5rem;
   .van-image__img {
@@ -276,13 +276,13 @@ h3 {
   }
   overflow: visible;
 }
-/deep/ .upLoad {
+::v-deep .upLoad {
   overflow: visible;
   margin-left: -0.5rem;
   height: 6.5rem;
   text-align: left;
 }
-/deep/ .van-uploader__wrapper {
+::v-deep .van-uploader__wrapper {
   flex-wrap: nowrap;
 }
 .preview-cover {
@@ -293,13 +293,13 @@ h3 {
   padding: 0;
   background: rgba(249, 249, 250, 1);
   box-shadow: rgba(0, 0, 0, 0.25) 0 -1px 0 0;
-  /deep/ .van-field {
+  ::v-deep .van-field {
     &__value {
       padding: 0 0.2rem;
     }
   }
 }
-/deep/ .van-field {
+::v-deep .van-field {
   &__label {
     color: #333333;
     align-items: center;
@@ -323,7 +323,7 @@ h3 {
 }
 
 .textarea {
-  /deep/ .van-field__control {
+  ::v-deep .van-field__control {
     height: 5rem;
   }
 }

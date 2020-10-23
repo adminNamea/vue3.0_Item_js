@@ -545,21 +545,21 @@ export default {
 </script>
 <style lang='scss' scoped>
 .ve {
-  /deep/ .van-cell__value {
+  ::v-deep .van-cell__value {
     margin-right: 1.3rem;
   }
 }
 .vanButton {
   display: flex;
   justify-content: space-around;
-  /deep/ .van-button {
+  ::v-deep .van-button {
     width: 35%;
   }
-  /deep/ .van-button__content {
+  ::v-deep .van-button__content {
     color: #000;
   }
 }
-/deep/.dialog.delDialog {
+::v-deep.dialog.delDialog {
   .info {
     display: inline-block;
     margin: 1rem;
@@ -575,22 +575,22 @@ export default {
   height: 1rem;
   right: 0;
 }
-/deep/ .van-dialog__header {
+::v-deep .van-dialog__header {
   padding: 0.7rem;
   background-color: #ffcd11;
 }
-/deep/ .van-dialog {
+::v-deep .van-dialog {
   border-radius: 1rem;
 }
-/deep/ .van-popup--bottom {
+::v-deep .van-popup--bottom {
   width: 90%;
   left: 5%;
   border-radius: 0.3rem;
   .not {
-    /deep/ .van-cell__title {
+    ::v-deep .van-cell__title {
       font-weight: 700;
     }
-    /deep/ .van-cell__value {
+    ::v-deep .van-cell__value {
       display: flex;
       flex: 2;
       justify-content: space-between;
@@ -613,7 +613,7 @@ export default {
   background: linear-gradient(to right, #fee568 0%, #fbd01f 100%);
   padding: 0.7rem 0;
   height: 2rem;
-  /deep/ .van-field {
+  ::v-deep .van-field {
     margin: 0 auto;
     width: 90%;
     height: 100%;
@@ -626,11 +626,11 @@ export default {
     }
   }
 }
-/deep/ .van-cell::after {
+::v-deep .van-cell::after {
   transform: scale(1);
 }
-/deep/.van-cell:not(.not) .van-cell__title,
-/deep/ .van-field__label {
+::v-deep.van-cell:not(.not) .van-cell__title,
+::v-deep .van-field__label {
   color: #000;
   padding-left: 1.5rem;
   font-size: 0.8rem;
@@ -646,7 +646,7 @@ export default {
     background-color: #fad23f;
   }
 }
-/deep/ .van-field__control {
+::v-deep .van-field__control {
   font-size: 0.8rem;
   padding-left: 0.5rem;
   background: rgba(249, 249, 250, 1);
@@ -655,14 +655,14 @@ export default {
 }
 .van-form,
 .van-dialog {
-  /deep/ .van-cell__value:not(.van-field__value) {
+  ::v-deep .van-cell__value:not(.van-field__value) {
     text-align: left;
     font-size: 0.8rem;
     flex: none;
     width: 30%;
   }
 }
-/deep/ .van-cell__value {
+::v-deep .van-cell__value {
   font-size: 0.8rem;
 }
 
@@ -702,8 +702,8 @@ p {
   }
 }
 
-/deep/ .van-dialog {
-  /deep/ .van-cell__value {
+::v-deep .van-dialog {
+  ::v-deep .van-cell__value {
     display: flex;
   }
   .van-field__body {
@@ -735,9 +735,9 @@ p {
     }
   }
 }
-/deep/ .van-form {
+::v-deep .van-form {
   .checkIcon {
-    /deep/ .van-cell__value {
+    ::v-deep .van-cell__value {
       display: flex;
       flex: none;
       justify-content: space-between;

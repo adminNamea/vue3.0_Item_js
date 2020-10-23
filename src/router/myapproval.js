@@ -1,5 +1,3 @@
-import { defineAsyncComponent } from 'vue';
-
 export default [
   {
     name: 'cardDetails',
@@ -7,7 +5,7 @@ export default [
     meta: {
       title: '工卡详情',
     },
-    component: defineAsyncComponent(() => import('@/views/myapproval/cardDetails.vue')),
+    component: () => import(/* webpackChunkName: "myapproval" */'@/views/myapproval/cardDetails.vue'),
   },
   {
     name: 'feesDetails',
@@ -15,7 +13,7 @@ export default [
     meta: {
       title: '费用详情',
     },
-    component: defineAsyncComponent(() => import('@/views/myapproval/feesDetails.vue')),
+    component: () => import(/* webpackChunkName: "myapproval" */'@/views/myapproval/feesDetails.vue'),
   },
   {
     name: 'approvalDetails',
@@ -23,7 +21,7 @@ export default [
     meta: {
       title: '审批详情',
     },
-    component: defineAsyncComponent(() => import('@/views/myapproval/approvalDetails.vue')),
+    component: () => import(/* webpackChunkName: "myapproval" */'@/views/myapproval/approvalDetails.vue'),
   },
   {
     name: 'myByOrdey',
@@ -31,7 +29,7 @@ export default [
     meta: {
       title: '我的审批',
     },
-    component: defineAsyncComponent(() => import('@/views/myapproval/myByOrdey.vue')),
+    component: () => import(/* webpackChunkName: "myapproval" */'@/views/myapproval/myByOrdey.vue'),
   },
   {
     name: 'myByFees',
@@ -39,7 +37,7 @@ export default [
     meta: {
       title: '我的费用',
     },
-    component: defineAsyncComponent(() => import('@/views/myapproval/myByFees.vue')),
+    component: () => import(/* webpackChunkName: "myapproval" */'@/views/myapproval/myByFees.vue'),
   },
   {
     name: 'orderApproval',
@@ -47,7 +45,7 @@ export default [
     meta: {
       title: '工单审批',
     },
-    component: defineAsyncComponent(() => import('@/views/myapproval/orderApproval.vue')),
+    component: () => import(/* webpackChunkName: "myapproval" */'@/views/myapproval/orderApproval.vue'),
   },
   {
     name: 'feesApproval',
@@ -55,7 +53,7 @@ export default [
     meta: {
       title: '费用审批',
     },
-    component: defineAsyncComponent(() => import('@/views/myapproval/feesApproval.vue')),
+    component: () => import(/* webpackChunkName: "myapproval" */'@/views/myapproval/feesApproval.vue'),
   },
   {
     name: 'cardApproval',
@@ -63,7 +61,7 @@ export default [
     meta: {
       title: '工卡审批',
     },
-    component: defineAsyncComponent(() => import('@/views/myapproval/cardApproval.vue')),
+    component: () => import(/* webpackChunkName: "myapproval" */'@/views/myapproval/cardApproval.vue'),
   },
   {
     name: 'addFees',
@@ -71,7 +69,7 @@ export default [
     meta: {
       title: '添加费用',
     },
-    component: defineAsyncComponent(() => import('@/views/myapproval/addFees.vue')),
+    component: () => import(/* webpackChunkName: "myapproval" */'@/views/myapproval/addFees.vue'),
   },
   {
     name: 'myapproval',
@@ -79,5 +77,5 @@ export default [
     meta: {
       title: '我的审批',
     },
-    component: defineAsyncComponent(() => import('@/views/myapproval/index.vue')),
+    component: () => import(/* webpackChunkName: "myapproval" */'@/views/myapproval/index.vue'),
   }];

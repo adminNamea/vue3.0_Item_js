@@ -212,11 +212,11 @@ export default {
     background: #ffffff;
     box-shadow: 0 0.1rem 0.5rem 0 rgba(255, 205, 17, 0.4);
   }
-  /deep/ .van-dialog__header {
+  ::v-deep .van-dialog__header {
     padding: 0;
     height: 3.5rem;
   }
-  /deep/ .van-hairline--top::after {
+  ::v-deep .van-hairline--top::after {
     border-color: #faeec9;
     border-top-width: 0.1rem;
   }

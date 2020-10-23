@@ -66,15 +66,15 @@ export default {
       width: 1.5rem;
     }
   }
-  /deep/ .van-dialog__header {
+  ::v-deep .van-dialog__header {
     background-color: #434343;
     padding: 0.2rem 1rem 0.5rem 1rem;
     height: 1.2rem;
   }
-  // /deep/ .van-dialog__content {
+  // ::v-deep .van-dialog__content {
   //   height: 60%;
   // }
-  /deep/ .van-dialog {
+  ::v-deep .van-dialog {
     width: 90%;
     // height: 65%;
     overflow: hidden;

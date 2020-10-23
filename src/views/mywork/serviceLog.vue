@@ -173,7 +173,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-/deep/.dialog.delDialog {
+::v-deep.dialog.delDialog {
   .info {
     display: inline-block;
     margin: 1rem;
@@ -186,15 +186,15 @@ export default {
 .vanButton {
   display: flex;
   justify-content: space-around;
-  /deep/ .van-button {
+  ::v-deep .van-button {
     border-radius: 0.3rem;
     width: 35%;
   }
-  /deep/ .van-button__content {
+  ::v-deep .van-button__content {
     color: #ffffff;
   }
 }
-/deep/ .van-cell {
+::v-deep .van-cell {
   padding: 0;
 }
 .flxe {
@@ -276,12 +276,12 @@ h3 {
 .delete {
   color: #e6686c;
 }
-/deep/ .van-cell::after {
+::v-deep .van-cell::after {
   display: none;
 }
 .textarea {
   margin-bottom: 0.5rem;
-  /deep/ .van-field__control {
+  ::v-deep .van-field__control {
     height: 3.35rem;
     padding: 0 0.15rem;
     min-height: 2rem;
@@ -301,11 +301,11 @@ h3 {
   margin-top: 1rem;
   font-size: 0.8rem;
 }
-/deep/ .van-dialog__header {
+::v-deep .van-dialog__header {
   padding: 0.7rem;
   background-color: #ffcd11;
 }
-/deep/ .van-dialog {
+::v-deep .van-dialog {
   border-radius: 1rem;
 }
 </style>

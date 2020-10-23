@@ -1,5 +1,3 @@
-import { defineAsyncComponent } from 'vue';
-
 export default [
   {
     name: 'oilInfo',
@@ -7,7 +5,7 @@ export default [
     meta: {
       title: '油样基础录入',
     },
-    component: defineAsyncComponent(() => import('@/views/oilInfo/index.vue')),
+    component: () => import(/* webpackChunkName: "oilInfo" */'@/views/oilInfo/index.vue'),
   },
   {
     name: 'scanCode',
@@ -15,7 +13,7 @@ export default [
     meta: {
       title: '油样基础录入',
     },
-    component: defineAsyncComponent(() => import('@/views/oilInfo/scanCode.vue')),
+    component: () => import(/* webpackChunkName: "oilInfo" */'@/views/oilInfo/scanCode.vue'),
   },
   {
     name: 'oilInfoDetails',
@@ -23,6 +21,6 @@ export default [
     meta: {
       title: '油样基础录入',
     },
-    component: defineAsyncComponent(() => import('@/views/oilInfo/oilInfoDetails.vue')),
+    component: () => import(/* webpackChunkName: "oilInfo" */'@/views/oilInfo/oilInfoDetails.vue'),
   },
 ];

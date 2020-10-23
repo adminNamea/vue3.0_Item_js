@@ -75,7 +75,7 @@ export default {
 };
 </script>
 <style lang='scss' scoped>
-/deep/.van-cell .van-cell__title {
+::v-deep.van-cell .van-cell__title {
   color: #000;
   padding-left: 1.5rem;
   font-size: 0.8rem;
@@ -92,7 +92,7 @@ export default {
     background-color: #fad23f;
   }
 }
-/deep/ .van-cell__value {
+::v-deep .van-cell__value {
   font-size: 0.8rem;
 }
 p {

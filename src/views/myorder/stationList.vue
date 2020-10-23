@@ -164,7 +164,7 @@ h3 {
   right: 4rem;
   top: 1.5rem;
 }
-/deep/ .van-cell {
+::v-deep .van-cell {
   display: flex;
   align-items: center;
   padding: 0 1.5rem;
@@ -192,7 +192,7 @@ h3 {
   font-weight: 500;
   margin: 0.2rem;
 }
-/deep/.dialog.delDialog {
+::v-deep.dialog.delDialog {
   .info {
     display: inline-block;
     margin: 1rem;
@@ -205,10 +205,10 @@ h3 {
 .vanButton {
   display: flex;
   justify-content: space-around;
-  /deep/ .van-button {
+  ::v-deep .van-button {
     width: 35%;
   }
-  /deep/ .van-button__content {
+  ::v-deep .van-button__content {
     color: #000;
   }
 }

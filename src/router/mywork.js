@@ -1,5 +1,3 @@
-import { defineAsyncComponent } from 'vue';
-
 export default [
   {
     name: 'partsProblem',
@@ -7,12 +5,12 @@ export default [
     meta: {
       title: '零件问题',
     },
-    component: defineAsyncComponent(() => import('@/views/mywork/report/partsProblem/index.vue')),
+    component: () => import(/* webpackChunkName: "mywork" */'@/views/mywork/report/partsProblem/index.vue'),
   },
   {
     name: 'report',
     path: '/mywork/report',
-    component: defineAsyncComponent(() => import('@/views/mywork/report/index.vue')),
+    component: () => import(/* webpackChunkName: "mywork" */'@/views/mywork/report/index.vue'),
   },
   {
     name: 'take5',
@@ -20,7 +18,7 @@ export default [
     meta: {
       title: '安全五步法',
     },
-    component: defineAsyncComponent(() => import('@/views/mywork/take5.vue')),
+    component: () => import(/* webpackChunkName: "mywork" */'@/views/mywork/take5.vue'),
   },
   {
     name: 'mywork',
@@ -28,7 +26,7 @@ export default [
     meta: {
       title: '我的工作',
     },
-    component: defineAsyncComponent(() => import('@/views/mywork/index.vue')),
+    component: () => import(/* webpackChunkName: "mywork" */'@/views/mywork/index.vue'),
   },
   {
     name: 'fillInfo',
@@ -36,7 +34,7 @@ export default [
     meta: {
       title: '补充信息',
     },
-    component: defineAsyncComponent(() => import('@/views/mywork/fillInfo.vue')),
+    component: () => import(/* webpackChunkName: "mywork" */'@/views/mywork/fillInfo.vue'),
   },
   {
     name: 'serviceLog',
@@ -44,7 +42,7 @@ export default [
     meta: {
       title: '维修日志',
     },
-    component: defineAsyncComponent(() => import('@/views/mywork/serviceLog.vue')),
+    component: () => import(/* webpackChunkName: "mywork" */'@/views/mywork/serviceLog.vue'),
   },
   {
     name: 'parts',
@@ -52,7 +50,7 @@ export default [
     meta: {
       title: '额外零件申请',
     },
-    component: defineAsyncComponent(() => import('@/views/mywork/parts.vue')),
+    component: () => import(/* webpackChunkName: "mywork" */'@/views/mywork/parts.vue'),
   },
   {
     name: 'orderProject',
@@ -60,7 +58,7 @@ export default [
     meta: {
       title: '工单项目',
     },
-    component: defineAsyncComponent(() => import('@/views/mywork/orderProject.vue')),
+    component: () => import(/* webpackChunkName: "mywork" */'@/views/mywork/orderProject.vue'),
   },
   {
     name: 'prompt',
@@ -68,7 +66,7 @@ export default [
     meta: {
       title: '温馨提示',
     },
-    component: defineAsyncComponent(() => import('@/views/mywork/prompt.vue')),
+    component: () => import(/* webpackChunkName: "mywork" */'@/views/mywork/prompt.vue'),
   },
   {
     name: 'workDetails',
@@ -76,6 +74,6 @@ export default [
     meta: {
       title: '工作详情',
     },
-    component: defineAsyncComponent(() => import('@/views/mywork/workDetails.vue')),
+    component: () => import(/* webpackChunkName: "mywork" */'@/views/mywork/workDetails.vue'),
   },
 ];

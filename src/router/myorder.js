@@ -1,5 +1,3 @@
-import { defineAsyncComponent } from 'vue';
-
 export default [
   {
     name: 'details',
@@ -7,12 +5,12 @@ export default [
     meta: {
       title: '工位详情',
     },
-    component: defineAsyncComponent(() => import('@/views/myorder/details.vue')),
+    component: () => import(/* webpackChunkName: "myorder" */'@/views/myorder/details.vue'),
   },
   {
     name: 'addStationList',
     path: '/myorder/addStationList',
-    component: defineAsyncComponent(() => import('@/views/myorder/addStationList.vue')),
+    component: () => import(/* webpackChunkName: "myorder" */'@/views/myorder/addStationList.vue'),
   },
   {
     name: 'stationList',
@@ -20,12 +18,12 @@ export default [
     meta: {
       title: '大修工位列表',
     },
-    component: defineAsyncComponent(() => import('@/views/myorder/stationList.vue')),
+    component: () => import(/* webpackChunkName: "myorder" */'@/views/myorder/stationList.vue'),
   },
   {
     name: 'replaceRecord',
     path: '/myorder/replaceRecord',
-    component: defineAsyncComponent(() => import('@/views/myorder/replaceRecord.vue')),
+    component: () => import(/* webpackChunkName: "myorder" */'@/views/myorder/replaceRecord.vue'),
   },
   {
     name: 'orderInfo',
@@ -33,7 +31,7 @@ export default [
     meta: {
       title: '工单信息',
     },
-    component: defineAsyncComponent(() => import('@/views/myorder/orderInfo.vue')),
+    component: () => import(/* webpackChunkName: "myorder" */'@/views/myorder/orderInfo.vue'),
   },
   {
     name: 'myorder',
@@ -41,6 +39,6 @@ export default [
     meta: {
       title: '我的工单',
     },
-    component: defineAsyncComponent(() => import('@/views/myorder/index.vue')),
+    component: () => import(/* webpackChunkName: "myorder" */'@/views/myorder/index.vue'),
   },
 ];

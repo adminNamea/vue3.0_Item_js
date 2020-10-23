@@ -116,8 +116,7 @@
       <van-cell
         v-for="(v, i) in listData"
         :key="i"
-        value-class="textarea"
-        :class="{ bg: v.data_type == 2 }"
+        :value-class="{ textarea: v.data_type == 3 }"
         :style="v.data_type != 0 ? 'align-items: flex-start' : ''"
         @click="checkde(String(v.id))"
       >
@@ -149,9 +148,6 @@
               style="height: 4rem; width: 4rem"
               src="@/assets/img/uploader.png"
             />
-            <template #del-icon>
-              <van-icon size="0.83rem" :name="upDel"></van-icon>
-            </template>
           </van-uploader>
         </template>
         <template v-else-if="v.data_type != 2" #title>
@@ -171,7 +167,7 @@
 <script>
 import card from "@/components/card/index.vue";
 import select from "@/components/select/index.vue";
-import SignCanvas from "sign-canvas";
+import SignCanvas from "@/components/SignCanvas/index.vue";
 import { Dialog } from "vant";
 
 export default {
@@ -312,11 +308,11 @@ export default {
 
 <style lang="scss" scoped>
 .bg {
-  /deep/ .van-icon {
+  .van-icon {
     transform: scale(1.4);
   }
 }
-/deep/.select {
+::v-deep.select {
   .cell {
     border-radius: 0.2rem;
     width: 5rem;
@@ -327,7 +323,7 @@ export default {
     }
   }
 }
-/deep/ .van-cell {
+::v-deep .van-cell {
   align-items: center;
   overflow: visible;
   &__value {
@@ -364,12 +360,15 @@ h3 {
   background: #434343;
   color: #ffffff;
 }
-/deep/ .van-uploader__preview-delete {
-  background-color: rgba(0, 0, 0, 0);
-  top: -0.4rem;
-  right: -0.2rem;
+::v-deep .van-uploader__preview-delete {
+  background: rgba(0, 0, 0, 0);
+  top: -0.8rem;
+  right: -0.5rem;
+  .van-icon-cross::before {
+    content: url("del.png");
+  }
 }
-/deep/ .van-uploader__preview-image {
+::v-deep .van-uploader__preview-image {
   width: 4rem;
   height: 4rem;
   .van-image__img {
@@ -377,13 +376,13 @@ h3 {
   }
   overflow: visible;
 }
-/deep/ .upLoad {
+::v-deep .upLoad {
   overflow: visible;
   margin-left: -0.5rem;
   height: 6.5rem;
   text-align: left;
 }
-/deep/ .van-uploader__wrapper {
+::v-deep .van-uploader__wrapper {
   flex-wrap: nowrap;
 }
 .preview-cover {
@@ -394,13 +393,13 @@ h3 {
   padding: 0;
   background: rgba(249, 249, 250, 1);
   box-shadow: rgba(0, 0, 0, 0.25) 0 -1px 0 0;
-  /deep/ .van-field {
+  .van-field {
     &__value {
       padding: 0 0.2rem;
     }
   }
 }
-/deep/ .van-field {
+::v-deep .van-field {
   padding-right: 1rem;
   &__label {
     color: #333333;
@@ -430,7 +429,7 @@ h3 {
   padding-left: 1rem;
 }
 
-.textarea {
+::v-deep .textarea {
   height: 5rem;
   color: #666666;
   flex: 1;
@@ -438,7 +437,7 @@ h3 {
   background: rgba(249, 249, 250, 1);
   box-shadow: rgba(0, 0, 0, 0.25) 0 -1px 0 0;
   border-radius: 0.08rem;
-  /deep/ .van-image__img {
+  .van-image__img {
     filter: contrast(0.96);
   }
 }

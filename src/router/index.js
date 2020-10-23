@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { defineAsyncComponent } from 'vue';
 // 我的工单
 import myorder from './myorder';
 // 我的工作
@@ -24,7 +23,7 @@ const routes = [
     meta: {
       title: 'TAKE5列表',
     },
-    component: defineAsyncComponent(() => import('@/views/TAKE5/index.vue')),
+    component: () => import(/* webpackChunkName: "index" */'@/views/TAKE5/index.vue'),
   },
   // 新建工单
   {
@@ -33,7 +32,7 @@ const routes = [
     meta: {
       title: '新建工单',
     },
-    component: () => import('@/views/buildorder/index.vue'),
+    component: () => import(/* webpackChunkName: "index" */'@/views/buildorder/index.vue'),
   },
   // 主页
   {
@@ -42,7 +41,7 @@ const routes = [
     meta: {
       title: '派工系统',
     },
-    component: defineAsyncComponent(() => import('@/views/index.vue')),
+    component: () => import(/* webpackChunkName: "index" */'@/views/index.vue'),
   },
   // 登陆页
   {
@@ -51,7 +50,7 @@ const routes = [
     meta: {
       title: '登陆授权',
     },
-    component: defineAsyncComponent(() => import('@/views/login.vue')),
+    component: () => import(/* webpackChunkName: "index" */'@/views/login.vue'),
   },
 ];
 

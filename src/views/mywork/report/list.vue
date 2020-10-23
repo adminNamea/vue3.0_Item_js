@@ -127,7 +127,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-/deep/ .van-cell {
+::v-deep .van-cell {
   display: flex;
   align-items: center;
   overflow: visible;
@@ -163,7 +163,7 @@ h3 {
   background: #434343;
   color: #ffffff;
 }
-/deep/ .van-field {
+::v-deep .van-field {
   &__label {
     color: #333333;
     align-items: center;
@@ -188,7 +188,7 @@ h3 {
 
 .textarea {
   align-items: flex-start;
-  /deep/ .van-field__control {
+  ::v-deep .van-field__control {
     height: 5rem;
   }
 }

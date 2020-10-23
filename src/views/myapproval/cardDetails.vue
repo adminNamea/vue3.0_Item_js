@@ -145,7 +145,7 @@ export default {
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  /deep/ .van-cell {
+  ::v-deep .van-cell {
     display: inline-flex;
     width: 45%;
     &__title {

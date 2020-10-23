@@ -357,7 +357,7 @@ export default {
 };
 </script>
 <style lang='scss' scoped>
-/deep/ .van-form {
+::v-deep .van-form {
   overflow: scroll;
   height: 44rem;
   position: relative;
@@ -377,7 +377,7 @@ p {
   margin: 0;
   padding: 0.7rem 1rem;
 }
-/deep/ .van-cell {
+::v-deep .van-cell {
   align-items: center;
 }
 .lo {
@@ -408,7 +408,7 @@ p {
 }
 .textarea {
   align-items: flex-start;
-  /deep/ .van-field__control {
+  ::v-deep .van-field__control {
     position: relative;
     background: #f9f9fa;
     box-shadow: rgba(0, 0, 0, 0.25) 0px -1px 1px 0px;

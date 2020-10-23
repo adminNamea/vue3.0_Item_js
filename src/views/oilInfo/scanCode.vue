@@ -313,14 +313,14 @@ export default {
   margin-top: 1rem;
   font-size: 0.8rem;
 }
-/deep/ .van-dialog__header {
+::v-deep .van-dialog__header {
   padding: 0.7rem;
   background-color: #ffcd11;
 }
-/deep/ .van-dialog {
+::v-deep .van-dialog {
   border-radius: 1rem;
 }
-/deep/ .van-popup--bottom {
+::v-deep .van-popup--bottom {
   width: 90%;
   left: 5%;
   border-radius: 0.3rem;
@@ -331,7 +331,7 @@ export default {
   background: linear-gradient(to right, #fee568 0%, #fbd01f 100%);
   padding: 0.5rem 1rem;
   height: 2rem;
-  /deep/ .van-field {
+  ::v-deep .van-field {
     border-radius: 0.3rem;
     margin: 0 auto;
     width: 90%;
@@ -370,7 +370,7 @@ export default {
   }
 }
 .card {
-  /deep/ {
+  ::v-deep {
     .van-cell {
       &__title {
         color: #000;
@@ -427,7 +427,7 @@ p {
     transform: scale(1.07);
   }
 }
-/deep/ .van-field {
+::v-deep .van-field {
   &__label {
     flex: 1;
     margin-right: 0;
@@ -445,7 +445,7 @@ p {
   }
 }
 .textarea {
-  /deep/ .van-field {
+  ::v-deep .van-field {
     &__label {
       flex: none;
     }

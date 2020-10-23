@@ -485,7 +485,7 @@ export default {
   .van-cell {
     border-radius: 1rem;
   }
-  /deep/ .visible {
+  ::v-deep .visible {
     overflow: visible;
     .van-cell__value {
       overflow: visible;
@@ -509,10 +509,10 @@ export default {
     }
   }
 }
-/deep/ .van-cell::after {
+::v-deep .van-cell::after {
   transform: scale(1);
 }
-/deep/ .van-popup--bottom {
+::v-deep .van-popup--bottom {
   width: 90%;
   left: 5%;
   border-radius: 0.3rem;
@@ -525,10 +525,10 @@ export default {
 .vanButton {
   display: flex;
   justify-content: space-around;
-  /deep/ .van-button {
+  ::v-deep .van-button {
     width: 35%;
   }
-  /deep/ .van-button__content {
+  ::v-deep .van-button__content {
     color: #000;
   }
 }
@@ -562,7 +562,7 @@ export default {
   }
 }
 .card {
-  /deep/ .van-cell__value {
+  ::v-deep .van-cell__value {
     display: flex;
     align-items: center;
     width: 70%;
@@ -576,7 +576,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  /deep/ .van-button {
+  ::v-deep .van-button {
     .van-button__content {
       color: #000;
     }
@@ -587,17 +587,17 @@ export default {
 }
 .dialogBody,
 .dialogTitle {
-  /deep/ .van-cell {
+  ::v-deep .van-cell {
     display: flex;
     align-items: center;
     justify-content: flex-start;
   }
-  /deep/ .van-cell__title {
+  ::v-deep .van-cell__title {
     font-size: 0.7rem;
     flex: none;
     width: 80%;
   }
-  /deep/ .van-cell__value {
+  ::v-deep .van-cell__value {
     font-size: 0.7rem;
     display: flex;
   }
@@ -621,7 +621,7 @@ export default {
     width: 2.5rem;
     float: right;
   }
-  /deep/ .van-field {
+  ::v-deep .van-field {
     width: 70%;
     height: 100%;
     display: flex;
@@ -671,7 +671,7 @@ p {
     border-radius: 1rem;
   }
 }
-/deep/.dialog.delDialog {
+::v-deep.dialog.delDialog {
   .info {
     display: inline-block;
     margin: 1rem;

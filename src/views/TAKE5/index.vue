@@ -149,7 +149,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-/deep/ .van-icon {
+::v-deep .van-icon {
   transform: scale(0.5);
 }
 .timeTile {
@@ -159,11 +159,11 @@ export default {
   margin-top: 1rem;
   font-size: 0.8rem;
 }
-/deep/ .van-dialog__header {
+::v-deep .van-dialog__header {
   padding: 0.7rem;
   background-color: #ffcd11;
 }
-/deep/ .van-dialog {
+::v-deep .van-dialog {
   border-radius: 1rem;
 }
 .stations {
@@ -186,7 +186,7 @@ export default {
     background: #434343;
   }
 }
-/deep/ .van-cell {
+::v-deep .van-cell {
   font-size: 1.1rem;
   overflow: visible;
   padding: 0.5rem 0 0 0;
@@ -226,7 +226,7 @@ export default {
   }
 }
 
-/deep/ .van-field {
+::v-deep .van-field {
   padding: 1rem 0 1rem 1rem;
   &__value {
     width: 90%;
@@ -246,7 +246,7 @@ export default {
   }
   .select {
     width: 20%;
-    /deep/ .cell {
+    ::v-deep .cell {
       font-weight: normal;
       border: 0.05rem solid rgba(0, 0, 0, 0.08);
       border-radius: 1rem;

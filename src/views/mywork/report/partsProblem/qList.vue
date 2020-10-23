@@ -96,13 +96,13 @@ export default {
   justify-content: space-between;
   align-items: center;
 }
-/deep/ .van-field {
+::v-deep .van-field {
   width: 80%;
   padding: 0.1rem 1rem;
   box-shadow: 0 0.1rem 0.3rem 0.1rem rgba(0, 0, 0, 0.08);
   border-radius: 1rem;
 }
-/deep/ .van-button {
+::v-deep .van-button {
   height: 1.9rem;
   width: 3.5rem;
   box-shadow: 0 0.1rem 0.3rem 0.1rem rgba(0, 0, 0, 0.08);

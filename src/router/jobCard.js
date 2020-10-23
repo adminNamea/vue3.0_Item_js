@@ -1,5 +1,3 @@
-import { defineAsyncComponent } from 'vue';
-
 export default [
   {
     name: 'jCLog',
@@ -7,7 +5,7 @@ export default [
     meta: {
       title: '工卡记录',
     },
-    component: defineAsyncComponent(() => import('@/views/jobCard/jCLog.vue')),
+    component: () => import(/* webpackChunkName: "jobCard" */'@/views/jobCard/jCLog.vue'),
   },
   {
     name: 'editJCard',
@@ -15,5 +13,5 @@ export default [
     meta: {
       title: '工卡编辑',
     },
-    component: defineAsyncComponent(() => import('@/views/jobCard/editJCard.vue')),
+    component: () => import(/* webpackChunkName: "jobCard" */'@/views/jobCard/editJCard.vue'),
   }];

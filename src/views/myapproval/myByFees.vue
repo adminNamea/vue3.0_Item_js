@@ -184,7 +184,7 @@ export default {
   margin-top: 1rem;
   font-size: 0.8rem;
 }
-/deep/ .van-cell {
+::v-deep .van-cell {
   font-size: 1.1rem;
   overflow: visible;
   padding: 0.5rem 0 0 0;
@@ -242,14 +242,14 @@ export default {
     background: linear-gradient(267deg, #fbd01f, #fee568);
   }
 }
-/deep/ .van-dialog__header {
+::v-deep .van-dialog__header {
   padding: 0.7rem;
   background-color: #ffcd11;
 }
-/deep/ .van-dialog {
+::v-deep .van-dialog {
   border-radius: 1rem;
 }
-/deep/ .van-field {
+::v-deep .van-field {
   padding: 1rem 0 1rem 1rem;
   &__value {
     width: 90%;
@@ -259,7 +259,7 @@ export default {
     padding: 0.2rem 0 0.2rem 0.5rem;
   }
 }
-/deep/ .van-icon {
+::v-deep .van-icon {
   transform: scale(0.5);
 }
 .flex {
@@ -272,7 +272,7 @@ export default {
   }
   .select {
     width: 20%;
-    /deep/ .cell {
+    ::v-deep .cell {
       font-weight: normal;
       border: 0.05rem solid rgba(0, 0, 0, 0.08);
       border-radius: 1rem;
@@ -287,7 +287,7 @@ export default {
   justify-content: space-between;
   min-height: 3rem !important;
   padding-left: 1rem;
-  /deep/ .body {
+  ::v-deep .body {
     width: 100%;
     display: flex;
     align-items: center;

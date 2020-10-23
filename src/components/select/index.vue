@@ -87,7 +87,7 @@ export default {
   height: 1rem;
   width: 100%;
 }
-/deep/ .van-overlay {
+::v-deep .van-overlay {
   z-index: 2;
 }
 .cell {

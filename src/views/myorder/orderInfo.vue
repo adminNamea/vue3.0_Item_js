@@ -804,11 +804,11 @@ export default {
 
 <style lang="scss" scoped>
 .ve {
-  /deep/ .van-cell__value {
+  ::v-deep .van-cell__value {
     margin-right: 1.5rem;
   }
 }
-/deep/ .Dp.van-dialog {
+::v-deep .Dp.van-dialog {
   text-align: center;
   padding: 0.5rem;
   border-radius: 0.2rem;
@@ -830,22 +830,22 @@ export default {
   }
 }
 .dialogTime {
-  /deep/ .van-dialog__header {
+  ::v-deep .van-dialog__header {
     padding: 0.7rem;
     background-color: #ffcd11;
   }
-  /deep/ .van-dialog {
+  ::v-deep .van-dialog {
     border-radius: 1rem;
   }
 }
 .vanButton {
   display: flex;
   justify-content: space-around;
-  /deep/ .van-button {
+  ::v-deep .van-button {
     width: 35%;
     text-align: center;
   }
-  /deep/ .van-button__content {
+  ::v-deep .van-button__content {
     color: #000;
   }
 }
@@ -892,8 +892,8 @@ export default {
     right: 0;
   }
   border-radius: 0.5rem;
-  /deep/ .van-cell__title,
-  /deep/ .van-field__label {
+  ::v-deep .van-cell__title,
+  ::v-deep .van-field__label {
     color: #000;
     padding-left: 1.5rem;
     font-size: 0.8rem;
@@ -909,13 +909,13 @@ export default {
       background-color: #fad23f;
     }
   }
-  /deep/ .van-cell__value:not(.van-field__value) {
+  ::v-deep .van-cell__value:not(.van-field__value) {
     text-align: left;
     font-size: 0.8rem;
     flex: none;
     width: 30%;
   }
-  /deep/ .van-field__control {
+  ::v-deep .van-field__control {
     font-size: 0.8rem;
     padding-left: 0.5rem;
     background: rgba(249, 249, 250, 1);
@@ -942,7 +942,7 @@ export default {
   background: linear-gradient(to right, #fee568 0%, #fbd01f 100%);
   padding: 0.8rem 0;
   height: 2.2rem;
-  /deep/ .van-field {
+  ::v-deep .van-field {
     margin: 0 auto;
     width: 90%;
     height: 100%;
@@ -950,7 +950,7 @@ export default {
     align-items: center;
   }
 }
-/deep/ .van-popup--bottom {
+::v-deep .van-popup--bottom {
   width: 90%;
   left: 5%;
   border-radius: 0.3rem;
@@ -991,7 +991,7 @@ export default {
     }
     display: flex;
     justify-content: space-between;
-    /deep/ .van-cell {
+    ::v-deep .van-cell {
       &__value {
         text-align: left;
         display: flex;
@@ -1000,7 +1000,7 @@ export default {
       }
     }
   }
-  /deep/ .van-cell {
+  ::v-deep .van-cell {
     padding: 0.1rem 1rem;
     &__title {
       font-size: 0.75rem;

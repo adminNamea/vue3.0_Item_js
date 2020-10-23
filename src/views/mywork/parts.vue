@@ -90,7 +90,7 @@ export default {
 };
 </script>
 <style lang='scss' scoped>
-/deep/ .van-field__label {
+::v-deep .van-field__label {
   width: 23%;
   padding-left: 1.5rem;
   color: #000;
@@ -106,7 +106,7 @@ export default {
     background-color: #fad23f;
   }
 }
-/deep/ .van-field__control {
+::v-deep .van-field__control {
   font-size: 0.8rem;
   padding-left: 0.5rem;
   &:not([readonly="readonly"]) {
@@ -115,7 +115,7 @@ export default {
     border-radius: 0.08rem;
   }
 }
-/deep/ .van-field__right-icon {
+::v-deep .van-field__right-icon {
   transform: scale(1.5);
   margin-left: 1rem;
 }

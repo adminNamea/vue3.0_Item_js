@@ -324,13 +324,13 @@ export default {
 };
 </script>
 <style lang='scss' scoped>
-/deep/ .van-cell::after {
+::v-deep .van-cell::after {
   transform: scale(1);
 }
 .not {
   font-size: 0.8rem;
 }
-/deep/.van-cell:not(.not) .van-cell__title {
+::v-deep.van-cell:not(.not) .van-cell__title {
   padding-left: 1.5rem;
   font-size: 0.8rem;
   &::before {
@@ -344,10 +344,10 @@ export default {
     background-color: #fad23f;
   }
 }
-/deep/ .van-cell__value {
+::v-deep .van-cell__value {
   font-size: 0.8rem;
 }
-/deep/ .van-popup--bottom {
+::v-deep .van-popup--bottom {
   width: 90%;
   left: 5%;
   border-radius: 0.3rem;
@@ -364,11 +364,11 @@ export default {
   margin-top: 1rem;
   font-size: 0.8rem;
 }
-/deep/ .van-dialog__header {
+::v-deep .van-dialog__header {
   padding: 0.7rem;
   background-color: #ffcd11;
 }
-/deep/ .van-dialog {
+::v-deep .van-dialog {
   border-radius: 1rem;
 }
 .popupBody {
@@ -402,7 +402,7 @@ export default {
   background: linear-gradient(to right, #fee568 0%, #fbd01f 100%);
   padding: 0.8rem 0;
   height: 2.2rem;
-  /deep/ .van-field {
+  ::v-deep .van-field {
     margin: 0 auto;
     width: 90%;
     height: 100%;
