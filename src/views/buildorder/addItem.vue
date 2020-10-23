@@ -302,8 +302,15 @@ import card from "@/components/card/index.vue";
 import select from "@/components/select/index.vue";
 import { Dialog } from "vant";
 import dialog from "@/components/dialog/index.vue";
+import { inject } from "vue";
 
 export default {
+  setup() {
+    const options = inject("options");
+    return {
+      options,
+    };
+  },
   props: {
     form: {
       default() {
@@ -361,16 +368,6 @@ export default {
       type: 1,
       // 控制弹框
       show: false,
-      // 下拉框数据
-      options: [
-        { value: 1, text: "保修工单" },
-        { value: 2, text: "内部" },
-        { value: 3, text: "外部" },
-        { value: 4, text: "保养" },
-        { value: 5, text: "交机前检查" },
-        { value: 6, text: "交机" },
-        { value: 7, text: "大修" },
-      ],
       // 弹出的不同的时间
       // 承诺派工时间 1
       // 承诺到达时间 2
@@ -544,18 +541,18 @@ export default {
 };
 </script>
 <style lang='scss' scoped>
-.ve {
-  ::v-deep .van-cell__value {
+::v-deep .ve {
+  .van-cell__value {
     margin-right: 1.3rem;
   }
 }
-.vanButton {
+::v-deep .vanButton {
   display: flex;
   justify-content: space-around;
-  ::v-deep .van-button {
+  .van-button {
     width: 35%;
   }
-  ::v-deep .van-button__content {
+  .van-button__content {
     color: #000;
   }
 }
@@ -587,10 +584,10 @@ export default {
   left: 5%;
   border-radius: 0.3rem;
   .not {
-    ::v-deep .van-cell__title {
+    .van-cell__title {
       font-weight: 700;
     }
-    ::v-deep .van-cell__value {
+    .van-cell__value {
       display: flex;
       flex: 2;
       justify-content: space-between;
@@ -608,12 +605,12 @@ export default {
   margin-top: 1rem;
   font-size: 0.8rem;
 }
-.search {
+::v-deep .search {
   text-align: center;
   background: linear-gradient(to right, #fee568 0%, #fbd01f 100%);
   padding: 0.7rem 0;
   height: 2rem;
-  ::v-deep .van-field {
+  .van-field {
     margin: 0 auto;
     width: 90%;
     height: 100%;
@@ -629,7 +626,7 @@ export default {
 ::v-deep .van-cell::after {
   transform: scale(1);
 }
-::v-deep.van-cell:not(.not) .van-cell__title,
+::v-deep .van-cell:not(.not) .van-cell__title,
 ::v-deep .van-field__label {
   color: #000;
   padding-left: 1.5rem;
@@ -653,9 +650,9 @@ export default {
   box-shadow: 0 -0.05rem 0.1rem 0 rgba(0, 0, 0, 0.25);
   border-radius: 0.08rem;
 }
-.van-form,
-.van-dialog {
-  ::v-deep .van-cell__value:not(.van-field__value) {
+::v-deep .van-form,
+::v-deep .van-dialog {
+  .van-cell__value:not(.van-field__value) {
     text-align: left;
     font-size: 0.8rem;
     flex: none;
@@ -703,7 +700,7 @@ p {
 }
 
 ::v-deep .van-dialog {
-  ::v-deep .van-cell__value {
+  .van-cell__value {
     display: flex;
   }
   .van-field__body {
@@ -737,7 +734,7 @@ p {
 }
 ::v-deep .van-form {
   .checkIcon {
-    ::v-deep .van-cell__value {
+    .van-cell__value {
       display: flex;
       flex: none;
       justify-content: space-between;

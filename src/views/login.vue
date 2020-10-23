@@ -6,13 +6,16 @@
 
 <script>
 import { Dialog } from "vant";
+import { useStore } from "vuex";
+import router from "@/router";
 
 export default {
-  created() {
-    this.$store
+  setup() {
+    const store = useStore();
+    store
       .dispatch("login")
       .then(() => {
-        this.$router.push("index");
+        router.push("index");
       })
       .catch((message) => {
         Dialog({ message });

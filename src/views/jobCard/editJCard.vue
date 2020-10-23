@@ -655,22 +655,22 @@ export default {
     height: 10rem;
   }
 }
-.vanButton {
+::v-deep .vanButton {
   display: flex;
   justify-content: space-around;
-  ::v-deep .van-button {
+  .van-button {
     border-radius: 0.3rem;
     width: 35%;
   }
-  ::v-deep .van-button__content {
+  .van-button__content {
     color: #ffffff;
   }
 }
 .not {
   font-size: 0.8rem;
 }
-.card {
-  ::v-deep .van-field {
+::v-deep .card {
+  .van-field {
     &__label {
       color: #333333;
       align-items: center;
@@ -686,36 +686,34 @@ export default {
       border-radius: 0.08rem;
     }
   }
-  ::v-deep .van-cell::after {
+  .van-cell::after {
     display: none;
   }
 }
-.textarea {
-  ::v-deep .van-field__control {
+::v-deep .textarea {
+  .van-field__control {
     height: 5rem;
   }
 }
-.flex {
-  ::v-deep {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    .van-cell {
-      &__value {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        span {
-          color: rgba(1, 159, 187, 1);
-          flex: 3;
-          text-align: right;
-          padding-right: 5rem;
-        }
+::v-deep .flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  .van-cell {
+    &__value {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      span {
+        color: rgba(1, 159, 187, 1);
+        flex: 3;
+        text-align: right;
+        padding-right: 5rem;
       }
-      &__title {
-        flex: none;
-        width: 4rem;
-      }
+    }
+    &__title {
+      flex: none;
+      width: 4rem;
     }
   }
 }
@@ -726,8 +724,8 @@ export default {
   margin-top: 1rem;
   font-size: 0.8rem;
 }
-.top {
-  ::v-deep .van-cell {
+::v-deep .top {
+  .van-cell {
     font-size: 1.1rem;
     overflow: visible;
     align-items: center;
@@ -775,21 +773,21 @@ export default {
 ::v-deep .van-dialog {
   border-radius: 1rem;
 }
-.stations {
+::v-deep .stations {
   display: flex;
   justify-content: space-between;
   min-height: 3rem !important;
-  ::v-deep .body {
+  .body {
     width: 100%;
   }
 }
-.search {
+::v-deep .search {
   display: flex;
   align-items: center;
   background: linear-gradient(to right, #fee568 0%, #fbd01f 100%);
   padding: 0.5rem 1rem;
   height: 2rem;
-  ::v-deep .van-field {
+  .van-field {
     border-radius: 0.3rem;
     margin: 0 auto;
     width: 90%;

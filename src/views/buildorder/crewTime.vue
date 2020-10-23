@@ -135,8 +135,15 @@
 import card from "@/components/card/index.vue";
 import select from "@/components/select/index.vue";
 import { Dialog } from "vant";
+import { inject } from "vue";
 
 export default {
+  setup() {
+    const options = inject("options");
+    return {
+      options,
+    };
+  },
   props: {
     form: {
       default() {
@@ -174,16 +181,6 @@ export default {
       type: 1,
       // 控制弹框
       show: false,
-      // 下拉框数据
-      options: [
-        { value: 1, text: "保修工单" },
-        { value: 2, text: "内部" },
-        { value: 3, text: "外部" },
-        { value: 4, text: "保养" },
-        { value: 5, text: "交机前检查" },
-        { value: 6, text: "交机" },
-        { value: 7, text: "大修" },
-      ],
       // 弹出的不同的时间
       // 承诺派工时间 1
       // 承诺到达时间 2

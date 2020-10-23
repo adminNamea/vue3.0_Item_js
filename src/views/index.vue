@@ -108,7 +108,7 @@ export default {
         url: "out",
       },
     ];
-    const outLogin = () => {
+    function outLogin() {
       device.notification
         .confirm({
           message: "退出应用?",
@@ -123,8 +123,8 @@ export default {
         .catch((err) => {
           device.notification.alert(`关闭失败--${JSON.stringify(err)}`);
         });
-    };
-    const to = (item) => {
+    }
+    function to(item) {
       if (item.srt !== undefined) {
         sessionStorage.setItem("srt", item.srt);
       }
@@ -133,7 +133,7 @@ export default {
       } else {
         outLogin();
       }
-    };
+    }
     return {
       homeData,
       to,

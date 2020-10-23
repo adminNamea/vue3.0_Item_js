@@ -11,7 +11,7 @@
           v-model="form.serial_number"
           placeholder="请输入机身编号  (必填)"
           label="机身编号："
-          @blur="tpMachineInfo"
+          @blur="getTpMachineInfo"
           :rules="[{ required: true }]"
         />
         <van-field
@@ -72,19 +72,41 @@
 <script>
 import card from "@/components/card/index.vue";
 import select from "@/components/select/index.vue";
+import http from "@/service/http";
+import { inject } from "vue";
 
 export default {
-  setup() {
-    const options = [
-      { value: 1, text: "保修工单" },
-      { value: 2, text: "内部" },
-      { value: 3, text: "外部" },
-      { value: 4, text: "保养" },
-      { value: 5, text: "交机前检查" },
-      { value: 6, text: "交机" },
-      { value: 7, text: "大修" },
-    ];
+  setup(p, c) {
+    const options = inject("options");
+    function getTpMachineInfo() {
+      http.tpMachineInfo(p.form.serial_number).then((res) => {
+        p.form.delivery_time = res.create_time;
+        p.form.pl_location = res.location;
+      });
+    }
+    function isModel() {
+      if (p.form.itemList) {
+        p.form.item.forEach((it) => {
+          const item = p.form.itemList.find(
+            (m) => m.item_name === it.item_name
+          );
+          const model = item.model.find((m) => m.model_name === p.form.model);
+          if (model && model.item_model_cost_time) {
+            it.type_model_id = model.type_model_id;
+            it.item_cost_time = model.item_model_cost_time;
+          } else {
+            it.item_cost_time = item.item_cost_time;
+          }
+        });
+      }
+    }
+    function onSubmit() {
+      c.emit("next");
+    }
     return {
+      isModel,
+      getTpMachineInfo,
+      onSubmit,
       options,
     };
   },
@@ -99,35 +121,6 @@ export default {
   components: {
     card,
     "select-a": select,
-  },
-  methods: {
-    tpMachineInfo() {
-      this.$api.tpMachineInfo(this.form.serial_number).then((res) => {
-        this.form.delivery_time = res.create_time;
-        this.form.pl_location = res.location;
-      });
-    },
-    isModel() {
-      if (this.form.itemList) {
-        this.form.item.forEach((it) => {
-          const item = this.form.itemList.find(
-            (m) => m.item_name === it.item_name
-          );
-          const model = item.model.find(
-            (m) => m.model_name === this.form.model
-          );
-          if (model && model.item_model_cost_time) {
-            it.type_model_id = model.type_model_id;
-            it.item_cost_time = model.item_model_cost_time;
-          } else {
-            it.item_cost_time = item.item_cost_time;
-          }
-        });
-      }
-    },
-    onSubmit() {
-      this.$emit("next");
-    },
   },
 };
 </script>

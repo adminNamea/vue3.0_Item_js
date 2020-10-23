@@ -47,7 +47,7 @@
           </template>
         </van-cell>
       </div>
-      <div class="dialogBody" style="height: 17rem; overflow: auto">
+      <div class="dialogBody" style="max-height: 11rem; overflow: auto">
         <van-cell
           v-for="(item, index) in preStationList"
           :key="index"
@@ -214,8 +214,15 @@ import select from "@/components/select/index.vue";
 import calendarSelect from "@/components/calendarSelect/index.vue";
 import dialog from "@/components/dialog/index.vue";
 import { Dialog } from "vant";
+import { inject } from "vue";
 
 export default {
+  setup() {
+    const options = inject("options");
+    return {
+      options,
+    };
+  },
   props: {
     form: {
       default() {
@@ -295,16 +302,6 @@ export default {
       checkedIcon: require("@/assets/img/choice-blue.png"),
       // 未选中图标
       noCheckedIcon: require("@/assets/img/choice-gray.png"),
-      // 下拉框数据
-      options: [
-        { value: 0, text: "保修工单" },
-        { value: 1, text: "内部" },
-        { value: 2, text: "外部" },
-        { value: 3, text: "保养" },
-        { value: 4, text: "交机" },
-        { value: 5, text: "交机前检查" },
-        { value: 6, text: "大修" },
-      ],
       // 要删除的工位
       delItem: {},
       delShow: false,
@@ -459,14 +456,14 @@ export default {
   width: 100%;
   text-align: left;
 }
-.card {
+::v-deep .card {
   .cardTltle {
     border-radius: 0.5rem 0.5rem 0 0;
   }
   .van-cell {
     border-radius: 1rem;
   }
-  ::v-deep .visible {
+  .visible {
     overflow: visible;
     .van-cell__value {
       overflow: visible;
@@ -503,13 +500,13 @@ export default {
     height: 2.6rem;
   }
 }
-.vanButton {
+::v-deep .vanButton {
   display: flex;
   justify-content: space-around;
-  ::v-deep .van-button {
+  .van-button {
     width: 35%;
   }
-  ::v-deep .van-button__content {
+  .van-button__content {
     color: #000;
   }
 }
@@ -542,8 +539,8 @@ export default {
     border-bottom: 1px solid #dadada;
   }
 }
-.card {
-  ::v-deep .van-cell__value {
+::v-deep .card {
+  .van-cell__value {
     display: flex;
     align-items: center;
     width: 70%;
@@ -551,13 +548,13 @@ export default {
     flex-wrap: wrap;
   }
 }
-.dialogButton {
+::v-deep .dialogButton {
   width: 100%;
   margin: 1rem 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  ::v-deep .van-button {
+  .van-button {
     .van-button__content {
       color: #000;
     }
@@ -566,19 +563,19 @@ export default {
     color: #000;
   }
 }
-.dialogBody,
-.dialogTitle {
-  ::v-deep .van-cell {
+::v-deep .dialogBody,
+::v-deep .dialogTitle {
+  .van-cell {
     display: flex;
     align-items: center;
     justify-content: flex-start;
   }
-  ::v-deep .van-cell__title {
+  .van-cell__title {
     font-size: 0.7rem;
     flex: none;
     width: 80%;
   }
-  ::v-deep .van-cell__value {
+  .van-cell__value {
     font-size: 0.7rem;
     display: flex;
   }
@@ -602,7 +599,7 @@ export default {
     width: 2.5rem;
     float: right;
   }
-  ::v-deep .van-field {
+  .van-field {
     width: 70%;
     height: 100%;
     display: flex;
@@ -652,7 +649,7 @@ p {
     border-radius: 1rem;
   }
 }
-::v-deep.dialog.delDialog {
+::v-deep .dialog.delDialog {
   .info {
     display: inline-block;
     margin: 1rem;

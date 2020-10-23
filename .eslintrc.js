@@ -14,6 +14,7 @@ module.exports = {
     parser: 'babel-eslint',
   },
   rules: {
+    'object-curly-newline': 'off',
     'guard-for-in': 'off',
     'no-await-in-loop': 'off',
     'no-restricted-syntax': 'off',

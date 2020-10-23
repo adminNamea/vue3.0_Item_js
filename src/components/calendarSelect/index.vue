@@ -14,7 +14,7 @@
       v-model:show="show"
       @open="open"
       class="calendarSelect"
-      get-container="#app"
+      teleport="#app"
       confirm-button-color="#FFCD6E"
       :close-on-click-overlay="true"
       confirm-button-text="预约"

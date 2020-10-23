@@ -29,6 +29,7 @@ import img1 from "@/assets/img/基本信息.png";
 import img2 from "@/assets/img/人员时间.png";
 import img3 from "@/assets/img/新增项目.png";
 import img4 from "@/assets/img/完成.png";
+import { computed, reactive, ref, provide } from "vue";
 import info from "./info.vue";
 import crewTime from "./crewTime.vue";
 import addItem from "./addItem.vue";
@@ -46,10 +47,75 @@ export default {
     complete,
     station,
   },
-  computed: {
-    stepDate() {
+  setup() {
+    provide("options", [
+      { value: 1, text: "保修工单" },
+      { value: 2, text: "内部" },
+      { value: 3, text: "外部" },
+      { value: 4, text: "保养" },
+      { value: 5, text: "交机前检查" },
+      { value: 6, text: "交机" },
+      { value: 7, text: "大修" },
+    ]);
+    const form = reactive({
+      // 选中的主修数据
+      checkedMajor: {},
+      // 选中的副修数据
+      minorData: [],
+      // 机身编号
+      serial_number: "",
+      // 机型
+      model: "",
+      // 机器地址
+      m_location: "",
+      // 运行小时数
+      total_hour: "",
+      // 交机日期
+      delivery_time: "",
+      // PL机器地址
+      pl_location: "",
+      // 客户名
+      custom_name: "",
+      // 客户编号
+      custom_number: "",
+      // 客户电话
+      custom_phone: "",
+      // 联系人
+      contact_name: "",
+      // 联系电话
+      phone: "",
+      // 主修
+      major_user_id: 0,
+      // 副修
+      minor_user_id: [],
+      // 承诺派工时间
+      promise_work_time: "",
+      // 承诺到达时间
+      promise_time: "",
+      // 承诺完成时间
+      promise_finish_time: "",
+      // 是否停机
+      is_halt: 0,
+      // 服务车牌号
+      service_car: "",
+      // 客户反馈
+      order_reason: "",
+      // 备注
+      order_note: "",
+      // 项目
+      item: [],
+      // 工位
+      station: [],
+      // 工单类型
+      order_type: 1,
+    });
+    const width = ref(0);
+    const active = ref(0);
+    const status = ref(0);
+    const comName = ref("info");
+    const stepDate = computed(() => {
       const obj =
-        this.form.order_type === 7
+        form.order_type === 7
           ? { img, text: "工位选择", name: "station" }
           : { img, text: "其他", name: "other" };
       return [
@@ -75,102 +141,31 @@ export default {
           name: "complete",
         },
       ];
-    },
-  },
-  data() {
-    return {
-      form: {
-        // 选中的主修数据
-        checkedMajor: {},
-        // 选中的副修数据
-        minorData: [],
-        // 机身编号
-        serial_number: "",
-        // 机型
-        model: "",
-        // 机器地址
-        m_location: "",
-        // 运行小时数
-        total_hour: "",
-        // 交机日期
-        delivery_time: "",
-        // PL机器地址
-        pl_location: "",
-        // 客户名
-        custom_name: "",
-        // 客户编号
-        custom_number: "",
-        // 客户电话
-        custom_phone: "",
-        // 联系人
-        contact_name: "",
-        // 联系电话
-        phone: "",
-        // 主修
-        major_user_id: 0,
-        // 副修
-        minor_user_id: [],
-        // 承诺派工时间
-        promise_work_time: "",
-        // 承诺到达时间
-        promise_time: "",
-        // 承诺完成时间
-        promise_finish_time: "",
-        // 是否停机
-        is_halt: 0,
-        // 服务车牌号
-        service_car: "",
-        // 客户反馈
-        order_reason: "",
-        // 备注
-        order_note: "",
-        // 项目
-        item: [
-          // {
-          //   // 项目类型
-          //   item_type: 0,
-          //   // 项目id
-          //   item_type_id: 0,
-          //   // 是否厂内
-          //   is_factory: 0,
-          //   // 零件需求日期
-          //   deadline_parts_time: "",
-          //   // 零件领取日期
-          //   real_parts_time: "",
-          //   // 工时
-          //   tem_cost_time: 1,
-          //   // 工作代码
-          //   operate_code: "",
-          //   // 零件代码
-          //   parts_code: "",
-          // },
-        ],
-        // 工位
-        station: [],
-        // 工单类型
-        order_type: 1,
-      },
-      width: 0,
-      active: 0,
-      status: 0,
-      comName: "info",
-    };
-  },
-  methods: {
-    next() {
-      this.active += 1;
-      this.status += 1;
-      this.width = this.active * 22;
-      this.comName = this.stepDate[this.active].name;
-    },
-    stepClick(index, name) {
-      if (this.status > index) {
-        this.width = index * 22;
-        this.active = index;
-        this.comName = name;
-        this.status = index;
+    });
+    function next() {
+      active.value += 1;
+      status.value += 1;
+      width.value = active.value * 22;
+      comName.value = stepDate.value[active.value].name;
+    }
+    function stepClick(index, name) {
+      if (status.value > index) {
+        width.value = index * 22;
+        active.value = index;
+        comName.value = name;
+        status.value = index;
       }
-    },
+    }
+    return {
+      form,
+      width,
+      active,
+      status,
+      comName,
+      stepDate,
+      next,
+      stepClick,
+    };
   },
 };
 </script>

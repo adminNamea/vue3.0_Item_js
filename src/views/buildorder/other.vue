@@ -78,8 +78,8 @@ export default {
 };
 </script>
 <style lang='scss' scoped>
-.checkIcon {
-  ::v-deep .van-cell__value {
+::v-deep .checkIcon {
+  .van-cell__value {
     display: flex;
     flex: none;
     justify-content: space-between;
@@ -97,7 +97,7 @@ export default {
     }
   }
 }
-::v-deep.van-cell .van-cell__title {
+::v-deep .van-cell .van-cell__title {
   color: #000;
   padding-left: 1.5rem;
   font-size: 0.8rem;
@@ -132,10 +132,10 @@ p {
     margin-right: 1.5rem;
   }
 }
-.textarea {
+::v-deep .textarea {
   height: 7rem;
-  ::v-deep .van-field__body,
-  ::v-deep .van-field__control {
+  .van-field__body,
+  .van-field__control {
     height: 100%;
     overflow: visible;
   }

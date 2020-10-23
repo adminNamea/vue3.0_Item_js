@@ -116,4 +116,5 @@ app.config.globalProperties.delOSS = async (name) => {
 app
   .use(store)
   .use(router)
-  .use(Vant).mount('#app');
+  .use(Vant);
+router.isReady().then(() => app.mount('#app'));
