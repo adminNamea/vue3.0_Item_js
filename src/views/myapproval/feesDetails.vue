@@ -170,7 +170,7 @@ p {
 }
 .textarea {
   padding-left: 0;
-  ::v-deep .van-field__control {
+  ::v-deep() .van-field__control {
     color: #666666;
     font-size: 0.8rem;
     padding-left: 0.5rem;

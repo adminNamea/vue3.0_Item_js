@@ -30,20 +30,6 @@ export default {
       ...p,
     };
   },
-  // props: {
-  //   left: {
-  //     default() {
-  //       return [];
-  //     },
-  //     type: Array,
-  //   },
-  //   right: {
-  //     default() {
-  //       return [];
-  //     },
-  //     type: Array,
-  //   },
-  // },
   data() {
     return {
       li: 0,

@@ -3,7 +3,8 @@ import qs from 'qs';
 
 axios.defaults.timeout = 100000;
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8';
-axios.defaults.baseURL = process.env.VUE_APP_API;
+const isNoD = false; // process.env.NODE_ENV !== 'development'
+axios.defaults.baseURL = `https://${isNoD ? 'internal' : 'dni'}.cel-cat.com.cn/xcadmin/public/index.php/woapi/`;
 // POST传参序列化(添加请求拦截器)
 axios.interceptors.request.use((config) => {
   // 判断是否存在token，如果存在的话，则每个http header都加上token

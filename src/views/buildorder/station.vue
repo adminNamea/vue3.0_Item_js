@@ -1,5 +1,5 @@
 <template>
-  <div class="station">
+  <div>
     <!-- 删除提示框 -->
     <a-dialog
       class="delDialog"
@@ -47,7 +47,7 @@
           </template>
         </van-cell>
       </div>
-      <div class="dialogBody" style="max-height: 11rem; overflow: auto">
+      <div class="dialogBody" style="height: 17rem; overflow: auto">
         <van-cell
           v-for="(item, index) in preStationList"
           :key="index"
@@ -130,81 +130,61 @@
         >
       </div>
     </van-popup>
-    <card title="工单类型：">
-      <template #right>
-        <select-a
-          v-model="form.order_type"
-          :options="options"
-          @select="select"
-        ></select-a>
-      </template>
-      <p>
-        工位选择
-        <span class="rightTitle" @click="addStation({})">添加</span>
-        <span class="rightTitle" @click="showDialog = true">引用预约工位</span>
-      </p>
-      <div style="min-height: 35rem; overflow: auto; width: 100%">
-        <card
-          v-for="(station, i) in form.station"
-          :key="i"
-          :top="false"
-          :hed="false"
-          style="width: 95%; margin: 1rem auto"
-        >
-          <div class="cardTltle">
-            <span>添加工位{{ i + 1 }}</span>
-            <img src="@/assets/img/del.png" @click="delStation(i)" />
-          </div>
-          <van-cell title="选择时间：" is-link>
-            <calendarSelect
-              v-model:sDate="station.sdate"
-              v-model:eDate="station.edate"
-            ></calendarSelect>
-          </van-cell>
-          <van-cell title="选择工位：" class="visible">
-            <select-a
-              v-model="station.station_id"
-              :options="stationList"
-            ></select-a>
-          </van-cell>
-          <van-cell title="选择人员：" @click="showSelect(2, station)" is-link>
-            <div
-              class="crew"
-              v-for="(item, index) in station.crew"
-              :key="index"
-            >
-              {{ item.name_cn }}
-              <img
-                src="@/assets/img/del.png"
-                @click.stop="delEvent(station, index, 'crew')"
-              />
-            </div>
-          </van-cell>
-          <van-cell title="选择项目：" @click="showSelect(1, station)" is-link>
-            <div
-              class="crew"
-              v-for="(item, index) in station.project"
-              :key="index"
-            >
-              {{ item.item_name }}
-              <img
-                src="@/assets/img/del.png"
-                @click.stop="delEvent(station, index, 'project')"
-              />
-            </div>
-          </van-cell>
-        </card>
-      </div>
-    </card>
-    <div style="margin-top: 1rem">
-      <van-button
-        round
-        block
-        color="linear-gradient(to right, #FFCD11, #FFE775)"
-        native-type="submit"
-        @click="onSubmit"
-        >下一步</van-button
+    <p>
+      工位选择
+      <span class="rightTitle" @click="addStation({})">添加</span>
+      <span class="rightTitle" @click="showDialog = true">引用预约工位</span>
+    </p>
+    <div style="height: 35rem; overflow: auto; width: 100%">
+      <card
+        v-for="(station, i) in form.station"
+        :key="i"
+        :top="false"
+        :hed="false"
+        style="width: 95%; margin: 1rem auto; overflow: visible"
       >
+        <div class="cardTltle">
+          <span>添加工位{{ i + 1 }}</span>
+          <img src="@/assets/img/del.png" @click="delStation(i)" />
+        </div>
+        <van-cell title="选择时间：" is-link>
+          <calendarSelect
+            @opendate="(v) => nextOrPrev(station.station_id, v)"
+            @nextorprev="(v) => nextOrPrev(station.station_id, v)"
+            :details="details"
+            v-model:sDate="station.sdate"
+            v-model:eDate="station.edate"
+          ></calendarSelect>
+        </van-cell>
+        <van-cell title="选择工位：" class="visible">
+          <select-a
+            v-model="station.station_id"
+            :options="stationList"
+          ></select-a>
+        </van-cell>
+        <van-cell title="选择人员：" @click="showSelect(2, station)" is-link>
+          <div class="crew" v-for="(item, index) in station.crew" :key="index">
+            {{ item.name_cn }}
+            <img
+              src="@/assets/img/del.png"
+              @click.stop="delEvent(station, index, 'crew')"
+            />
+          </div>
+        </van-cell>
+        <van-cell title="选择项目：" @click="showSelect(1, station)" is-link>
+          <div
+            class="crew"
+            v-for="(item, index) in station.project"
+            :key="index"
+          >
+            {{ item.item_name }}
+            <img
+              src="@/assets/img/del.png"
+              @click.stop="delEvent(station, index, 'project')"
+            />
+          </div>
+        </van-cell>
+      </card>
     </div>
   </div>
 </template>
@@ -214,15 +194,8 @@ import select from "@/components/select/index.vue";
 import calendarSelect from "@/components/calendarSelect/index.vue";
 import dialog from "@/components/dialog/index.vue";
 import { Dialog } from "vant";
-import { inject } from "vue";
 
 export default {
-  setup() {
-    const options = inject("options");
-    return {
-      options,
-    };
-  },
   props: {
     form: {
       default() {
@@ -241,7 +214,6 @@ export default {
   computed: {
     // 维修人员数据
     userList() {
-      console.log(this.form.item);
       const major = this.form.checkedMajor.userid || "";
       const arr = [...this.form.minorData];
       if (major) {
@@ -274,8 +246,6 @@ export default {
       stationList: [],
       // 预约工位数据
       preStationList: [],
-      // 项目数据
-      itemList: [],
       // 弹出类型
       // 1项目
       // 2人员
@@ -305,9 +275,15 @@ export default {
       // 要删除的工位
       delItem: {},
       delShow: false,
+      details: {},
     };
   },
   methods: {
+    nextOrPrev(station_id, month) {
+      this.$api.getStationInfo({ station_id, month }).then((res) => {
+        this.details = res.details;
+      });
+    },
     select(item) {
       if (item.value !== 7) {
         this.$emit("update:comName", "other");
@@ -388,12 +364,11 @@ export default {
     },
     // 人员选择事件
     checkedClick(item) {
-      const status = this.checkedData.forEach((obj, index) => {
+      const status = this.checkedData.find((obj, index) => {
         if (obj === item) {
           this.checkedData.splice(index, 1);
-          return false;
+          return true;
         }
-        return true;
       });
       if (!status) {
         this.checkedData.push(item);
@@ -433,21 +408,6 @@ export default {
         ? this.checkedIcon
         : this.noCheckedIcon;
     },
-    onSubmit() {
-      let status = true;
-      this.form.station.forEach((v) => {
-        if (v.sdate === "" || v.station_id === "") {
-          status = false;
-          return false;
-        }
-        return true;
-      });
-      if (status) {
-        this.$emit("next");
-      } else {
-        Dialog({ message: "请填写完整时间和工位" });
-      }
-    },
   },
 };
 </script>
@@ -456,7 +416,7 @@ export default {
   width: 100%;
   text-align: left;
 }
-::v-deep .card {
+::v-deep() .card {
   .cardTltle {
     border-radius: 0.5rem 0.5rem 0 0;
   }
@@ -487,10 +447,10 @@ export default {
     }
   }
 }
-::v-deep .van-cell::after {
+.van-cell::after {
   transform: scale(1);
 }
-::v-deep .van-popup--bottom {
+.van-popup--bottom {
   width: 90%;
   left: 5%;
   border-radius: 0.3rem;
@@ -500,7 +460,7 @@ export default {
     height: 2.6rem;
   }
 }
-::v-deep .vanButton {
+::v-deep() .vanButton {
   display: flex;
   justify-content: space-around;
   .van-button {
@@ -539,7 +499,7 @@ export default {
     border-bottom: 1px solid #dadada;
   }
 }
-::v-deep .card {
+::v-deep() .card {
   .van-cell__value {
     display: flex;
     align-items: center;
@@ -548,7 +508,7 @@ export default {
     flex-wrap: wrap;
   }
 }
-::v-deep .dialogButton {
+::v-deep() .dialogButton {
   width: 100%;
   margin: 1rem 0;
   display: flex;
@@ -563,8 +523,8 @@ export default {
     color: #000;
   }
 }
-::v-deep .dialogBody,
-::v-deep .dialogTitle {
+::v-deep() .dialogBody,
+::v-deep() .dialogTitle {
   .van-cell {
     display: flex;
     align-items: center;
@@ -583,7 +543,7 @@ export default {
     border-bottom: 0.05rem solid rgba(67, 67, 67, 0.4);
   }
 }
-.dialogSearch {
+::v-deep() .dialogSearch {
   text-align: center;
   padding: 0.8rem 0;
   height: 2.2rem;
@@ -649,7 +609,7 @@ p {
     border-radius: 1rem;
   }
 }
-::v-deep .dialog.delDialog {
+::v-deep() .dialog.delDialog {
   .info {
     display: inline-block;
     margin: 1rem;

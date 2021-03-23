@@ -1,115 +1,59 @@
 <template>
   <div class="info">
-    <van-form @submit="onSubmit" ref="form">
-      <card class="body" title="工单类型：">
-        <template #right>
-          <select-a v-model="form.order_type" :options="options"></select-a>
-        </template>
-
-        <p>机器信息</p>
-        <van-field
-          v-model="form.serial_number"
-          placeholder="请输入机身编号  (必填)"
-          label="机身编号："
-          @blur="getTpMachineInfo"
-          :rules="[{ required: true }]"
-        />
-        <van-field
-          v-model="form.model"
-          label="机型："
-          placeholder="请输入机型  (必填)"
-          @input="isModel"
-          :rules="[{ required: true }]"
-        />
-        <van-field
-          v-model="form.m_location"
-          label="机器地址："
-          placeholder="请输入机器地址  (必填)"
-          :rules="[{ required: true }]"
-        />
-        <van-field
-          v-model="form.total_hour"
-          placeholder="请输入运行小时数  (必填)"
-          label="运行小时数："
-          :rules="[{ required: true }]"
-        />
-        <van-field v-model="form.delivery_time" label="交机日期：" readonly />
-        <van-field v-model="form.pl_location" readonly label="PL机器地址：" />
-        <p>客户信息</p>
-        <van-field
-          v-model="form.custom_name"
-          label="客户名："
-          placeholder="请输入客户名  (必填)"
-          :rules="[{ required: true }]"
-        />
-        <van-field v-model="form.custom_number" label="客户编号：" />
-        <van-field v-model="form.custom_phone" label="客户电话：" />
-        <van-field
-          v-model="form.contact_name"
-          label="联系人："
-          placeholder="请输入联系人  (必填)"
-          :rules="[{ required: true }]"
-        />
-        <van-field
-          v-model="form.phone"
-          label="联系人电话："
-          placeholder="请输入联系人电话  (必填)"
-          :rules="[{ required: true }]"
-        />
-      </card>
-      <div style="margin-top: 1rem">
-        <van-button
-          round
-          block
-          color="linear-gradient(to right, #FFCD11, #FFE775)"
-          native-type="submit"
-          >下一步</van-button
-        >
-      </div>
-    </van-form>
+    <p>机器信息</p>
+    <van-field
+      v-model="form.serial_number"
+      placeholder="请输入机身编号  (必填)"
+      label="机身编号："
+      @blur="tpMachineInfo"
+      :rules="[{ required: true }]"
+    />
+    <van-field
+      v-model="form.model"
+      label="机型："
+      placeholder="请输入机型  (必填)"
+      @input="isModel"
+      :rules="[{ required: true }]"
+    />
+    <van-field
+      v-model="form.m_location"
+      label="机器地址："
+      placeholder="请输入机器地址  (必填)"
+      :rules="[{ required: true }]"
+    />
+    <van-field
+      v-model="form.total_hour"
+      placeholder="请输入运行小时数  (必填)"
+      label="运行小时数："
+      :rules="[{ required: true }]"
+    />
+    <van-field v-model="form.delivery_time" label="交机日期：" readonly />
+    <van-field v-model="form.pl_location" readonly label="PL机器地址：" />
+    <p>客户信息</p>
+    <van-field
+      v-model="form.custom_name"
+      label="客户名："
+      placeholder="请输入客户名  (必填)"
+      :rules="[{ required: true }]"
+    />
+    <van-field v-model="form.custom_number" label="客户编号：" />
+    <van-field v-model="form.custom_phone" label="客户电话：" />
+    <van-field
+      v-model="form.contact_name"
+      label="联系人："
+      placeholder="请输入联系人  (必填)"
+      :rules="[{ required: true }]"
+    />
+    <van-field
+      v-model="form.phone"
+      label="联系人电话："
+      placeholder="请输入联系人电话  (必填)"
+      :rules="[{ required: true }]"
+    />
   </div>
 </template>
 <script>
-import card from "@/components/card/index.vue";
-import select from "@/components/select/index.vue";
-import http from "@/service/http";
-import { inject } from "vue";
-
 export default {
-  setup(p, c) {
-    const options = inject("options");
-    function getTpMachineInfo() {
-      http.tpMachineInfo(p.form.serial_number).then((res) => {
-        p.form.delivery_time = res.create_time;
-        p.form.pl_location = res.location;
-      });
-    }
-    function isModel() {
-      if (p.form.itemList) {
-        p.form.item.forEach((it) => {
-          const item = p.form.itemList.find(
-            (m) => m.item_name === it.item_name
-          );
-          const model = item.model.find((m) => m.model_name === p.form.model);
-          if (model && model.item_model_cost_time) {
-            it.type_model_id = model.type_model_id;
-            it.item_cost_time = model.item_model_cost_time;
-          } else {
-            it.item_cost_time = item.item_cost_time;
-          }
-        });
-      }
-    }
-    function onSubmit() {
-      c.emit("next");
-    }
-    return {
-      isModel,
-      getTpMachineInfo,
-      onSubmit,
-      options,
-    };
-  },
   props: {
     form: {
       default() {
@@ -118,14 +62,45 @@ export default {
       type: Object,
     },
   },
-  components: {
-    card,
-    "select-a": select,
+  methods: {
+    tpMachineInfo() {
+      this.$api
+        .tpMachineInfo(this.form.serial_number)
+        .then((res) => {
+          if (res.delivery_time) this.form.delivery_time = res.delivery_time;
+          if (res.m_location) this.form.pl_location = res.m_location;
+          if (res.phone) this.form.phone = res.phone;
+          if (res.contact_name) this.form.contact_name = res.contact_name;
+          if (res.custom_name) this.form.custom_name = res.custom_name;
+          if (res.total_hour) this.form.total_hour = res.total_hour;
+          if (res.model) this.form.model = res.model;
+        })
+        .catch((e) => console.log(e));
+    },
+    isModel() {
+      if (this.form.itemList) {
+        const modelN = this.form.model;
+        this.form.item.forEach((it) => {
+          const item = this.form.itemList.find(
+            (m) => m.item_name === it.item_name
+          );
+          const model = item.model.find(
+            (m) => modelN >= m.model_start_number && modelN < m.model_end_number
+          );
+          if (model && model.item_model_cost_time) {
+            it.type_model_id = model.type_model_id;
+            it.item_cost_time = model.item_model_cost_time;
+          } else {
+            it.item_cost_time = item.item_cost_time;
+          }
+        });
+      }
+    },
   },
 };
 </script>
 <style lang='scss' scoped>
-::v-deep .van-field__label {
+::v-deep() .van-field__label {
   width: 35%;
   padding-left: 1.5rem;
   color: #000;
@@ -141,7 +116,7 @@ export default {
     background-color: #fad23f;
   }
 }
-::v-deep .van-field__control {
+::v-deep() .van-field__control {
   font-size: 0.8rem;
   padding-left: 0.5rem;
   &:not([readonly]) {

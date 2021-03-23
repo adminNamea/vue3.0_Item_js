@@ -645,7 +645,7 @@ export default {
 .min {
   transform: scale(0.6);
 }
-::v-deep.dialog.delDialog {
+::v-deep() .dialog.delDialog {
   .info {
     display: inline-block;
     margin: 1rem;
@@ -655,7 +655,7 @@ export default {
     height: 10rem;
   }
 }
-::v-deep .vanButton {
+::v-deep() .vanButton {
   display: flex;
   justify-content: space-around;
   .van-button {
@@ -669,7 +669,7 @@ export default {
 .not {
   font-size: 0.8rem;
 }
-::v-deep .card {
+::v-deep() .card {
   .van-field {
     &__label {
       color: #333333;
@@ -690,12 +690,12 @@ export default {
     display: none;
   }
 }
-::v-deep .textarea {
+::v-deep() .textarea {
   .van-field__control {
     height: 5rem;
   }
 }
-::v-deep .flex {
+::v-deep() .flex {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -724,7 +724,7 @@ export default {
   margin-top: 1rem;
   font-size: 0.8rem;
 }
-::v-deep .top {
+::v-deep() .top {
   .van-cell {
     font-size: 1.1rem;
     overflow: visible;
@@ -766,14 +766,14 @@ export default {
     }
   }
 }
-::v-deep .van-dialog__header {
+::v-deep() .van-dialog__header {
   padding: 0.7rem;
   background-color: #ffcd11;
 }
-::v-deep .van-dialog {
+::v-deep() .van-dialog {
   border-radius: 1rem;
 }
-::v-deep .stations {
+::v-deep() .stations {
   display: flex;
   justify-content: space-between;
   min-height: 3rem !important;
@@ -781,7 +781,7 @@ export default {
     width: 100%;
   }
 }
-::v-deep .search {
+::v-deep() .search {
   display: flex;
   align-items: center;
   background: linear-gradient(to right, #fee568 0%, #fbd01f 100%);
@@ -832,7 +832,7 @@ export default {
     }
   }
 }
-::v-deep .van-popup--bottom {
+::v-deep() .van-popup--bottom {
   width: 90%;
   left: 5%;
   border-radius: 0.3rem;

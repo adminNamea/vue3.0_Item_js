@@ -15,21 +15,44 @@
         </div>
       </div>
     </div>
-    <component
-      v-model:comName="comName"
-      v-model:form="form"
-      @next="next"
-      :is="comName"
-    ></component>
+    <van-form class="vanForm" ref="formRef" :show-error="true">
+      <card title="工单类型：">
+        <template #right>
+          <select-a
+            v-show="comName !== 'other'"
+            v-model="form.order_type"
+            @select="select"
+            :options="options"
+          ></select-a>
+        </template>
+        <component
+          v-model:comName="comName"
+          v-model:form="form"
+          :is="comName"
+        ></component>
+      </card>
+      <div v-sticky>
+        <van-button
+          round
+          block
+          color="linear-gradient(to right, #FFCD11, #FFE775)"
+          @click="submit"
+          >{{ comName == "complete" ? "完成" : "下一步" }}</van-button
+        >
+      </div>
+    </van-form>
   </div>
 </template>
 <script>
+import { Dialog, Toast } from "vant";
 import img from "@/assets/img/其他.png";
 import img1 from "@/assets/img/基本信息.png";
 import img2 from "@/assets/img/人员时间.png";
 import img3 from "@/assets/img/新增项目.png";
 import img4 from "@/assets/img/完成.png";
-import { computed, reactive, ref, provide } from "vue";
+import { computed, reactive, ref, inject } from "vue";
+import card from "@/components/card/index.vue";
+import select from "@/components/select/index.vue";
 import info from "./info.vue";
 import crewTime from "./crewTime.vue";
 import addItem from "./addItem.vue";
@@ -40,6 +63,8 @@ import station from "./station.vue";
 export default {
   name: "buildorder",
   components: {
+    card,
+    "select-a": select,
     info,
     crewTime,
     addItem,
@@ -48,7 +73,8 @@ export default {
     station,
   },
   setup() {
-    provide("options", [
+    const reload = inject("reload");
+    const options = [
       { value: 1, text: "保修工单" },
       { value: 2, text: "内部" },
       { value: 3, text: "外部" },
@@ -56,7 +82,7 @@ export default {
       { value: 5, text: "交机前检查" },
       { value: 6, text: "交机" },
       { value: 7, text: "大修" },
-    ]);
+    ];
     const form = reactive({
       // 选中的主修数据
       checkedMajor: {},
@@ -113,6 +139,14 @@ export default {
     const active = ref(0);
     const status = ref(0);
     const comName = ref("info");
+    function stepClick(index, name) {
+      if (status.value > index) {
+        width.value = index * 22;
+        active.value = index;
+        comName.value = name;
+        status.value = index;
+      }
+    }
     const stepDate = computed(() => {
       const obj =
         form.order_type === 7
@@ -142,36 +176,109 @@ export default {
         },
       ];
     });
-    function next() {
-      active.value += 1;
-      status.value += 1;
-      width.value = active.value * 22;
-      comName.value = stepDate.value[active.value].name;
-    }
-    function stepClick(index, name) {
-      if (status.value > index) {
-        width.value = index * 22;
-        active.value = index;
-        comName.value = name;
-        status.value = index;
-      }
-    }
     return {
+      reload,
       form,
       width,
       active,
       status,
       comName,
       stepDate,
-      next,
+      options,
       stepClick,
     };
+  },
+  methods: {
+    select(item) {
+      if (this.comName === "station" && item.value !== 7) {
+        this.comName = "other";
+      }
+    },
+    submit() {
+      let status = true;
+      if (this.comName === "station") {
+        status = this.stationSubmit();
+      }
+      if (this.comName === "complete") {
+        status = this.completeSubmit();
+      }
+      if (this.comName === "crewTime") {
+        status = this.crewTimeSubmit();
+      }
+      if (status) {
+        this.$refs.formRef
+          .validate()
+          .then(() => {
+            this.active++;
+            this.status++;
+            this.width = this.active * 22;
+            this.comName = this.stepDate[this.active].name;
+          })
+          .catch(() => console.log(false));
+      }
+    },
+    crewTimeSubmit() {
+      if (
+        this.form.promise_time &&
+        this.form.promise_work_time &&
+        this.form.promise_finish_time
+      ) {
+        this.form.major_user_id = this.form.checkedMajor.userid;
+        this.form.minor_user_id = this.form.minorData.map(
+          (item) => item.userid
+        );
+        return true;
+      }
+      Dialog({ message: "请填写完整时间" });
+      return false;
+    },
+    completeSubmit() {
+      Toast.loading({
+        message: "正在提交",
+        forbidClick: true,
+      });
+      this.form.station.forEach((s) => {
+        if (typeof s.user_id !== "string") {
+          s.user_id = s.user_id.join(",");
+          s.item_key = s.item_key.join(",");
+        }
+      });
+      this.$api
+        .addOrder(this.form)
+        .then((res) => {
+          Toast.clear();
+          Dialog({ message: res.msg });
+          this.reload();
+          sessionStorage.setItem("srt", 0);
+          this.$router.replace({ name: "myorder" });
+        })
+        .catch((message) => {
+          Toast.clear();
+          Dialog({ message });
+        });
+      return false;
+    },
+    stationSubmit() {
+      let status = true;
+      this.form.station.find((v) => {
+        if (v.sdate === "" || v.station_id === "") {
+          status = false;
+          return true;
+        }
+      });
+      if (status) {
+        return true;
+      }
+      Dialog({ message: "请填写完整时间和工位" });
+      return false;
+    },
   },
 };
 </script>
 <style lang='scss' scoped>
 .createSingle {
   height: 100%;
+  margin-top: 1rem;
 }
 .step {
   width: 100%;

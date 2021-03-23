@@ -312,7 +312,7 @@ export default {
     transform: scale(1.4);
   }
 }
-::v-deep.select {
+::v-deep() .select {
   .cell {
     border-radius: 0.2rem;
     width: 5rem;
@@ -323,7 +323,7 @@ export default {
     }
   }
 }
-::v-deep .van-cell {
+::v-deep() .van-cell {
   align-items: center;
   overflow: visible;
   &__value {
@@ -360,7 +360,7 @@ h3 {
   background: #434343;
   color: #ffffff;
 }
-::v-deep .van-uploader__preview-delete {
+::v-deep() .van-uploader__preview-delete {
   background: rgba(0, 0, 0, 0);
   top: -0.8rem;
   right: -0.5rem;
@@ -368,7 +368,7 @@ h3 {
     content: url("del.png");
   }
 }
-::v-deep .van-uploader__preview-image {
+::v-deep() .van-uploader__preview-image {
   width: 4rem;
   height: 4rem;
   .van-image__img {
@@ -376,13 +376,13 @@ h3 {
   }
   overflow: visible;
 }
-::v-deep .upLoad {
+::v-deep() .upLoad {
   overflow: visible;
   margin-left: -0.5rem;
   height: 6.5rem;
   text-align: left;
 }
-::v-deep .van-uploader__wrapper {
+::v-deep() .van-uploader__wrapper {
   flex-wrap: nowrap;
 }
 .preview-cover {
@@ -399,7 +399,7 @@ h3 {
     }
   }
 }
-::v-deep .van-field {
+::v-deep() .van-field {
   padding-right: 1rem;
   &__label {
     color: #333333;
@@ -429,7 +429,7 @@ h3 {
   padding-left: 1rem;
 }
 
-::v-deep .textarea {
+::v-deep() .textarea {
   height: 5rem;
   color: #666666;
   flex: 1;

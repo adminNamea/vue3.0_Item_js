@@ -418,7 +418,7 @@ export default {
   background: linear-gradient(to right, #fee568 0%, #fbd01f 100%);
   padding-top: 0.5rem;
   height: 2.2rem;
-  ::v-deep .van-field {
+  ::v-deep() .van-field {
     margin: 0 auto;
     width: 90%;
     height: 100%;
@@ -430,7 +430,7 @@ export default {
     padding-left: 5%;
   }
 }
-::v-deep .van-popup--bottom {
+::v-deep() .van-popup--bottom {
   width: 90%;
   left: 5%;
   border-radius: 0.3rem;
@@ -487,14 +487,14 @@ export default {
     border-radius: 50%;
   }
 }
-::v-deep .van-icon {
+::v-deep() .van-icon {
   transform: scale(1.2);
 }
 .iconAdd {
   height: 1rem;
   transform: rotate(45deg) scale(1.5);
 }
-::v-deep .van-cell {
+::v-deep() .van-cell {
   overflow: visible;
   display: flex;
   padding: 0.5rem 1.5rem;

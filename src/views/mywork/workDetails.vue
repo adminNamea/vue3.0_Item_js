@@ -36,7 +36,7 @@
         >返回首页</span
       >
       <div class="body">
-        <div class="flex">
+        <div class="flex minP">
           <van-cell
             title="工单号:"
             :value="orderDetails.order_number"
@@ -46,7 +46,7 @@
             :value="orderDetails.ax_number"
           ></van-cell>
         </div>
-        <div class="flex">
+        <div class="flex minP" v-if="orderDetails.is_dispatch !== 0">
           <van-cell
             title="主修:"
             :value="orderDetails.major_user && orderDetails.major_user.name_cn"
@@ -63,7 +63,7 @@
         <div class="flex">
           <van-cell
             title="服务车牌号:"
-            :value="orderDetails.service_car"
+            :value="orderDetails.service_car || ''"
           ></van-cell>
         </div>
         <div class="flex">
@@ -121,10 +121,10 @@
       <div class="left">工单信息</div>
       <van-cell
         class="not"
-        @click="$router.push({ name: 'take5' })"
+        @click="to('take5')"
         title="安全5步法"
         is-link
-        value="未录入"
+        :value="orderDetails.take == 0 ? '未录入' : '已录入'"
       ></van-cell>
       <van-cell
         class="not"
@@ -179,7 +179,10 @@
                 </div>
               </van-cell>
             </div>
-            <van-divider v-if="index < 1" :style="{ padding: '0 1rem' }" />
+            <van-divider
+              v-if="index + 1 < orderDetails.station.length"
+              :style="{ padding: '0 1rem' }"
+            />
           </div>
         </div>
       </div>
@@ -187,9 +190,12 @@
       <div class="flex">
         <van-cell title="现场发现：">
           <van-uploader
-            :max-count="4"
+            :max-count="maxCount"
+            :deletable="isDeletable"
+            :preview-options="{ closeable: true }"
             v-model="orderDetails.spot_img_aliyun"
             :after-read="afterRead"
+            multiple
             @delete="deleteImg"
           >
             <img
@@ -211,7 +217,7 @@
           (v) => v.item_type === 0
         )"
         :key="index"
-        @click="to(obj.order_item_id, obj)"
+        @click="to('orderProject', obj)"
         :title="obj.item_name"
         is-link
       >
@@ -230,11 +236,13 @@
           (v) => v.item_type === 1
         )"
         :key="index"
-        @click="to(obj.order_item_id, obj)"
+        @click="to('orderProject', obj)"
         :title="obj.item_name"
         value
         is-link
-      ></van-cell>
+      >
+        <span>预计工时：{{ obj.item_cost_time }}小时</span>
+      </van-cell>
       <van-cell
         v-if="orderDetails.item.filter((v) => v.item_type === 1).length === 0"
         title="暂无"
@@ -257,7 +265,10 @@
         is-link
       />
     </card>
-    <div style="margin-top: 1rem" v-if="orderDetails.status_id === 3">
+    <div
+      v-sticky="false"
+      v-if="orderDetails.status_id === 3 || orderDetails.status_id === 7"
+    >
       <van-button
         round
         block
@@ -270,8 +281,7 @@
 </template>
 <script>
 import card from "@/components/card/index.vue";
-import { Dialog } from "vant";
-import { reactive } from "vue";
+import { Dialog, Toast } from "vant";
 
 export default {
   components: {
@@ -285,7 +295,24 @@ export default {
       order_id: Number(sessionStorage.getItem("order_id")),
     };
   },
+  computed: {
+    isDeletable() {
+      const id = this.orderDetails.status_id;
+      let status = false;
+      if (id === 2 || id === 3 || id === 6 || id === 7) {
+        status = true;
+      }
+      return status;
+    },
+    maxCount() {
+      return this.isDeletable ? 9 : 0;
+    },
+  },
   created() {
+    if (!this.order_id) {
+      this.order_id = this.getRequest().order_id;
+      sessionStorage.setItem("order_id", this.order_id);
+    }
     this.getOrderDetails();
   },
   methods: {
@@ -324,15 +351,33 @@ export default {
       });
       sessionStorage.setItem("isWork", true);
     },
-    to(order_item_id) {
+    to(name, obj = {}) {
       if (this.orderDetails.status_name === "已派工") {
+        Dialog({ message: "请修改状态为进行中" });
         return;
       }
-      this.$router.push({ name: "orderProject", params: { order_item_id } });
+      if (name === "take5" && this.orderDetails.take > 0) {
+        name = "take5ListDetails";
+      }
+      sessionStorage.setItem("take_id", this.orderDetails.take);
+      sessionStorage.setItem("order_item_id", obj.order_item_id);
+      this.$router.push({ name });
     },
     upSatatus(type) {
+      Toast.loading({
+        message: "请稍后...",
+        forbidClick: true,
+        duration: 0,
+        overlay: true,
+      });
       if (type < this.orderDetails.status_id) {
+        Toast.clear();
         Dialog({ message: "状态不能回退" });
+        return;
+      }
+      if (type === this.orderDetails.status_id) {
+        Toast.clear();
+        Dialog({ message: "状态重复" });
         return;
       }
       this.$api
@@ -344,29 +389,37 @@ export default {
         })
         .catch((message) => {
           Dialog({ message });
-        });
+        })
+        .finally(() => Toast.clear());
     },
     // 查询工单数据
     getOrderDetails() {
       this.$api.orderDetails(this.order_id).then((res) => {
+        console.log(res);
         this.orderDetails = res;
       });
     },
     // 图片上传
-    afterRead(flie) {
-      const v = reactive(flie);
-      v.status = "uploading";
-      v.message = "上传中...";
-      this.putOSS(v).then((path) => {
-        if (path) {
-          v.path = path;
-          this.editOrderSpotImg();
+    async afterRead(f) {
+      let arr = [f];
+      if (f.length) {
+        arr = [...f];
+      }
+      for (const v of arr) {
+        v.status = "uploading";
+        v.message = "等待上传...";
+      }
+      for (const v of arr) {
+        v.message = "上传中...";
+        v.path = await this.putOSS(v);
+        if (v.path) {
           v.status = "done";
         } else {
           v.status = "failed";
           v.message = "上传失败";
         }
-      });
+      }
+      this.editOrderSpotImg();
     },
     editOrderSpotImg() {
       this.$api
@@ -375,6 +428,7 @@ export default {
         )
         .then((res) => {
           Dialog({ message: res.msg });
+          this.getOrderDetails();
         })
         .catch((message) => Dialog({ message }));
     },
@@ -398,7 +452,7 @@ export default {
   text-align: center;
   background: rgba(0, 0, 0, 0.3);
 }
-::v-deep .van-dialog {
+/deep/ .van-dialog {
   text-align: center;
   padding: 0.5rem;
   border-radius: 0.2rem;
@@ -428,7 +482,7 @@ export default {
   background: linear-gradient(to right, #fee568 0%, #fbd01f 100%);
   padding: 0.8rem 0;
   height: 2.2rem;
-  ::v-deep .van-field {
+  /deep/ .van-field {
     margin: 0 auto;
     width: 90%;
     height: 100%;
@@ -436,7 +490,7 @@ export default {
     align-items: center;
   }
 }
-::v-deep .van-popup--bottom {
+/deep/ .van-popup--bottom {
   width: 90%;
   left: 5%;
   border-radius: 0.3rem;
@@ -468,23 +522,27 @@ export default {
       padding-bottom: 0;
     }
     display: flex;
-    justify-content: space-between;
-    ::v-deep .van-cell {
-      &__value {
-        text-align: left;
-        color: #656565;
+    @media all and (min-width: 550px) {
+      .van-cell:nth-child(2) {
+        .van-cell__title {
+          width: 5rem;
+        }
       }
     }
-    .van-cell:nth-child(1) {
-      flex: 1.5;
-    }
-    .van-cell:nth-child(2) {
-      .van-cell__title {
-        width: 4rem;
+    justify-content: space-between;
+    /deep/ .van-cell {
+      &__value {
+        text-align: left;
+        color: #666666;
       }
     }
   }
-  ::v-deep .van-cell {
+  .minP {
+    @media all and (max-width: 550px) {
+      display: block;
+    }
+  }
+  /deep/ .van-cell {
     flex: 1;
     padding: 0.1rem 1rem;
     &__title {

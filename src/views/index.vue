@@ -5,14 +5,14 @@
         <img v-if="avatar" :src="avatar" />
         <div v-else></div>
       </div>
-      <div class="user" style="margin: 0 0 2rem 0.4rem">
-        <img
-          style="width: 0.7rem; height: 1.5rem; margin-right: 0.5rem"
-          src="@/assets/img/user.png"
-        />
-        <span style="font-size: 1.2rem">{{ userName }}</span>
-      </div>
-      <div class="user">
+      <div class="user" style="margin-left: 10vw">
+        <div style="width: 100%; margin-bottom: 4vw">
+          <img
+            style="width: 1.5vw; height: 3.5vw; margin: 0 1vw"
+            src="@/assets/img/user.png"
+          />
+          <span>{{ userName }}</span>
+        </div>
         <div>
           <img src="@/assets/img/职位.png" />
           <span>{{ roleName }}</span>
@@ -39,76 +39,93 @@
 
 <script>
 import { device, biz } from "dingtalk-jsapi";
-import img1 from "@/assets/img/新建工单.png";
-import img2 from "@/assets/img/我的工单.png";
-import img3 from "@/assets/img/我的工作.png";
-import img4 from "@/assets/img/我的审批.png";
-import img5 from "@/assets/img/工卡系统.png";
-import img6 from "@/assets/img/油样信息系统.png";
-import img7 from "@/assets/img/SRT工单.png";
-import img8 from "@/assets/img/TAKE5.png";
-import img9 from "@/assets/img/TA1.png";
-import img10 from "@/assets/img/注销.png";
 import { useStore } from "vuex";
-import router from "../router";
 
 export default {
   setup() {
     const { state } = useStore();
+    const { isRole } = state;
     const homeData = [
       {
-        img: img1,
+        img: require("@/assets/img/新建工单.png"),
         name: "新建工单",
         url: "buildorder",
+        role: true,
       },
       {
-        img: img2,
+        img: require("@/assets/img/我的工单.png"),
         name: "我的工单",
         url: "myorder",
         srt: 0,
+        role: true,
       },
       {
-        img: img3,
+        img: require("@/assets/img/我的工作.png"),
         name: "我的工作",
         url: "mywork",
       },
       {
-        img: img4,
+        img: require("@/assets/img/我的审批.png"),
         name: "我的审批",
         url: "myapproval",
       },
       {
-        img: img5,
+        img: require("@/assets/img/工卡系统.png"),
         name: "工卡系统",
         url: "jCLog",
       },
       {
-        img: img6,
+        img: require("@/assets/img/油样信息系统.png"),
         name: "油样信息系统",
         url: "oilInfo",
       },
       {
-        img: img7,
+        img: require("@/assets/img/SRT工单.png"),
         name: "SRT工单",
         url: "myorder",
         srt: 1,
       },
       {
-        img: img8,
+        img: require("@/assets/img/TAKE5.png"),
         name: "TAKE5",
         url: "TAKE5",
       },
       {
-        img: img9,
+        img: require("@/assets/img/TA1.png"),
         name: "TA1",
+        url: "ta1",
       },
       {
-        img: img10,
+        img: require("@/assets/img/注销.png"),
         name: "注销",
         url: "out",
       },
-    ];
-    function outLogin() {
+    ].filter((v) => {
+      if (v.role) {
+        return isRole;
+      }
+      return true;
+    });
+    return { ...state, homeData };
+  },
+  methods: {
+    to(item) {
+      if (item.srt !== undefined) {
+        sessionStorage.setItem("srt", item.srt);
+      }
+      if (item.url === "out") {
+        this.outLogin();
+      } else if (item.url === "ta1") {
+        this.$api.loginJdy().then((url) => {
+          biz.util.openLink({
+            url,
+          });
+        });
+      } else {
+        this.$router.push({ name: item.url });
+      }
+    },
+    outLogin() {
       device.notification
         .confirm({
           message: "退出应用?",
@@ -121,25 +138,10 @@ export default {
           }
         })
         .catch((err) => {
-          device.notification.alert(`关闭失败--${JSON.stringify(err)}`);
+          // eslint-disable-next-line no-alert
+          alert(`关闭失败--${JSON.stringify(err)}`);
         });
-    }
-    function to(item) {
-      if (item.srt !== undefined) {
-        sessionStorage.setItem("srt", item.srt);
-      }
-      if (item.url !== "out") {
-        router.push({ name: item.url });
-      } else {
-        outLogin();
-      }
-    }
-    return {
-      homeData,
-      to,
-      outLogin,
-      ...state,
-    };
+    },
   },
 };
 </script>
@@ -148,41 +150,47 @@ export default {
   text-align: center;
 }
 .top {
+  margin-top: 1rem;
+  display: flex;
+  align-items: center;
   position: relative;
-  height: 9rem;
+  height: 22vw;
+  @media all and(max-width: 400px) {
+    height: 25vw;
+  }
   z-index: 0;
   box-shadow: 0 0.1rem 0.1rem 0.05rem rgba(0, 0, 0, 0.08);
   border-radius: 0.2rem;
   background: linear-gradient(to right, #ffcd11 0%, #ffe775 100%);
   .user {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    position: relative;
-    top: -58%;
-    left: 35%;
+    font-size: 4vw;
     h2 {
       padding: 1rem;
     }
     div {
       margin-right: 1rem;
-    }
-    span {
-      font-size: 1rem;
+      display: flex;
+      align-items: center;
     }
     img {
       margin-right: 0.2rem;
-      width: 1.5rem;
-      height: 1.5rem;
+      width: 3.5vw;
+      height: 3.5vw;
+      line-height: 1px;
     }
   }
   .photo {
-    position: relative;
-    z-index: 1;
-    top: 1rem;
-    left: 5%;
-    height: 7rem;
+    margin-left: 5%;
+    height: 18vw;
     background-color: rgba(249, 249, 250, 0.3);
-    width: 7rem;
+    width: 18vw;
+    @media all and(max-width: 400px) {
+      height: 21vw;
+      width: 21vw;
+    }
     border-radius: 50%;
     div {
       border-radius: 50%;
@@ -211,7 +219,7 @@ export default {
     width: 31.5%;
     height: 20%;
     p {
-      font-size: 1rem;
+      font-size: 4vw;
       margin-top: 0.1rem;
     }
     img {

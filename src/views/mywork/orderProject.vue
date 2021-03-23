@@ -202,11 +202,11 @@ export default {
   margin-top: 1rem;
   font-size: 0.8rem;
 }
-::v-deep .van-dialog__header {
+::v-deep() .van-dialog__header {
   padding: 0.7rem;
   background-color: #ffcd11;
 }
-::v-deep .van-dialog {
+::v-deep() .van-dialog {
   border-radius: 1rem;
 }
 .station {

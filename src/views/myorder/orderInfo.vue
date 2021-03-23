@@ -1,5 +1,51 @@
 <template>
   <div class="orderInfo">
+    <!-- 零件代码工作代码选择框 -->
+    <del-dialog v-model:show="showDialog" title="工作代码，零件代码选择">
+      <div class="dialogSearch">
+        <span>搜索</span>
+        <van-field
+          left-icon="search"
+          v-model="keywordCode"
+          placeholder="请输入关键字"
+        />
+        <img @click="getOrderItemCode" src="@/assets/img/search-blue.png" />
+      </div>
+      <div class="dialogBody" style="height: 17rem; overflow: auto">
+        <div style="flex: 1">
+          <p style="color: #266ccb" class="f">工作代码</p>
+          <p v-for="(v, i) in job_code_list" :key="i" @click="job_codeClick(v)">
+            {{ v.job_code }}
+            <img
+              :src="checked_job_code.job_code === v.job_code ? iconC : iconN"
+            />
+          </p>
+        </div>
+        <div class="d"></div>
+        <div style="flex: 1">
+          <p style="color: #266ccb" class="f">零件代码</p>
+          <p
+            v-for="(v, i) in comp_code_list"
+            :key="i"
+            @click="comp_codeClick(v)"
+          >
+            {{ v.comp_code }}
+            <img
+              :src="checked_comp_code.comp_code === v.comp_code ? iconC : iconN"
+            />
+          </p>
+        </div>
+      </div>
+      <van-cell-group>
+        <van-field v-model="str_job_code" placeholder="请输入编辑" />
+        <van-field v-model="str_comp_code" placeholder="请输入编辑" />
+      </van-cell-group>
+      <div class="dialogButton">
+        <van-button size="small" @click="codeConfirm" block color="#FFCD11"
+          >确定</van-button
+        >
+      </div>
+    </del-dialog>
     <!-- 删除提示框 -->
     <del-dialog class="delDialog" :del="false" :show="delShow" title="删除确认">
       <span class="info">确认删除项目（{{ delItem.item_name }}）？</span>
@@ -18,11 +64,7 @@
       </div>
     </del-dialog>
     <!-- 项目选择弹框 -->
-    <van-popup
-      v-model:show="showItem"
-      position="bottom"
-      :style="{ height: '77%' }"
-    >
+    <van-popup v-model="showItem" position="bottom" :style="{ height: '77%' }">
       <div class="search">
         <van-field
           @input="itemSearch"
@@ -46,16 +88,16 @@
       :close-on-click-overlay="true"
       class="dialogNot"
       width="90%"
-      v-model:show="editShow"
+      v-model="editShow"
       :showConfirmButton="false"
     >
       <p style="color: #999999">
         {{ editItems.item_type === 0 ? "基本项目修改" : "自定义项目" }}
       </p>
       <van-cell
-        class="ve"
         v-if="editItems.item_type === 0"
         @click="showItem = true"
+        is-link
         title="项目"
       >
         <div>
@@ -66,15 +108,22 @@
       <van-field
         v-else
         v-model="editItems.item_name"
-        class="ve"
         label="项目:"
         placeholder="请输入项目  (必填)"
         :rules="[{ required: true }]"
       />
+      <van-cell class="va" title="项目类型" is-link>
+        <select-a
+          v-model="editItems.order_item_type"
+          :options="item_options"
+        ></select-a>
+      </van-cell>
       <van-field
         class="ve"
         v-if="editItems.item_type === 1"
         v-model="editItems.operate_code"
+        @click="showDialog = true"
+        readonly
         label="工作代码："
         placeholder="请输入工作代码  (必填)"
         :rules="[{ required: true }]"
@@ -82,6 +131,8 @@
       <van-field
         class="ve"
         v-if="editItems.item_type === 1"
+        @click="showDialog = true"
+        readonly
         v-model="editItems.parts_code"
         label="零件代码："
         placeholder="请输入零件代码 (必填)"
@@ -144,7 +195,7 @@
     <van-dialog
       class="dialogTime"
       :close-on-click-overlay="true"
-      v-model:show="showTime"
+      v-model="showTime"
       @confirm="dialogConfirm"
       :title="
         timeType === 1
@@ -170,14 +221,9 @@
         v-model="currentDate"
         :show-toolbar="false"
         type="datetime"
-        :min-date="minDate"
       />
     </van-dialog>
-    <van-popup
-      v-model:show="showPopup"
-      position="bottom"
-      :style="{ height: '77%' }"
-    >
+    <van-popup v-model="showPopup" position="bottom" :style="{ height: '77%' }">
       <div class="search">
         <van-field
           @input="userSearch"
@@ -225,20 +271,12 @@
     <van-dialog
       class="Dp"
       :close-on-click-overlay="true"
-      v-model:show="show"
+      v-model="show"
       :showConfirmButton="false"
     >
       <div @click="upStatus(1)">派工</div>
       <div style="height: 0.05rem; background: #999999"></div>
-      <div
-        @click="
-          (show = false),
-            (orderDetails.status_name = '无需派工'),
-            (orderDetails.is_dispatch = 0)
-        "
-      >
-        无需派工
-      </div>
+      <div @click="upStatus(0)">无需派工</div>
     </van-dialog>
     <card
       class="stations"
@@ -251,7 +289,7 @@
         >返回首页</span
       >
       <div class="body">
-        <div class="flex">
+        <div class="flex minP">
           <van-cell
             title="工单号:"
             :value="orderDetails.order_number"
@@ -261,7 +299,7 @@
             :value="orderDetails.ax_number"
           ></van-cell>
         </div>
-        <div class="flex" v-if="orderDetails.is_dispatch !== 0">
+        <div class="flex minP" v-if="orderDetails.is_dispatch !== 0">
           <van-cell
             title="主修:"
             :value="orderDetails.major_user && orderDetails.major_user.name_cn"
@@ -275,7 +313,7 @@
             >
           </van-cell>
         </div>
-        <div class="flex">
+        <div class="flex minP">
           <van-cell
             title="承诺到达时间:"
             :value="orderDetails.promise_time"
@@ -288,7 +326,7 @@
         <div class="flex">
           <van-cell
             title="服务车牌号:"
-            :value="orderDetails.service_car"
+            :value="orderDetails.service_car || ''"
           ></van-cell>
         </div>
         <div class="flex">
@@ -340,6 +378,23 @@
           <van-cell
             title="PL机器位置:"
             :value="orderDetails.pl_location"
+          ></van-cell>
+        </div>
+        <div class="flex" v-if="orderDetails.srt_order_id">
+          <van-cell
+            title="SRT工单名称:"
+            :value="orderDetails.srt_order_name"
+          ></van-cell>
+          <van-cell
+            title="人工报价:"
+            :value="orderDetails.people_amount"
+          ></van-cell>
+        </div>
+        <div class="flex" v-if="orderDetails.srt_order_id">
+          <van-cell title="付款方式:" :value="orderDetails.pay_type"></van-cell>
+          <van-cell
+            title="零件报价:"
+            :value="orderDetails.parts_amount"
           ></van-cell>
         </div>
       </div>
@@ -406,9 +461,7 @@
         is-link
       ></van-cell>
       <div v-show="orderDetails.status_name === '无需派工'">
-        <van-cell title="无需派工理由：">
-          <van-button @click="upStatus(0)" round>提交</van-button>
-        </van-cell>
+        <van-cell title="无需派工理由："> </van-cell>
         <van-field
           class="textarea"
           type="textarea"
@@ -474,9 +527,7 @@
           <div class="del" @click="del(obj)">删除</div>
         </van-cell>
         <van-cell
-          @click="
-            (editShow = true), (editItems = { item_type: 1, is_factory: 1 })
-          "
+          @click="edit({ item_type: 1, is_factory: 1 })"
           title="暂无"
           value="去添加"
           is-link
@@ -539,26 +590,74 @@
           is-link
         />
       </div>
+      <div v-sticky="false">
+        <van-button
+          round
+          block
+          color="linear-gradient(to right, #FFCD11, #FFE775)"
+          @click="submit"
+          >提交</van-button
+        >
+      </div>
     </card>
   </div>
 </template>
 <script>
 import card from "@/components/card/index.vue";
-import { Dialog } from "vant";
+import { Dialog, Toast } from "vant";
+import select from "@/components/select/index.vue";
 import dialog from "@/components/dialog/index.vue";
 
 export default {
   components: {
     card,
     "del-dialog": dialog,
+    "select-a": select,
+  },
+  computed: {
+    // 零件代码数据
+    comp_code_list() {
+      return this.codeList.comp_code_list.filter((v) => {
+        if (this.checked_job_code.comp_code.length === 0) {
+          return true;
+        }
+        return this.checked_job_code.comp_code.includes(String(v.comp_code));
+      });
+    },
+    // 工作代码数据
+    job_code_list() {
+      return this.codeList.job_code_list.filter((v) => {
+        if (this.checked_comp_code.job_code.length === 0) {
+          return true;
+        }
+        return this.checked_comp_code.job_code.includes(String(v.job_code));
+      });
+    },
   },
   created() {
+    if (!this.order_id) {
+      this.order_id = this.getRequest().order_id;
+      sessionStorage.setItem("order_id", this.order_id);
+    }
+    this.getOrderItemCode();
     this.getOrderDetails();
     this.itemSearch();
     this.userSearch();
   },
   data() {
     return {
+      keywordCode: "",
+      showDialog: false,
+      str_job_code: "",
+      str_comp_code: "",
+      // 零件代码工作代码数据
+      codeList: { comp_code_list: [], job_code_list: [] },
+      // 选中零件代码
+      checked_comp_code: { comp_code: "", job_code: [] },
+      // 选中部件代码
+      checked_job_code: { comp_code: [], job_code: "" },
+      iconN: require("@/assets/img/choice-gray.png"),
+      iconC: require("@/assets/img/choice-blue.png"),
       order_id: Number(sessionStorage.getItem("order_id")),
       orderDetails: { item: [] },
       // 项目数据
@@ -571,6 +670,13 @@ export default {
       userList: [],
       showItem: false,
       showPopup: false,
+      item_options: [
+        { value: 1, text: "保修工单" },
+        { value: 4, text: "保养" },
+        { value: 5, text: "交机前检查" },
+        { value: 6, text: "交机" },
+        { value: 7, text: "大修" },
+      ],
       // 无需派工理由
       cause: "",
       currentDate: new Date(),
@@ -581,7 +687,6 @@ export default {
       timeType: 1,
       // 时间弹出框
       showTime: false,
-      minDate: new Date(),
       // 选中图标
       checkedIcon: require("@/assets/img/choice-blue.png"),
       // 未选中图标
@@ -601,9 +706,76 @@ export default {
       delShow: false,
       // 控制弹框
       show: false,
+      editOrderObj: {},
     };
   },
   methods: {
+    // 自定义代码确认
+    codeConfirm() {
+      this.editItems.operate_code = this.str_job_code;
+      this.editItems.parts_code = this.str_comp_code;
+      this.showDialog = false;
+    },
+    // 工作代码点击事件
+    job_codeClick(v) {
+      if (v.job_code === this.checked_job_code.job_code) {
+        this.checked_job_code = { comp_code: [], job_code: "" };
+      } else {
+        this.checked_job_code = v;
+        this.str_job_code = v.job_code;
+      }
+    },
+    // 零件代码点击事件
+    comp_codeClick(v) {
+      if (v.comp_code === this.checked_comp_code.comp_code) {
+        this.checked_comp_code = { comp_code: "", job_code: [] };
+      } else {
+        this.str_comp_code = v.comp_code;
+        this.checked_comp_code = v;
+      }
+    },
+    // 获取工作，零件代码
+    getOrderItemCode() {
+      this.$api
+        .getOrderItemCode(this.keywordCode)
+        .then((res) => {
+          this.codeList = res;
+        })
+        .catch((message) => {
+          Dialog({ message });
+        });
+    },
+    submit() {
+      Toast.loading({
+        message: "请稍后...",
+        forbidClick: true,
+        duration: 0,
+        overlay: true,
+      });
+      const { is_dispatch } = this.orderDetails;
+      const { cause } = this.orderDetails;
+      if (is_dispatch) {
+        const { major_user } = this.orderDetails;
+        this.editOrderObj.major_user_id = major_user && major_user.userid;
+        this.editOrderObj.minor_user = this.checkedData.map((v) => v.userid);
+      }
+      this.$api
+        .editOrder({
+          order_id: this.order_id,
+          order_item_list: this.orderDetails.item,
+          cause,
+          is_dispatch,
+          ...this.editOrderObj,
+        })
+        .then((res) => {
+          Toast.clear();
+          Dialog({ message: res.msg });
+          this.getOrderDetails();
+        })
+        .catch((message) => {
+          Dialog({ message });
+        });
+    },
     toStationList() {
       this.$router.push({
         name: "stationList",
@@ -614,27 +786,15 @@ export default {
     getOrderDetails() {
       this.$api.orderDetails(this.order_id).then((res) => {
         sessionStorage.setItem("order_number", res.order_number);
+        console.log(res);
         this.orderDetails = res;
       });
     },
     // 修改派工状态
     upStatus(status) {
-      if (status) {
-        this.show = false;
-      }
-      this.$api
-        .udOrderDispatch({
-          order_id: this.order_id,
-          is_dispatch: status,
-          cause: this.orderDetails.cause,
-        })
-        .then((res) => {
-          Dialog({ message: res.msg });
-          this.getOrderDetails();
-        })
-        .catch((message) => {
-          Dialog({ message });
-        });
+      this.orderDetails.status_name = status ? "派工" : "无需派工";
+      this.orderDetails.is_dispatch = status;
+      this.show = false;
     },
     // 项目搜索
     itemSearch() {
@@ -663,8 +823,9 @@ export default {
 
     // 标准项目选择确定
     confirmItem(item) {
+      const modelN = this.orderDetails.model;
       const model = item.model.find(
-        (m) => m.model_name === this.orderDetails.model
+        (m) => modelN >= m.model_start_number && modelN < m.model_end_number
       );
       if (model && model.item_model_cost_time) {
         this.editItems.type_model_id = model.type_model_id;
@@ -678,7 +839,16 @@ export default {
     },
     // 编辑项目
     edit(item) {
-      this.editItems = { ...item };
+      const order_item_type =
+        this.orderDetails.order_type === 2
+          ? 1
+          : this.orderDetails.order_type === 3
+          ? 1
+          : this.orderDetails.order_type;
+      this.editItems = {
+        order_item_type,
+        ...item,
+      };
       this.editShow = true;
     },
     // 删除项目
@@ -687,30 +857,50 @@ export default {
         this.delItem = item;
         this.delShow = true;
       } else {
-        this.$api
-          .deOrderItem({ order_item_id: this.delItem.order_item_id })
-          .then((res) => {
-            Dialog({ message: res.msg });
-            this.getOrderDetails();
-          })
-          .catch((message) => {
-            Dialog({ message });
+        if (this.delItem.order_item_id) {
+          this.$api
+            .deOrderItem({ order_item_id: this.delItem.order_item_id })
+            .then((res) => {
+              Dialog({ message: res.msg });
+              this.getOrderDetails();
+            })
+            .catch((message) => {
+              Dialog({ message });
+            });
+        } else {
+          this.orderDetails.item.forEach((v, index) => {
+            if (v.indexId === this.delItem.indexId) {
+              this.orderDetails.item.splice(index, 1);
+            }
           });
+        }
         this.delShow = false;
       }
     },
     // 编辑项目确认
     editItem() {
-      this.$api
-        .addOrderItem({ order_id: this.order_id, ...this.editItems })
-        .then((res) => {
-          Dialog({ message: res.msg });
-          this.editItems = { is_factory: 1 };
-          this.getOrderDetails();
-        })
-        .catch((message) => {
-          Dialog({ message });
+      if (this.editItems.order_item_id || this.editItems.indexId) {
+        const item = this.orderDetails.item.find((v) => {
+          let stu = false;
+          if (v.order_item_id) {
+            stu = v.order_item_id === this.editItems.order_item_id;
+          } else if (v.indexId) {
+            stu = v.indexId === this.editItems.indexId;
+          }
+          return stu;
         });
+        for (const v in this.editItems) {
+          item[v] = this.editItems[v];
+        }
+      } else {
+        const indexId = Math.max(
+          ...this.orderDetails.item.map((v) => v.indexId || 0)
+        );
+        this.orderDetails.item.push({
+          indexId: indexId + 1,
+          ...this.editItems,
+        });
+      }
       this.editShow = false;
     },
     // 弹框确认
@@ -728,15 +918,8 @@ export default {
         ];
         const key = time[this.timeType - 1];
         const value = this.filterTime(this.currentDate);
-        this.$api
-          .upPromiseTime({ order_id: this.order_id, [key]: value })
-          .then((res) => {
-            Dialog({ message: res.msg });
-            this.getOrderDetails();
-          })
-          .catch((message) => {
-            Dialog({ message });
-          });
+        this.orderDetails[key] = value;
+        this.editOrderObj[key] = value;
       }
     },
     // 时间对话框弹出
@@ -746,29 +929,10 @@ export default {
     },
     // 选中主副修确定
     confirm(item) {
-      const { order_id } = this;
       if (this.type === 1) {
-        this.$api
-          .upOrderMajorUser({ order_id, major_user_id: item.userid })
-          .then((res) => {
-            console.log(res);
-            Dialog({ message: res.msg });
-            this.getOrderDetails();
-          })
-          .catch((message) => {
-            Dialog({ message });
-          });
+        this.orderDetails.major_user = item;
       } else {
-        const minor_user = this.checkedData.map((v) => v.userid);
-        this.$api
-          .upOrderMinorUser({ order_id, minor_user })
-          .then((res) => {
-            Dialog({ message: res.msg });
-            this.getOrderDetails();
-          })
-          .catch((message) => {
-            Dialog({ message });
-          });
+        this.orderDetails.minor_user = this.checkedData;
       }
       this.showPopup = false;
     },
@@ -803,12 +967,125 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.ve {
-  ::v-deep .van-cell__value {
-    margin-right: 1.5rem;
+/deep/ .van-cell-group {
+  display: flex;
+  background-color: rgba(0, 0, 0, 0);
+  padding: 0 1rem 0 0;
+  .van-field:nth-child(2) {
+    padding-left: 2rem;
+  }
+  .van-field__control {
+    padding-left: 0.5rem;
+    background: rgba(249, 249, 250, 1);
+    box-shadow: 0 -0.05rem 0.1rem 0 rgba(0, 0, 0, 0.25);
+    border-radius: 0.08rem;
   }
 }
-::v-deep .Dp.van-dialog {
+.dialogBody {
+  position: relative;
+  display: flex;
+  .f {
+    position: fixed;
+    width: 100%;
+    background: #ffffff;
+    top: 5.5rem;
+  }
+  .d {
+    position: fixed;
+    height: 51%;
+    top: 6rem;
+    left: 49%;
+    width: 1px;
+    background-color: #434343;
+  }
+  div {
+    margin-top: 2rem;
+    position: relative;
+    &:nth-child(3) {
+      margin-left: 2rem;
+    }
+  }
+  p {
+    margin: 0;
+    padding: 0.5rem 0;
+    padding-right: 1rem;
+    img {
+      float: right;
+      width: 1rem;
+    }
+  }
+  margin: 0 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #434343;
+}
+.dialogSearch {
+  text-align: center;
+  padding: 0.8rem 0;
+  height: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  span {
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+  img {
+    height: 2.5rem;
+    width: 2.5rem;
+    float: right;
+  }
+  /deep/ .van-field {
+    .van-field__control {
+      box-shadow: none;
+      background: none;
+    }
+    width: 70%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    background: #f3f3f3;
+    border: 1px solid #434343;
+    box-shadow: 0px 0.1rem 0.1rem 0px rgba(51, 51, 51, 0.04);
+    border-radius: 0.5rem;
+  }
+}
+.dialogButton {
+  width: 100%;
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /deep/ .van-button {
+    .van-button__content {
+      color: #000;
+    }
+    width: 30%;
+    border-radius: 4rem;
+    color: #000;
+  }
+}
+.dialogNot .va {
+  overflow: visible;
+  /deep/ .van-cell__value:not(.van-field__value) {
+    overflow: visible;
+    .cell {
+      width: 100%;
+    }
+    .title {
+      padding: 0;
+      color: #969799;
+      img {
+        display: none;
+      }
+    }
+  }
+}
+.ve {
+  /deep/ .van-cell__value {
+    margin-right: 1.3rem;
+  }
+}
+/deep/ .Dp.van-dialog {
   text-align: center;
   padding: 0.5rem;
   border-radius: 0.2rem;
@@ -830,22 +1107,22 @@ export default {
   }
 }
 .dialogTime {
-  ::v-deep .van-dialog__header {
+  /deep/ .van-dialog__header {
     padding: 0.7rem;
     background-color: #ffcd11;
   }
-  ::v-deep .van-dialog {
+  /deep/ .van-dialog {
     border-radius: 1rem;
   }
 }
 .vanButton {
   display: flex;
   justify-content: space-around;
-  ::v-deep .van-button {
+  /deep/ .van-button {
     width: 35%;
     text-align: center;
   }
-  ::v-deep .van-button__content {
+  /deep/ .van-button__content {
     color: #000;
   }
 }
@@ -892,8 +1169,8 @@ export default {
     right: 0;
   }
   border-radius: 0.5rem;
-  ::v-deep .van-cell__title,
-  ::v-deep .van-field__label {
+  /deep/ .van-cell__title,
+  /deep/ .van-field__label {
     color: #000;
     padding-left: 1.5rem;
     font-size: 0.8rem;
@@ -909,13 +1186,13 @@ export default {
       background-color: #fad23f;
     }
   }
-  ::v-deep .van-cell__value:not(.van-field__value) {
+  /deep/ .van-cell__value:not(.van-field__value) {
     text-align: left;
     font-size: 0.8rem;
     flex: none;
     width: 30%;
   }
-  ::v-deep .van-field__control {
+  /deep/ .van-field__control {
     font-size: 0.8rem;
     padding-left: 0.5rem;
     background: rgba(249, 249, 250, 1);
@@ -942,7 +1219,7 @@ export default {
   background: linear-gradient(to right, #fee568 0%, #fbd01f 100%);
   padding: 0.8rem 0;
   height: 2.2rem;
-  ::v-deep .van-field {
+  /deep/ .van-field {
     margin: 0 auto;
     width: 90%;
     height: 100%;
@@ -950,7 +1227,7 @@ export default {
     align-items: center;
   }
 }
-::v-deep .van-popup--bottom {
+/deep/ .van-popup--bottom {
   width: 90%;
   left: 5%;
   border-radius: 0.3rem;
@@ -973,6 +1250,7 @@ export default {
     margin: 1rem auto;
     min-height: 6rem;
   }
+
   .flex {
     &:nth-child(1) .van-cell {
       padding-top: 0;
@@ -980,27 +1258,28 @@ export default {
     &:last-child .van-cell {
       padding-bottom: 0;
     }
-    .van-cell:nth-child(1) {
-      flex: 1.5;
-    }
-    .van-cell:nth-child(2) {
-      flex: 1;
-      .van-cell__title {
-        width: 5rem;
+    display: flex;
+    @media all and (min-width: 550px) {
+      .van-cell:nth-child(2) {
+        .van-cell__title {
+          width: 5rem;
+        }
       }
     }
-    display: flex;
     justify-content: space-between;
-    ::v-deep .van-cell {
+    /deep/ .van-cell {
       &__value {
         text-align: left;
-        display: flex;
-        flex-wrap: wrap;
         color: #656565;
       }
     }
   }
-  ::v-deep .van-cell {
+  .minP {
+    @media all and (max-width: 550px) {
+      display: block;
+    }
+  }
+  /deep/ .van-cell {
     padding: 0.1rem 1rem;
     &__title {
       font-size: 0.75rem;

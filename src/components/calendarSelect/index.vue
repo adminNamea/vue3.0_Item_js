@@ -4,7 +4,7 @@
       <slot :sDate="sdate" :eDate="edate">
         <div v-if="sDate != '请选择' && sDate != ''">
           {{ sDate }}
-          <span style="margin: 0 1rem">至</span>
+          <span style="margin: 0 2vw">至</span>
           {{ eDate }}
         </div>
         <span v-else>请选择日期</span>
@@ -13,8 +13,8 @@
     <van-dialog
       v-model:show="show"
       @open="open"
-      class="calendarSelect"
       teleport="#app"
+      class="calendarSelect"
       confirm-button-color="#FFCD6E"
       :close-on-click-overlay="true"
       confirm-button-text="预约"
@@ -55,6 +55,7 @@
             action: isA(item.value),
             sta: item.value == sValue,
             end: item.value == eValue,
+            [colorObj(item.index)]: true,
           }"
           @click.stop="iconClick(item.value)"
           :key="key"
@@ -75,7 +76,7 @@ export default {
     },
     disable: {
       default: false,
-      type: Boolean,
+      type: [Boolean, Number],
     },
     sDate: {
       default: "请选择",
@@ -84,6 +85,12 @@ export default {
     eDate: {
       default: "请选择",
       type: String,
+    },
+    details: {
+      default() {
+        return {};
+      },
+      type: Object,
     },
   },
   data() {
@@ -108,7 +115,7 @@ export default {
     dateData() {
       const d = new Date(this.year, this.month + 1, 0).getDate();
       const data = [];
-      for (let index = 1; index <= d; index += 1) {
+      for (let index = 1; index <= d; index++) {
         const value = new Date(this.year, this.month, index).getTime();
         data.push({ value, index, d });
       }
@@ -136,11 +143,24 @@ export default {
     isA(value) {
       return this.sValue <= value && value <= this.eValue;
     },
+    colorObj(index) {
+      if (this.details[index]) {
+        const color =
+          this.details[index].uC > 0
+            ? "re"
+            : this.details[index].oC > 0
+            ? "yo"
+            : "";
+        return color;
+      }
+      return "";
+    },
     showTime() {
       if (this.disable) {
         return;
       }
       this.show = true;
+      this.$emit("opendate", `${this.year}-${this.month + 1}`);
     },
     open() {
       if (this.sDate !== "请选择" && this.sDate !== "") {
@@ -170,6 +190,7 @@ export default {
         this.month = 11;
         this.year -= 1;
       }
+      this.$emit("nextorprev", `${this.year}-${this.month + 1}`);
     },
     filterTime(value = 0) {
       const date = new Date(value);
@@ -198,25 +219,25 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
-.cTitle {
-  display: flex;
-  justify-content: space-evenly;
-  em {
-    color: #4d4d4d;
-    font-style: normal;
-  }
-}
+<style lang="scss">
 .calendarSelect {
-  &.van-dialog {
+  .cTitle {
+    display: flex;
+    justify-content: space-evenly;
+    em {
+      color: #4d4d4d;
+      font-style: normal;
+    }
+  }
+  .van-dialog {
     background: #ffffff;
     box-shadow: 0 0.1rem 0.5rem 0 rgba(255, 205, 17, 0.4);
   }
-  ::v-deep .van-dialog__header {
+  .van-dialog__header {
     padding: 0;
     height: 3.5rem;
   }
-  ::v-deep .van-hairline--top::after {
+  .van-hairline--top::after {
     border-color: #faeec9;
     border-top-width: 0.1rem;
   }
@@ -227,38 +248,49 @@ export default {
     padding-left: 0.8rem;
     height: 100%;
     .icon {
-      border: 0.1rem solid #ffffff;
+      border: 1px solid #ffffff;
       color: #999999;
       display: flex;
       font-family: Montserrat;
       font-weight: 300;
       align-items: center;
       justify-content: center;
-      height: 3rem;
-      width: 2.51rem;
+      height: 2rem;
+      width: 2rem;
+      margin: 0.7rem 0 0 0.58rem;
       border-radius: 50%;
+      &:nth-child(7n + 1) {
+        margin-left: 0.2rem;
+        margin-right: 0.1rem;
+      }
+    }
+    .yo {
+      border: 1px solid #ffcd11;
+    }
+    .re {
+      border: 1px solid #ff5a7b;
     }
     .disable {
       background-color: #373737;
       color: #fff;
-      border: 0.1rem solid #fff;
+      border: 1px solid #fff;
       opacity: 0.5;
     }
-    .action {
+    .icon.action {
       position: relative;
-      border: 0.1rem solid rgba(0, 0, 0, 0);
+      border: 1px solid rgba(0, 0, 0, 0);
       color: #fff;
       &::after {
         content: "";
-        width: 110%;
-        height: 2rem;
+        width: 150%;
+        height: 100%;
         position: absolute;
         left: 0;
         background: linear-gradient(to bottom, #88d6ff 0%, #51adfb 100%);
       }
       &:nth-child(7n) {
         &::after {
-          width: 2.5rem;
+          width: 100%;
           border-radius: 0 1rem 1rem 0;
         }
       }
@@ -269,19 +301,20 @@ export default {
         }
       }
     }
-    .sta {
+    .icon.action.sta {
       &::after {
         border-radius: 1rem 0 0 1rem;
       }
     }
-    .end {
+    .icon.action.end {
       &::after {
         border-radius: 0 1rem 1rem 0;
+        width: 100%;
       }
     }
-    .sta:nth-child(7n),
-    .end:nth-child(7n + 1),
-    .end.sta {
+    .icon.action.sta:nth-child(7n),
+    .icon.action.end:nth-child(7n + 1),
+    .icon.action.end.sta {
       &::after {
         border-radius: 1rem;
       }

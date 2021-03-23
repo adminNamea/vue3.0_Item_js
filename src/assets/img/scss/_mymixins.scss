@@ -1,0 +1,110 @@
+@mixin myStyle {
+  ::v-deep() .van-icon {
+    transform: scale(0.5);
+  }
+  .card{
+    margin-top:0 ;
+  }
+  .timeTile {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 1rem;
+    margin-top: 1rem;
+    font-size: 0.8rem;
+  }
+  ::v-deep() .van-dialog__header {
+    padding: 0.7rem;
+    background-color: #ffcd11;
+  }
+  ::v-deep() .van-dialog {
+    border-radius: 1rem;
+  }
+  ::v-deep() .van-cell {
+    font-size: 3vw;
+    overflow: visible;
+    display: flex;
+    align-items: center;
+    padding: 2vw 0 0 0;
+    .round {
+      white-space: nowrap;
+      background: #ffffff;
+      border: 0.05rem solid rgba(0, 0, 0, 0.08);
+      box-shadow: 0 0 0.2vw 0 rgba(0, 0, 0, 0.08);
+      border-radius: 5vw;
+      height: 5vw;
+      margin-right: 2.5%;
+      margin-left: 0.5rem;
+      &:last-child{
+        margin-right:0;
+      }
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex: 1;
+    }
+    &__title {
+      width: 15%;
+      flex: none;
+      white-space: nowrap;
+      overflow: visible;
+    }
+    &__value {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex: none;
+      width: 85%;
+    }
+    &::after {
+      display: none;
+    }
+    .active {
+      color: #000;
+      background: linear-gradient(267deg, #fbd01f, #fee568);
+    }
+  }
+  
+  ::v-deep() .van-field {
+    flex: 4.5;
+    margin:0 0 1vw 1.7vw;
+    &__body {
+      width: 99%;
+    }
+    &__value {
+      height: 5vw;
+      width: 93%;
+      background: #ffffff;
+      border: 0.05rem solid rgba(0, 0, 0, 0.08);
+      border-radius: 4vw;
+      padding-left: 0.5rem;
+    }
+  }
+  .body .flex {
+    align-items: baseline;
+  }
+  .flex {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    .van-button {
+      height:5vw;
+      flex:1;
+      font-size: 3vw;
+      white-space: nowrap;
+    }
+    .select {
+      flex:1;
+      ::v-deep() .cell {
+        font-weight: normal;
+        border: 0.05rem solid rgba(0, 0, 0, 0.08);
+        border-radius: 5vw;
+        width: 100%;
+        font-size: 2.5vw;
+        img {
+          width: 2vw;
+          height: 1.5vw;
+        }
+      }
+    }
+  }
+  }

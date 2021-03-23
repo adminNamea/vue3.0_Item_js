@@ -452,7 +452,7 @@ export default {
 
 <style lang="scss" scoped>
 .bg {
-  ::v-deep .van-icon {
+  ::v-deep() .van-icon {
     transform: scale(1.4);
   }
 }
@@ -474,7 +474,7 @@ export default {
     padding: 0 1rem;
     margin: 0;
   }
-  ::v-deep .van-field {
+  ::v-deep() .van-field {
     margin: 0 auto;
     width: 90%;
     height: 100%;
@@ -487,12 +487,12 @@ export default {
     }
   }
 }
-::v-deep .van-popup--bottom {
+::v-deep() .van-popup--bottom {
   width: 90%;
   left: 5%;
   border-radius: 0.3rem;
 }
-::v-deep .van-cell {
+::v-deep() .van-cell {
   align-items: center;
   overflow: visible;
   &__value {
@@ -527,11 +527,11 @@ export default {
   }
 }
 .dialogTime {
-  ::v-deep .van-dialog__header {
+  ::v-deep() .van-dialog__header {
     padding: 0.7rem;
     background-color: #ffcd11;
   }
-  ::v-deep .van-dialog {
+  ::v-deep() .van-dialog {
     border-radius: 1rem;
   }
   .timeTile {
@@ -570,7 +570,7 @@ export default {
   border-radius: 0.3rem;
 }
 .card {
-  ::v-deep .van-field {
+  ::v-deep() .van-field {
     &__label {
       color: #333333;
       align-items: center;

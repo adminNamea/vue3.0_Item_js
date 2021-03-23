@@ -147,7 +147,7 @@ export default {
   font-size: 0.8rem;
 }
 .top {
-  ::v-deep .van-cell {
+  ::v-deep() .van-cell {
     font-size: 1.1rem;
     overflow: visible;
     padding: 0.5rem 0 0 0;
@@ -187,18 +187,18 @@ export default {
     }
   }
 }
-::v-deep .van-dialog__header {
+::v-deep() .van-dialog__header {
   padding: 0.7rem;
   background-color: #ffcd11;
 }
-::v-deep .van-dialog {
+::v-deep() .van-dialog {
   border-radius: 1rem;
 }
 .station {
   display: flex;
   justify-content: space-between;
   min-height: 3rem !important;
-  ::v-deep .body {
+  ::v-deep() .body {
     width: 100%;
   }
 }

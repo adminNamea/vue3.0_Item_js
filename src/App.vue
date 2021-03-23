@@ -1,40 +1,92 @@
 <template>
-  <div id="app">
-    <router-view v-slot="{ Component }">
-      <keep-alive include="buildorder">
-        <component :is="Component" />
-      </keep-alive>
-    </router-view>
-  </div>
+  <router-view v-slot="{ Component }">
+    <keep-alive :include="includes" v-if="ro">
+      <component :is="Component" />
+    </keep-alive>
+  </router-view>
 </template>
+<script>
+import { provide, ref } from "vue";
+
+export default {
+  name: "App",
+  setup() {
+    const ro = ref(true);
+    const reload = () => {
+      ro.value = false;
+      setTimeout(() => {
+        ro.value = true;
+      });
+    };
+    provide("reload", reload);
+    return {
+      ro,
+    };
+  },
+  data() {
+    return {
+      includes: [
+        "buildorder",
+        "oilInfo",
+        "feesList",
+        "mywork",
+        "myorder",
+        "myByOrdey",
+        "myByFees",
+        "orderApproval",
+        "feesApproval",
+        "cardApproval",
+        "myapproval",
+        "TAKE5",
+      ],
+    };
+  },
+};
+</script>
 <style lang="scss">
+.top-sticky,
+.end-sticky {
+  position: fixed;
+  left: 0;
+  background-color: rgba(249, 249, 250, 1);
+  padding: 1rem;
+  z-index: 2;
+}
+.top-sticky {
+  top: 0;
+}
+.end-sticky {
+  bottom: 0;
+}
 body,
 html {
   margin: 0;
-  height: 100%;
   background: rgba(249, 249, 250, 1);
 }
 .station {
   overflow: visible !important;
-  font-size: 0.8rem;
-  padding-bottom: 1rem;
+  font-size: 3vw;
+  padding-bottom: 2vw;
   .flex {
-    font-size: 0.8rem;
-    padding: 1rem 1rem 0 1rem;
+    padding: 1.5vw 1rem 0 1rem;
     display: flex;
-    align-items: center;
+    align-items: baseline;
     flex-wrap: wrap;
     span {
+      word-break: break-all;
       flex: 1;
+      &:nth-child(1) {
+        flex: 1.3;
+      }
     }
   }
   .left {
     display: inline-block;
-    margin-top: 1rem;
-    font-size: 1.1rem;
+    margin-top: 2vw;
+    font-size: 3vw;
     font-weight: 600;
-    padding: 0.2rem 1rem;
-    border-radius: 0 1rem 1rem 0;
+    padding: 1vw 1rem;
+    border-radius: 0 4vw 4vw 0;
     background: linear-gradient(267deg, #fbd01f, #fee568);
   }
   .upDate {
@@ -42,10 +94,14 @@ html {
     position: absolute;
     width: 100%;
     display: flex;
-    top: 2rem;
+    top: 5vw;
     span {
+      font-size: 2.5vw;
       display: inline-block;
       flex: 1;
+      &:nth-child(1) {
+        flex: 1.3;
+      }
     }
   }
   .right {
@@ -55,8 +111,8 @@ html {
     z-index: 1;
     .icon {
       position: relative;
-      right: 1.5rem;
-      top: 1rem;
+      right: 0.5rem;
+      top: 0.5rem;
       width: 1rem;
       height: 1rem;
       box-shadow: 0 -0.05rem 0.1rem 0 rgba(0, 0, 0, 0.25);
@@ -71,14 +127,11 @@ html {
 #app {
   color: #2c3e50;
   background: rgba(249, 249, 250, 1);
-  padding: 1rem;
+  padding: 0 1rem 1rem 1rem;
   overflow-x: hidden;
 }
-.b_fixed {
-  position: sticky;
-  margin-top: 1rem;
-  bottom: 0;
-  left: 0;
+.van-popup--bottom {
+  bottom: 10%;
 }
 .cancel {
   display: flex;

@@ -377,7 +377,7 @@ export default {
     width: 49%;
   }
 }
-::v-deep .van-dialog {
+::v-deep() .van-dialog {
   text-align: center;
   padding: 0.5rem;
   border-radius: 0.2rem;
@@ -407,7 +407,7 @@ export default {
   background: linear-gradient(to right, #fee568 0%, #fbd01f 100%);
   padding: 0.8rem 0;
   height: 2.2rem;
-  ::v-deep .van-field {
+  ::v-deep() .van-field {
     margin: 0 auto;
     width: 90%;
     height: 100%;
@@ -415,7 +415,7 @@ export default {
     align-items: center;
   }
 }
-::v-deep .van-popup--bottom {
+::v-deep() .van-popup--bottom {
   width: 90%;
   left: 5%;
   border-radius: 0.3rem;
@@ -448,14 +448,14 @@ export default {
     }
     display: flex;
     justify-content: space-between;
-    ::v-deep .van-cell {
+    ::v-deep() .van-cell {
       &__value {
         text-align: left;
         color: #656565;
       }
     }
   }
-  ::v-deep .van-cell {
+  ::v-deep() .van-cell {
     padding: 0.1rem 1rem;
     &__title {
       font-size: 0.75rem;
@@ -555,7 +555,7 @@ p {
   background-color: #ffcd11;
 }
 .textarea {
-  ::v-deep .van-field__control {
+  ::v-deep() .van-field__control {
     height: 5rem;
     color: #666666;
     font-size: 0.8rem;

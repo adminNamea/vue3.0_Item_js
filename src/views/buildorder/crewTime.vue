@@ -24,7 +24,6 @@
         v-model="currentDate"
         :show-toolbar="false"
         type="datetime"
-        :min-date="minDate"
       />
     </van-dialog>
     <van-popup v-model:show="show" position="bottom" :style="{ height: '77%' }">
@@ -72,89 +71,60 @@
         >
       </div>
     </van-popup>
-    <van-form @submit="onSubmit" ref="form">
-      <card title="工单类型：">
-        <template #right>
-          <select-a v-model="form.order_type" :options="options"></select-a>
-        </template>
-        <p>
-          主修
-          <span
-            @click="$router.push({ name: 'index' })"
-            style="color: rgba(250, 207, 6, 1); font-size: 0.8rem"
-            >返回首页</span
-          >
-        </p>
-        <van-cell
-          :title="form.checkedMajor.name_cn || '添加'"
-          is-link
-          @click="onShow(1)"
-        />
-        <p>副修</p>
-        <van-cell
-          v-for="(item, index) in form.minorData"
-          :key="index"
-          :title="item.name_cn"
-        >
-          <div class="del" @click="del(item.userid)">删除</div>
-        </van-cell>
-        <van-cell title="添加" is-link @click="onShow(2)" />
-        <p>时间规划</p>
-        <van-cell
-          title="承诺派工时间"
-          @click="showTimeDialog(1)"
-          :value="form.promise_work_time"
-          is-link
-        />
-        <van-cell
-          title="承诺到达时间"
-          @click="showTimeDialog(2)"
-          :value="form.promise_time"
-          is-link
-        />
-        <van-cell
-          title="承诺完成时间"
-          @click="showTimeDialog(3)"
-          :value="form.promise_finish_time"
-          is-link
-        />
-      </card>
-      <div style="margin-top: 1rem">
-        <van-button
-          round
-          block
-          color="linear-gradient(to right, #FFCD11, #FFE775)"
-          native-type="submit"
-          >下一步</van-button
-        >
-      </div>
-    </van-form>
+    <p>
+      主修
+      <span
+        @click="$router.push({ name: 'index' })"
+        style="color: rgba(250, 207, 6, 1); font-size: 0.8rem"
+        >返回首页</span
+      >
+    </p>
+    <van-cell
+      :title="form.checkedMajor.name_cn || '添加'"
+      is-link
+      @click="onShow(1)"
+    />
+    <p>副修</p>
+    <van-cell
+      v-for="(item, index) in form.minorData"
+      :key="index"
+      :title="item.name_cn"
+    >
+      <div class="del" @click="del(item.userid)">删除</div>
+    </van-cell>
+    <van-cell title="添加" is-link @click="onShow(2)" />
+    <p>时间规划</p>
+    <van-cell
+      title="承诺派工时间"
+      @click="showTimeDialog(1)"
+      :value="form.promise_work_time"
+      is-link
+    />
+    <van-cell
+      title="承诺到达时间"
+      @click="showTimeDialog(2)"
+      :value="form.promise_time"
+      is-link
+    />
+    <van-cell
+      title="承诺完成时间"
+      @click="showTimeDialog(3)"
+      :value="form.promise_finish_time"
+      is-link
+    />
   </div>
 </template>
 <script>
-import card from "@/components/card/index.vue";
-import select from "@/components/select/index.vue";
 import { Dialog } from "vant";
-import { inject } from "vue";
 
 export default {
-  setup() {
-    const options = inject("options");
-    return {
-      options,
-    };
-  },
   props: {
     form: {
       default() {
-        return {};
+        return { checkedMajor: {} };
       },
       type: Object,
     },
-  },
-  components: {
-    card,
-    "select-a": select,
   },
   mounted() {
     this.search();
@@ -166,7 +136,6 @@ export default {
       currentDate: new Date(),
       // 时间弹出框
       showTime: false,
-      minDate: new Date(),
       // 选中图标
       checkedIcon: require("@/assets/img/choice-blue.png"),
       // 未选中图标
@@ -213,19 +182,17 @@ export default {
             .then(() => {
               // 同步删除绑定工位的人员
               this.form.station.forEach((s) => {
-                s.crew.forEach((c, i) => {
+                s.crew.find((c, i) => {
                   if (c.userid === id) {
                     s.crew.splice(i, 1);
-                    return false;
+                    return true;
                   }
-                  return true;
                 });
-                s.user_id.forEach((v, i) => {
+                s.user_id.find((v, i) => {
                   if (v === id) {
                     s.user_id.splice(i, 1);
-                    return false;
+                    return true;
                   }
-                  return true;
                 });
                 r(true);
               });
@@ -244,7 +211,7 @@ export default {
     // 选中副修事件
     checkedClick(item) {
       let status = true;
-      this.checkedData.forEach((obj, index) => {
+      this.checkedData.find((obj, index) => {
         if (obj.userid === item.userid) {
           // 同步工位人员数据
           this.delSationCrew(item.userid, "该人员已绑定工位确定取消吗").then(
@@ -253,9 +220,8 @@ export default {
             }
           );
           status = false;
-          return false;
+          return true;
         }
-        return true;
       });
       if (status) {
         this.checkedData.push(item);
@@ -273,12 +239,11 @@ export default {
     del(id) {
       this.delSationCrew(id, "该人员已绑定工位确定删除吗").then((status) => {
         if (status) {
-          this.form.minorData.forEach((obj, index) => {
+          this.form.minorData.find((obj, index) => {
             if (obj.userid === id) {
               this.form.minorData.splice(index, 1);
-              return false;
+              return true;
             }
-            return true;
           });
         }
       });
@@ -311,23 +276,17 @@ export default {
       const time = ["promise_work_time", "promise_time", "promise_finish_time"];
       this.form[time[this.timeType - 1]] = this.filterTime(this.currentDate);
     },
-    // 提交
-    onSubmit() {
-      this.form.major_user_id = this.form.checkedMajor.userid;
-      this.form.minor_user_id = this.form.minorData.map((item) => item.userid);
-      this.$emit("next");
-    },
   },
 };
 </script>
 <style lang='scss' scoped>
-::v-deep .van-cell::after {
+::v-deep() .van-cell::after {
   transform: scale(1);
 }
 .not {
   font-size: 0.8rem;
 }
-::v-deep.van-cell:not(.not) .van-cell__title {
+::v-deep() .van-cell:not(.not) .van-cell__title {
   padding-left: 1.5rem;
   font-size: 0.8rem;
   &::before {
@@ -341,10 +300,10 @@ export default {
     background-color: #fad23f;
   }
 }
-::v-deep .van-cell__value {
+::v-deep() .van-cell__value {
   font-size: 0.8rem;
 }
-::v-deep .van-popup--bottom {
+::v-deep() .van-popup--bottom {
   width: 90%;
   left: 5%;
   border-radius: 0.3rem;
@@ -361,11 +320,11 @@ export default {
   margin-top: 1rem;
   font-size: 0.8rem;
 }
-::v-deep .van-dialog__header {
+::v-deep() .van-dialog__header {
   padding: 0.7rem;
   background-color: #ffcd11;
 }
-::v-deep .van-dialog {
+::v-deep() .van-dialog {
   border-radius: 1rem;
 }
 .popupBody {
@@ -399,7 +358,7 @@ export default {
   background: linear-gradient(to right, #fee568 0%, #fbd01f 100%);
   padding: 0.8rem 0;
   height: 2.2rem;
-  ::v-deep .van-field {
+  .van-field {
     margin: 0 auto;
     width: 90%;
     height: 100%;

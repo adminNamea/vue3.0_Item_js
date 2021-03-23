@@ -1,54 +1,39 @@
 <template>
   <div class="other">
-    <van-form @submit="onSubmit" ref="form">
-      <card title="工单类型：">
-        <p>
-          其他
-          <span
-            @click="$router.push({ name: 'index' })"
-            style="color: rgba(250, 207, 6, 1); font-size: 0.8rem"
-            >返回首页</span
-          >
-        </p>
-        <van-cell title="是否停机:" class="checkIcon">
-          <div @click="form.is_halt = 1">
-            <span>是</span>
-            <img :src="form.is_halt === 1 ? checkedIcon : noCheckedIcon" />
-          </div>
-          <div @click="form.is_halt = 2">
-            <span>否</span>
-            <img :src="form.is_halt === 2 ? checkedIcon : noCheckedIcon" />
-          </div>
-        </van-cell>
-        <van-field v-model="form.service_car" label="服务车牌号：" />
-        <van-field
-          class="textarea"
-          v-model="form.order_reason"
-          type="textarea"
-          label="客户反馈："
-        />
-        <van-field
-          class="textarea"
-          v-model="form.order_note"
-          type="textarea"
-          label="备注："
-        />
-      </card>
-      <div style="margin-top: 1rem">
-        <van-button
-          round
-          block
-          color="linear-gradient(to right, #FFCD11, #FFE775)"
-          native-type="submit"
-          >下一步</van-button
-        >
+    <p>
+      其他
+      <span
+        @click="$router.push({ name: 'index' })"
+        style="color: rgba(250, 207, 6, 1); font-size: 0.8rem"
+        >返回首页</span
+      >
+    </p>
+    <van-cell title="是否停机:" class="checkIcon">
+      <div @click="form.is_halt = 1">
+        <span>是</span>
+        <img :src="form.is_halt === 1 ? checkedIcon : noCheckedIcon" />
       </div>
-    </van-form>
+      <div @click="form.is_halt = 2">
+        <span>否</span>
+        <img :src="form.is_halt === 2 ? checkedIcon : noCheckedIcon" />
+      </div>
+    </van-cell>
+    <van-field v-model="form.service_car" label="服务车牌号：" />
+    <van-field
+      class="textarea"
+      v-model="form.order_reason"
+      type="textarea"
+      label="客户反馈："
+    />
+    <van-field
+      class="textarea"
+      v-model="form.order_note"
+      type="textarea"
+      label="备注："
+    />
   </div>
 </template>
 <script>
-import card from "@/components/card/index.vue";
-
 export default {
   props: {
     form: {
@@ -58,9 +43,6 @@ export default {
       type: Object,
     },
   },
-  components: {
-    card,
-  },
   data() {
     return {
       // 选中图标
@@ -69,16 +51,10 @@ export default {
       noCheckedIcon: require("@/assets/img/未选中.png"),
     };
   },
-  methods: {
-    // 提交
-    onSubmit() {
-      this.$emit("next");
-    },
-  },
 };
 </script>
 <style lang='scss' scoped>
-::v-deep .checkIcon {
+::v-deep() .checkIcon {
   .van-cell__value {
     display: flex;
     flex: none;
@@ -97,7 +73,7 @@ export default {
     }
   }
 }
-::v-deep .van-cell .van-cell__title {
+::v-deep() .van-cell .van-cell__title {
   color: #000;
   padding-left: 1.5rem;
   font-size: 0.8rem;
@@ -113,10 +89,10 @@ export default {
     background-color: #fad23f;
   }
 }
-::v-deep .van-cell__value {
+::v-deep() .van-cell__value {
   font-size: 0.8rem;
 }
-::v-deep .van-field__control {
+::v-deep() .van-field__control {
   font-size: 0.8rem;
   padding-left: 0.5rem;
   background: rgba(249, 249, 250, 1);
@@ -132,7 +108,7 @@ p {
     margin-right: 1.5rem;
   }
 }
-::v-deep .textarea {
+::v-deep() .textarea {
   height: 7rem;
   .van-field__body,
   .van-field__control {

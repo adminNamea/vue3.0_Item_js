@@ -16,6 +16,13 @@ module.exports = {
       .set('@views', resolve('src/views'))
       .set('@store', resolve('src/store'));
   },
+  css: {
+    loaderOptions: {
+      sass: {
+        prependData: `@import "@/assets/scss/_mymixins.scss";`
+      }
+    }
+  },
   devServer: {
     hotOnly: true, // 热更新
   }

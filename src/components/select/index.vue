@@ -1,8 +1,8 @@
 <template>
-  <div class="select" :style="{ height: h + 'rem' }">
+  <div class="select" :style="{ height: hs }">
     <van-overlay :show="show" @click="onClick" />
     <div class="cell" @click.stop="onClick" :style="is ? 'z-index:3' : ''">
-      <div class="title" :style="{ height: h + 'rem' }">
+      <div class="title" :style="{ height: hs }">
         <div>
           <span v-if="label">{{ label }}</span>
           <span>{{ title }}</span>
@@ -44,7 +44,7 @@ export default {
     },
     h: {
       default: 1.2,
-      type: Number,
+      type: [Number, String],
     },
   },
   data() {
@@ -55,6 +55,12 @@ export default {
     };
   },
   computed: {
+    hs() {
+      if (typeof this.h === "string") {
+        return this.h;
+      }
+      return `${this.h}rem`;
+    },
     title() {
       const filterObj = this.options.find(
         (item) => item.value === this.modelValue
@@ -87,7 +93,7 @@ export default {
   height: 1rem;
   width: 100%;
 }
-::v-deep .van-overlay {
+::v-deep() .van-overlay {
   z-index: 2;
 }
 .cell {

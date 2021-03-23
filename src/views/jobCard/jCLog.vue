@@ -146,7 +146,7 @@ export default {
   justify-content: space-between;
 }
 .top {
-  ::v-deep .van-cell {
+  ::v-deep() .van-cell {
     font-size: 1.1rem;
     padding: 12px 16px;
     line-height: normal;
@@ -175,18 +175,18 @@ export default {
     }
   }
 }
-::v-deep .van-dialog__header {
+::v-deep() .van-dialog__header {
   padding: 0.7rem;
   background-color: #ffcd11;
 }
-::v-deep .van-dialog {
+::v-deep() .van-dialog {
   border-radius: 1rem;
 }
 .stations {
   display: flex;
   justify-content: space-between;
   min-height: 3rem !important;
-  ::v-deep .van-cell {
+  ::v-deep() .van-cell {
     display: inline-flex;
     width: 30%;
     &__value {
@@ -203,7 +203,7 @@ export default {
       width: 100%;
     }
   }
-  ::v-deep .body {
+  ::v-deep() .body {
     width: 100%;
   }
 }
@@ -240,7 +240,7 @@ export default {
     border-radius: 50%;
   }
 }
-::v-deep .van-icon {
+::v-deep() .van-icon {
   transform: scale(1.5);
 }
 </style>
