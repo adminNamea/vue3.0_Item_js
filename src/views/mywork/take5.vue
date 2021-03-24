@@ -1,309 +1,203 @@
 <template>
   <div class="fillInfo">
-    <van-form @submit="onSubmit">
-      <card :hed="false" :top="false">
-        <p>当前定位</p>
-        <span class="lo"
-          >广东省佛山市顺德区伟业路10号之1靠近森达美信昌机器工程（广东）有限公司</span
+    <van-action-sheet v-model:show="showPopup">
+      <div class="search">
+        <van-field
+          @input="search"
+          left-icon="search"
+          v-model="keyword"
+          placeholder="请输入名称或者角色"
+        />
+      </div>
+      <div class="popupBody">
+        <div
+          class="imgCell"
+          v-for="(item, index) in userList"
+          :key="index"
+          @click="checkedClick(item)"
         >
-      </card>
-      <card :hed="false" :top="false">
-        <div class="left">第一步：停下来</div>
+          <img :src="isChecked(item)" />
+          <van-cell class="not" :title="'姓名：' + item.name_cn" />
+        </div>
+      </div>
+      <van-button
+        class="b_fixed"
+        block
+        @click="confirm"
+        color="linear-gradient(to right, #FFCD11, #FFE775)"
+        >确定</van-button
+      >
+    </van-action-sheet>
+    <van-dialog v-model:show="show" width="90%" show-cancel-button>
+      <div class="dialog__header">
+        {{ taekTitle }}
+        <div class="right">
+          <span>是</span>
+          <span>否</span>
+          <span>不适用</span>
+        </div>
+      </div>
+      <div class="dialog__c">
+        <div v-for="(v, i) in dialogList" :key="i">
+          <van-cell v-if="v.type == 3" :title="i + 1 + '.' + v.title">
+            <template #right-icon>
+              <div
+                class="rightIcon"
+                style="width: 9rem; justify-content: space-around"
+              >
+                <van-icon
+                  @click="v.status == 1 ? (v.status = null) : (v.status = 1)"
+                  :name="v.status == 1 ? checkedIcon : noCheckedIcon"
+                />
+                <van-icon
+                  @click="v.status == 2 ? (v.status = null) : (v.status = 2)"
+                  :name="
+                    v.status == 2
+                      ? require('@/assets/img/choice-red.png')
+                      : noCheckedIcon
+                  "
+                />
+                <van-icon
+                  @click="v.status == 3 ? (v.status = null) : (v.status = 3)"
+                  :name="
+                    v.status == 3
+                      ? require('@/assets/img/choice-red.png')
+                      : noCheckedIcon
+                  "
+                />
+              </div>
+            </template>
+          </van-cell>
+          <van-field
+            v-if="v.type == 4"
+            :label="v.title"
+            class="textarea"
+            type="textarea"
+            v-model="v.msg"
+          />
+        </div>
+      </div>
+    </van-dialog>
+    <card :title="'定位:' + takeList.location" :top="false">
+      <van-cell
+        title="工作单号:"
+        class="lo"
+        :value="takeList.order_number"
+      ></van-cell>
+      <van-cell
+        class="lo"
+        title="工作内容描述:"
+        :value="takeList.order_reason"
+      ></van-cell>
+    </card>
+    <card :hed="false" :top="false" v-for="(v, i) in takeData" :key="i">
+      <div class="leftBlock">
+        <div class="left">
+          {{ v.title }}
+          <div v-if="v.is" class="is">
+            <span>是</span>
+            <span>否</span>
+          </div>
+        </div>
+      </div>
+      <div v-for="(item, index) in v.items" :key="index">
+        <div class="f" v-if="item.type == 6">
+          {{ item.title }}
+        </div>
         <van-cell
-          title="1.到达工作地点旁边，先停下来，我已了解工作内容,并观察周围环境"
-          @click="checkde(1)"
+          v-if="item.type != 4 && item.type != 5 && item.type != 6"
+          :title="TITLE(item, index, i)"
         >
-          <template #right-icon>
-            <van-icon :name="icon(1)" />
+          <template #icon v-if="item.required">
+            <van-icon
+              class="leftIcon"
+              :name="require('@/assets/img/星星.png')"
+            />
           </template>
-        </van-cell>
-      </card>
-      <card :hed="false" :top="false">
-        <div class="left">第二步：看一看</div>
-        <van-cell
-          title="1.我有足够的技术及只是来进行今日任务"
-          @click="checkde(2)"
-        >
           <template #right-icon>
-            <van-icon :name="icon(2)" />
-          </template>
-        </van-cell>
-        <van-cell title="2.我已有定制的程序" @click="checkde(3)">
-          <template #right-icon>
-            <van-icon :name="icon(3)" />
-          </template>
-        </van-cell>
-        <van-cell title="3.我明白工作中的每一个步骤" @click="checkde(4)">
-          <template #right-icon>
-            <van-icon :name="icon(4)" />
-          </template>
-        </van-cell>
-        <van-cell title="4.我的设备及工具状况良好" @click="checkde(5)">
-          <template #right-icon>
-            <van-icon :name="icon(5)" />
-          </template>
-        </van-cell>
-        <van-cell title="5.我配有正确的PPE" @click="checkde(6)">
-          <template #right-icon>
-            <van-icon :name="icon(6)" />
-          </template>
-        </van-cell>
-        <van-cell title="6.我已取得所需的许可去授权和工作" @click="checkde(7)">
-          <template #right-icon>
-            <van-icon :name="icon(7)" />
-          </template>
-        </van-cell>
-        <van-cell title="7.我脑子有清晰的计划" @click="checkde(8)">
-          <template #right-icon>
-            <van-icon :name="icon(8)" />
-          </template>
-        </van-cell>
-      </card>
-      <card :hed="false" :top="false">
-        <div class="left">第三步：是否识别危害</div>
-        <van-cell
-          title="看近些，看这些，看高些，看低些,我是否已考虑/身处这些危害"
-          @click="checkde(9)"
-        >
-          <template #right-icon>
-            <van-icon :name="icon(9)" />
-          </template>
-        </van-cell>
-        <div class="f">人为危害</div>
-        <van-cell title="1.别扭的姿势" @click="checkde(10)">
-          <template #right-icon>
-            <van-icon :name="icon(10)" />
-          </template>
-        </van-cell>
-        <van-cell title="2.重复的动作" @click="checkde(11)">
-          <template #right-icon>
-            <van-icon :name="icon(11)" />
-          </template>
-        </van-cell>
-        <van-cell title="3.人力提举（提，放，推，拉）" @click="checkde(12)">
-          <template #right-icon>
-            <van-icon :name="icon(12)" />
-          </template>
-        </van-cell>
-        <van-cell title="4.其他人在工作（在上或在下）" @click="checkde(13)">
-          <template #right-icon>
-            <van-icon :name="icon(13)" />
-          </template>
-        </van-cell>
-        <van-cell title="5.疲劳" @click="checkde(14)">
-          <template #right-icon>
-            <van-icon :name="icon(14)" />
-          </template>
-        </van-cell>
-        <div class="f">环境危害</div>
-        <van-cell title="1.场地脏乱" @click="checkde(15)">
-          <template #right-icon>
-            <van-icon :name="icon(15)" />
-          </template>
-        </van-cell>
-        <van-cell title="2.视野不良" @click="checkde(16)">
-          <template #right-icon>
-            <van-icon :name="icon(16)" />
-          </template>
-        </van-cell>
-        <van-cell title="3.湿，滑，不稳定的地面" @click="checkde(17)">
-          <template #right-icon>
-            <van-icon :name="icon(17)" />
-          </template>
-        </van-cell>
-        <van-cell title="4.噪音，震动" @click="checkde(18)">
-          <template #right-icon>
-            <van-icon :name="icon(18)" />
-          </template>
-        </van-cell>
-        <van-cell title="5.高温，高热" @click="checkde(19)">
-          <template #right-icon>
-            <van-icon :name="icon(19)" />
-          </template>
-        </van-cell>
-        <van-cell title="6.废弃" @click="checkde(20)">
-          <template #right-icon>
-            <van-icon :name="icon(20)" />
-          </template>
-        </van-cell>
-        <van-cell title="7.密闭空间" @click="checkde(21)">
-          <template #right-icon>
-            <van-icon :name="icon(21)" />
-          </template>
-        </van-cell>
-        <van-cell title="8.不良天气" @click="checkde(22)">
-          <template #right-icon>
-            <van-icon :name="icon(22)" />
-          </template>
-        </van-cell>
-        <van-cell title="9.其他危害" @click="checkde(23)">
-          <template #right-icon>
-            <van-icon :name="icon(23)" />
-          </template>
-        </van-cell>
-        <van-cell title="10.能量积聚" @click="checkde(24)">
-          <template #right-icon>
-            <van-icon :name="icon(24)" />
-          </template>
-        </van-cell>
-        <van-cell title="11.化学" @click="checkde(25)">
-          <template #right-icon>
-            <van-icon :name="icon(25)" />
-          </template>
-        </van-cell>
-        <van-cell title="12.电力生物" @click="checkde(26)">
-          <template #right-icon>
-            <van-icon :name="icon(26)" />
-          </template>
-        </van-cell>
-        <van-cell title="13.火力" @click="checkde(27)">
-          <template #right-icon>
-            <van-icon :name="icon(27)" />
-          </template>
-        </van-cell>
-        <van-cell title="14.辐射" @click="checkde(28)">
-          <template #right-icon>
-            <van-icon :name="icon(28)" />
-          </template>
-        </van-cell>
-        <div class="f">机械危害</div>
-        <van-cell title="1.意外启动" @click="checkde(29)">
-          <template #right-icon>
-            <van-icon :name="icon(29)" />
-          </template>
-        </van-cell>
-        <van-cell title="2.移动设备" @click="checkde(30)">
-          <template #right-icon>
-            <van-icon :name="icon(30)" />
-          </template>
-        </van-cell>
-        <van-cell title="3.滚动机械" @click="checkde(31)">
-          <template #right-icon>
-            <van-icon :name="icon(31)" />
-          </template>
-        </van-cell>
-        <van-cell title="4.转动部分" @click="checkde(32)">
-          <template #right-icon>
-            <van-icon :name="icon(32)" />
-          </template>
-        </van-cell>
-        <van-cell title="5.夹手位" @click="checkde(33)">
-          <template #right-icon>
-            <van-icon :name="icon(33)" />
-          </template>
-        </van-cell>
-        <div class="f">重力危害</div>
-        <van-cell title="1.高空工作" @click="checkde(34)">
-          <template #right-icon>
-            <van-icon :name="icon(34)" />
-          </template>
-        </van-cell>
-        <van-cell title="2.高空坠物" @click="checkde(35)">
-          <template #right-icon>
-            <van-icon :name="icon(35)" />
-          </template>
-        </van-cell>
-        <van-cell title="3.重压设备/工具" @click="checkde(36)">
-          <template #right-icon>
-            <van-icon :name="icon(36)" />
-          </template>
-        </van-cell>
-        <van-cell title="4.落山/山泥倾斜" @click="checkde(37)">
-          <template #right-icon>
-            <van-icon :name="icon(37)" />
-          </template>
-        </van-cell>
-        <div class="f">填写建议</div>
-        <van-field type="textarea" class="textarea" v-model="value" />
-        <div class="f"></div>
-        <van-cell title="1.我已完成上列的危害清单" @click="checkde(38)">
-          <template #right-icon>
-            <van-icon :name="icon(38)" />
-          </template>
-        </van-cell>
-        <van-cell title="2.我知道如何处理以上危害" @click="checkde(39)">
-          <template #right-icon>
-            <van-icon :name="icon(39)" />
-          </template>
-        </van-cell>
-        <van-cell title="3.我将会操作设备之护罩已妥善安装" @click="checkde(40)">
-          <template #right-icon>
-            <van-icon :name="icon(40)" />
-          </template>
-        </van-cell>
-        <van-cell
-          title="4.当我操作移动设备/机械时，会对自身/他人造成危险"
-          @click="checkde(41)"
-        >
-          <template #right-icon>
-            <van-icon :name="icon(41)" />
-          </template>
-        </van-cell>
-      </card>
-      <card :hed="false" :top="false">
-        <div class="left">第四步：做计划</div>
-        <van-cell title="1.我已计划了措施来控制以上危害" @click="checkde(42)">
-          <template #right-icon>
-            <van-icon :name="icon(42)" />
-          </template>
-        </van-cell>
-        <van-cell
-          title="2.我有能力执行相关措施来控制以上危害"
-          @click="checkde(43)"
-        >
-          <template #right-icon>
-            <van-icon :name="icon(43)" />
-          </template>
-        </van-cell>
-        <van-cell title="3.灭有告绝不妥的地方" @click="checkde(44)">
-          <template #right-icon>
-            <van-icon :name="icon(44)" />
-          </template>
-        </van-cell>
-      </card>
-      <card :hed="false" :top="false">
-        <div class="left">第五步：安全工作</div>
-        <van-cell title="1.我将开展工作及留意现场情况" @click="checkde(45)">
-          <template #right-icon>
-            <van-icon :name="icon(45)" />
+            <div class="rightIcon">
+              <van-icon
+                v-if="item.type != 7"
+                @click="itemShow(item)"
+                :name="item.status == 1 ? checkedIcon : noCheckedIcon"
+              />
+              <van-icon
+                @click="
+                  item.status == 2 ? (item.status = null) : (item.status = 2)
+                "
+                v-if="item.type == 2"
+                :name="
+                  item.status == 2
+                    ? require('@/assets/img/choice-red.png')
+                    : noCheckedIcon
+                "
+              />
+              <span
+                v-if="item.parent == 1 && item.status == 1"
+                @click="itemShow(item, true)"
+                style="color: #368ec1"
+                >查看</span
+              >
+            </div>
           </template>
         </van-cell>
         <van-field
-          label="备注："
+          v-if="item.type == 4"
           class="textarea"
           type="textarea"
-          v-model="value"
+          v-model="item.msg"
         />
-        <van-cell title="上传图片：" value-class="upload">
+        <van-cell v-if="item.type == 5" title="上传图片：" class="upload">
           <van-uploader
-            :max-count="4"
-            v-model="fileList"
+            @delete="deleteImg"
+            :max-count="9"
+            multiple
             :after-read="afterRead"
+            v-model="item.msg"
           >
             <img
               style="height: 4rem; width: 4rem"
               src="@/assets/img/uploader.png"
             />
-            <template #preview-cover="{ file }">
-              <div class="preview-cover van-ellipsis">{{ file.name }}</div>
-            </template>
           </van-uploader>
         </van-cell>
-      </card>
+        <van-cell v-if="item.is_notice" :class="{ disable: item.status != 1 }">
+          <template #title>
+            抄送人：{{ item.user.map((u) => u.name_cn).join(",") }}
+          </template>
+          <template #right-icon>
+            <span
+              @click="
+                (showPopup = true),
+                  (userItem = item),
+                  (checkedUser = [...item.user])
+              "
+              :class="{ disable: item.status != 1 }"
+              style="color: #368ec1"
+              >添加抄送人</span
+            >
+          </template>
+        </van-cell>
+      </div>
+    </card>
+    <div v-sticky="false">
       <van-button
-        class="b_fixed"
         round
         block
         color="linear-gradient(to right, #FFCD11, #FFE775)"
         native-type="submit"
+        @click="onSubmit"
         >提交</van-button
       >
-    </van-form>
+    </div>
   </div>
 </template>
 <script>
 import card from "@/components/card/index.vue";
-import { Dialog } from "vant";
+import { Dialog, Toast } from "vant";
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { cloneDeep } from "lodash";
+import { device } from "dingtalk-jsapi";
 
 export default {
   components: {
@@ -311,66 +205,402 @@ export default {
   },
   data() {
     return {
-      value: "",
+      showPopup: false,
+      keyword: "",
+      userList: "",
+      show: false,
+      taekTitle: "",
+      dialogType: 1,
       fileList: [],
       checkedIcon: require("@/assets/img/choice-blue.png"),
       noCheckedIcon: require("@/assets/img/choice-gray.png"),
       checkdeData: [],
+      takeList: { location: "定位中...", list: [] },
+      checkedUser: [],
+      userItem: {},
     };
   },
-  methods: {
-    onSubmit() {
-      if (this.checkdeData.length === 45) {
-        this.$api
-          .upOrderContacts({})
-          .then(() => {
-            Dialog.alert({
-              message: "提交成功",
-            }).then(() => {
-              this.$router.go(-1);
-            });
+  created() {
+    this.search();
+    this.getTakeList();
+  },
+  computed: {
+    dialogList() {
+      return this.takeList.list.filter((v) => v.parent_id === this.dialogType);
+    },
+    takeData() {
+      const data = {
+        1: {
+          title: "第一步：停下来",
+          items: [],
+        },
+        2: {
+          title: "第二步：看一看",
+          items: [],
+        },
+        3: {
+          title: "第三步：是否识别危害",
+          items: [],
+        },
+        4: {
+          title: "第四步：做计划",
+          items: [],
+        },
+        5: {
+          title: "第五步：安全工作",
+          items: [],
+        },
+      };
+      this.takeList.list.forEach((v) => {
+        if (v.parent_id === 0) {
+          data[v.take].items.push(v);
+          if (v.type === 2) {
+            data[v.take].is = true;
+          }
+        }
+      });
+      return data;
+    },
+  },
+  watch: {
+    takeList(n) {
+      if (n.list.length > 0) {
+        device.geolocation
+          .get({
+            targetAccuracy: 200,
+            coordinate: 1,
+            withReGeocode: true,
+            onSuccess: (result) => {
+              if (result.address) {
+                this.takeList.location = result.address;
+              } else {
+                const { province, city, district, road } = result;
+                this.takeList.location = province + city + district + road;
+              }
+            },
+            onFail: () => {
+              this.takeList.location = "定位失败";
+            },
           })
-          .catch((message) => {
-            Dialog({ message });
+          .catch(() => {
+            this.takeList.location = "定位失败";
           });
-      } else {
-        Dialog({ message: "请仔细阅读,并确认" });
       }
     },
-    afterRead() {},
-    icon(i) {
-      const status = this.checkdeData.includes(i);
-      return status ? this.checkedIcon : this.noCheckedIcon;
+  },
+  methods: {
+    TITLE(item, index, i) {
+      return i === 3
+        ? item.type !== 7
+          ? `${index - 1}.${item.title}`
+          : item.title
+        : `${index + 1}.${item.title}`;
     },
-    checkde(i) {
-      const status = this.checkdeData.find((v, index) => {
-        if (v === i) {
-          this.checkdeData.splice(index, 1);
+    async afterRead(f) {
+      let arr = [f];
+      if (f.length) {
+        arr = [...f];
+      }
+      for (const v of arr) {
+        v.message = "等待上传...";
+        v.status = "uploading";
+      }
+      for (const v of arr) {
+        v.message = "上传中...";
+        this.putOSS(v)
+          .then((path) => {
+            v.status = "done";
+            v.path = path;
+          })
+          .catch(() => {
+            v.status = "failed";
+            v.message = "上传失败";
+          });
+      }
+    },
+    itemShow(item, c) {
+      if (c) {
+        this.show = true;
+        this.dialogType = item.id;
+        this.taekTitle = item.title;
+      } else if (item.status !== 1) {
+        item.status = 1;
+        if (item.parent === 1) {
+          this.show = true;
+          this.dialogType = item.id;
+          this.taekTitle = item.title;
+        }
+      } else {
+        item.status = null;
+      }
+    },
+    async deleteImg(file) {
+      if (file.path) {
+        Toast.loading({
+          duration: 0,
+          overlay: true,
+          message: "请稍后...",
+          forbidClick: true,
+        });
+        await this.delOSS(file.path);
+        Toast.clear();
+      }
+    },
+    getTakeList() {
+      this.$api
+        .takeFive()
+        .then((res) => {
+          if (res.location === "定位失败" || !res.location) {
+            res.location = "定位中...";
+          }
+          console.log(cloneDeep(res));
+          this.takeList = { ...res, delImg: [] };
+        })
+        .catch((message) => {
+          Dialog({ message });
+        });
+    },
+    async onSubmit() {
+      Toast.loading({
+        duration: 0,
+        overlay: true,
+        message: "请稍后...",
+        forbidClick: true,
+      });
+      const obj = cloneDeep(this.takeList);
+      const { msg } = obj.list.find((v) => v.type === 5);
+      msg.forEach((v) => {
+        for (const key in v) {
+          if (key !== "path") {
+            delete v[key];
+          }
+        }
+      });
+      obj.list = JSON.stringify(obj.list);
+      console.log(msg);
+      this.$api
+        .takeFiveEdit(obj)
+        .then((res) => {
+          Dialog.alert({ message: res.msg }).then(() => {
+            this.$router.go(-1);
+          });
+        })
+        .catch((message) => {
+          Dialog({ message });
+        })
+        .finally(() => {
+          Toast.clear();
+        });
+    },
+    // 搜索事件
+    search() {
+      this.$api
+        .getUserList({ keyword: this.keyword })
+        .then((res) => {
+          this.userList = res;
+        })
+        .catch((message) => {
+          Dialog({ message });
+          console.log(message);
+        });
+    },
+    // 选中人员事件
+    checkedClick(item) {
+      const user = this.checkedUser.find((obj, index) => {
+        if (obj.userid === item.userid) {
+          this.checkedUser.splice(index, 1);
           return true;
         }
       });
-      if (!status) {
-        this.checkdeData.push(i);
+      if (!user) {
+        this.checkedUser.push(item);
       }
+    },
+
+    // 是否选中返回对应图片
+    isChecked(item) {
+      return this.checkedUser.includes(item)
+        ? this.checkedIcon
+        : this.noCheckedIcon;
+    },
+    // 选中主副修确定
+    confirm() {
+      this.showPopup = false;
+      this.userItem.user = [...this.checkedUser];
     },
   },
 };
 </script>
 <style lang='scss' scoped>
-::v-deep() .van-form {
-  overflow: scroll;
-  height: 44rem;
-  position: relative;
+.disable {
+  opacity: 0.6;
+  pointer-events: none;
 }
-.left {
-  margin: 4% 0 2% 0;
+.van-cell:last-child::after {
   display: inline-block;
-  font-size: 1rem;
-  font-size: 1.1rem;
-  padding: 0.2rem 1rem;
-  border-radius: 0 1rem 1rem 0;
+}
+.van-cell::after {
+  transform: scale(1);
+}
+::v-deep() .search {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+  text-align: center;
+  background: linear-gradient(to right, #fee568 0%, #fbd01f 100%);
+  padding: 0.8rem 0;
+  height: 2.2rem;
+  .van-field {
+    margin: 0 auto;
+    width: 90%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+}
+
+::v-deep() .van-action-sheet {
+  height: 80%;
+  .b_fixed {
+    margin-top: 0;
+  }
+  .van-action-sheet__content {
+    height: 100%;
+  }
+  width: 90%;
+  left: 5%;
+  border-radius: 0.3rem;
+}
+.popupBody {
+  height: 82.27%;
+  overflow: auto;
+  .imgCell {
+    img {
+      height: 1rem;
+    }
+    width: 90%;
+    display: flex;
+    align-items: center;
+    margin: 0 auto;
+    border-bottom: 1px solid #dadada;
+  }
+}
+::v-deep() .card .hed {
   background: #434343;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1.5rem;
   color: #ffffff;
+  box-shadow: 0px 3px 11px 1px rgba(0, 0, 0, 0.08);
+  font-size: 0.8rem;
+  border-radius: 0.3rem 0.3rem 0px 0px;
+  span {
+    word-spacing: 3rem;
+  }
+}
+.dialog__c {
+  height: 25rem;
+  overflow: auto;
+}
+
+.dialog__header {
+  text-align: left;
+  position: relative;
+  z-index: 1;
+  top: 0;
+  padding: 0.5rem 1.5rem 0.5rem 1.5rem;
+  background: linear-gradient(90deg, #ffcd11, #ffe775);
+  .right {
+    position: absolute;
+    right: 0.1rem;
+    top: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    span {
+      margin-right: 1.5rem;
+      &:nth-child(1) {
+        margin-right: 2rem;
+      }
+      &:nth-child(2) {
+        margin-right: 1rem;
+      }
+    }
+  }
+}
+::v-deep() .van-dialog__footer {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 3.5rem;
+  background: #f7f7f7;
+  .van-dialog__cancel {
+    background: #d0d0d0;
+    border-radius: 48px;
+    color: #ffffff;
+    flex: none;
+    display: flex;
+    align-items: center;
+    height: 2.5rem;
+    justify-content: center;
+    width: 40%;
+  }
+  .van-dialog__confirm {
+    background: linear-gradient(90deg, #ffcd11, #ffe775);
+    border-radius: 48px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40%;
+    height: 2.5rem;
+    color: #ffffff;
+  }
+  .van-hairline--left::after {
+    display: none;
+  }
+}
+
+.van-dialog {
+  border-radius: 0.3rem;
+}
+.leftIcon {
+  position: absolute;
+  left: 0.5rem;
+  top: 0.86rem;
+}
+.rightIcon {
+  display: flex;
+  position: relative;
+  top: 0.2rem;
+  height: 1rem;
+  align-items: center;
+  width: 3.3rem;
+  justify-content: space-between;
+}
+.leftBlock {
+  position: relative;
+  display: block;
+  margin: 1rem 0 0 0;
+  .left {
+    display: inline-block;
+    font-size: 3vw;
+    padding: 0.2rem 1.5rem;
+    border-radius: 0 1rem 1rem 0;
+    background: #434343;
+    color: #ffffff;
+  }
+  .is {
+    position: absolute;
+    color: rgb(0, 0, 0);
+    top: 0;
+    right: 1.5rem;
+    color: #666666;
+    font-size: 2.5vw;
+    span:nth-child(1) {
+      margin-right: 1.7rem;
+    }
+  }
 }
 p {
   font-size: 1.1rem;
@@ -378,22 +608,33 @@ p {
   padding: 0.7rem 1rem;
 }
 ::v-deep() .van-cell {
-  align-items: center;
+  align-items: baseline;
+  padding: 10px 1.5rem;
+  font-size: 2.5vw;
 }
 .lo {
-  font-size: 0.8rem;
-  padding: 0 1rem;
+  .van-cell__title {
+    flex: 1.4;
+  }
+  .van-cell__value {
+    text-align: left;
+    color: #333333;
+    flex: 3;
+  }
 }
 .f {
-  padding: 0.1rem 1rem;
+  padding: 0.1rem 1.5rem;
   height: 1.32rem;
   color: #ffffff;
   background: #616161;
 }
 .upload {
-  flex: none;
-  width: 80%;
-  text-align: left;
+  align-items: end;
+  .van-cell__value {
+    flex: none;
+    width: 80%;
+    text-align: left;
+  }
 }
 .preview-cover {
   position: absolute;
@@ -406,9 +647,9 @@ p {
   text-align: center;
   background: rgba(0, 0, 0, 0.3);
 }
-.textarea {
+::v-deep() .textarea {
   align-items: flex-start;
-  ::v-deep() .van-field__control {
+  .van-field__control {
     position: relative;
     background: #f9f9fa;
     box-shadow: rgba(0, 0, 0, 0.25) 0px -1px 1px 0px;

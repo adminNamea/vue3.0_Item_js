@@ -20,7 +20,7 @@
     </van-dialog>
     <div class="cardG">
       <card
-        style="min-height: 3rem; width: 55%"
+        style="min-height: 7vw; width: 55%"
         :top="false"
         :hed="false"
         class="top"
@@ -32,14 +32,14 @@
         </van-cell>
       </card>
       <card
-        style="min-height: 3rem; width: 40%"
+        style="min-height: 7vw; width: 40%"
         :top="false"
         :hed="false"
         class="top"
       >
         <van-cell title="修改编辑：" @click="cardClick">
           <template #right-icon>
-            <van-icon size="1.5rem" :name="icon" />
+            <van-icon size="4vw" :name="icon" />
           </template>
         </van-cell>
       </card>
@@ -53,31 +53,48 @@
       :key="index"
     >
       <div class="left">
-        时间：{{ filterTime(item.start_time, "HH:SS") }}-{{
-          filterTime(item.end_time, "HH:SS")
+        时间：{{ filterTime(item.start_time, "HH:MM") }}-{{
+          filterTime(item.end_time, "HH:MM")
         }}
       </div>
       <div class="right">
         <div class="icon"></div>
       </div>
-      <div class="upDate">{{ item.type_name }}</div>
-      <van-cell
-        v-if="item.type == 5"
-        title="项目："
-        :value="item.item_name"
-      ></van-cell>
-      <van-cell title="类型：" :value="item.description_name"></van-cell>
-      <van-cell
-        v-if="item.type == 5"
-        title="派工日期："
-        :value="item.promise_work_time"
-      ></van-cell>
-      <van-cell
-        v-if="item.type == 5 || item.type == 4"
-        title="加班类型："
-        :value="item.ot_name"
-      ></van-cell>
-      <van-cell title="备注：" :value="item.description"></van-cell>
+      <div class="upDate">
+        <span></span>
+        <span> {{ item.type_name }}</span>
+      </div>
+      <van-cell v-if="item.type == 5">
+        <template #title>
+          项目：<span style="color: #969799">{{
+            item.ax_item_number + item.item_name
+          }}</span>
+        </template>
+      </van-cell>
+      <van-cell>
+        <template #title>
+          类型：<span style="color: #969799">{{
+            item.description_name || item.group_description
+          }}</span>
+        </template>
+      </van-cell>
+      <van-cell v-if="item.type == 5">
+        <template #title>
+          派工日期：<span style="color: #969799">{{
+            item.promise_work_time
+          }}</span>
+        </template>
+      </van-cell>
+      <van-cell v-if="item.type == 5 || item.type == 4">
+        <template #title>
+          加班类型：<span style="color: #969799">{{ item.ot_name }}</span>
+        </template>
+      </van-cell>
+      <van-cell>
+        <template #title>
+          备注：<span style="color: #969799">{{ item.description }}</span>
+        </template>
+      </van-cell>
     </card>
     <van-empty
       v-if="stationList.length == 0"
@@ -103,9 +120,10 @@ export default {
     };
   },
   created() {
-    if (sessionStorage.getItem("cardItem")) {
-      const obj = sessionStorage.getItem("cardItem");
-      this.date = JSON.parse(obj).date;
+    const cardItem =
+      JSON.parse(sessionStorage.getItem("cardItem")) || this.getRequest();
+    if (cardItem && cardItem.date) {
+      this.date = cardItem.date;
       this.currentDate = new Date(this.date);
     }
     this.dialogConfirm();
@@ -145,9 +163,9 @@ export default {
   align-items: center;
   justify-content: space-between;
 }
-.top {
-  ::v-deep() .van-cell {
-    font-size: 1.1rem;
+::v-deep() .top {
+  .van-cell {
+    font-size: 3vw;
     padding: 12px 16px;
     line-height: normal;
     .round {
@@ -155,21 +173,20 @@ export default {
       background: #ffffff;
       border: 0.05rem solid rgba(0, 0, 0, 0.08);
       box-shadow: 0 0 0.2rem 0 rgba(0, 0, 0, 0.08);
-      border-radius: 0.8rem;
-      height: 1.6rem;
-      margin-right: 0.2rem;
-      margin-left: 0.2rem;
+      border-radius: 4vw;
+      padding: 0 2vw;
+      height: 4vw;
+      margin-right: 1rem;
       display: flex;
       justify-content: center;
       align-items: center;
-      flex: 1;
     }
     &__title {
       display: flex;
       align-items: center;
-      font-weight: 600;
     }
     &__value {
+      flex: 1.2;
       display: flex;
       align-items: center;
     }
@@ -182,36 +199,30 @@ export default {
 ::v-deep() .van-dialog {
   border-radius: 1rem;
 }
-.stations {
+::v-deep() .stations {
   display: flex;
   justify-content: space-between;
   min-height: 3rem !important;
-  ::v-deep() .van-cell {
+  .van-cell {
     display: inline-flex;
-    width: 30%;
+    width: 49%;
+    font-size: 3vw;
     &__value {
       text-align: left;
-    }
-    &:nth-child(4),
-    &:nth-child(6) {
-      width: 60%;
     }
     &::after {
       display: none;
     }
-    &:last-child {
-      width: 100%;
-    }
   }
-  ::v-deep() .body {
+  .body {
     width: 100%;
+    font-size: 3vw;
   }
 }
 .left {
-  width: 30%;
+  width: 30vw;
   margin-top: 2%;
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 3vw;
   padding: 0.2rem 1rem;
   border-radius: 0 1rem 1rem 0;
   color: #fff;
@@ -219,11 +230,17 @@ export default {
 }
 .upDate {
   font-family: PingFang SC;
-  font-weight: bold;
   color: #019fbb;
+  display: flex;
+  width: 100%;
   position: absolute;
-  right: 50%;
   top: 1rem;
+  span {
+    flex: 1;
+    &:nth-child(1) {
+      padding-left: 2rem;
+    }
+  }
 }
 .right {
   position: absolute;

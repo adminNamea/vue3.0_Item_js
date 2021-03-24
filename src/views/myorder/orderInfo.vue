@@ -64,7 +64,11 @@
       </div>
     </del-dialog>
     <!-- 项目选择弹框 -->
-    <van-popup v-model="showItem" position="bottom" :style="{ height: '77%' }">
+    <van-popup
+      v-model:show="showItem"
+      position="bottom"
+      :style="{ height: '77%' }"
+    >
       <div class="search">
         <van-field
           @input="itemSearch"
@@ -88,7 +92,7 @@
       :close-on-click-overlay="true"
       class="dialogNot"
       width="90%"
-      v-model="editShow"
+      v-model:show="editShow"
       :showConfirmButton="false"
     >
       <p style="color: #999999">
@@ -195,7 +199,7 @@
     <van-dialog
       class="dialogTime"
       :close-on-click-overlay="true"
-      v-model="showTime"
+      v-model:show="showTime"
       @confirm="dialogConfirm"
       :title="
         timeType === 1
@@ -223,7 +227,11 @@
         type="datetime"
       />
     </van-dialog>
-    <van-popup v-model="showPopup" position="bottom" :style="{ height: '77%' }">
+    <van-popup
+      v-model:show="showPopup"
+      position="bottom"
+      :style="{ height: '77%' }"
+    >
       <div class="search">
         <van-field
           @input="userSearch"
@@ -271,7 +279,7 @@
     <van-dialog
       class="Dp"
       :close-on-click-overlay="true"
-      v-model="show"
+      v-model:show="show"
       :showConfirmButton="false"
     >
       <div @click="upStatus(1)">派工</div>
@@ -967,7 +975,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-/deep/ .van-cell-group {
+::v-deep() .van-cell-group {
   display: flex;
   background-color: rgba(0, 0, 0, 0);
   padding: 0 1rem 0 0;
@@ -1018,7 +1026,7 @@ export default {
   padding: 1rem 0;
   border-bottom: 1px solid #434343;
 }
-.dialogSearch {
+::v-deep() .dialogSearch {
   text-align: center;
   padding: 0.8rem 0;
   height: 2.2rem;
@@ -1034,7 +1042,7 @@ export default {
     width: 2.5rem;
     float: right;
   }
-  /deep/ .van-field {
+  .van-field {
     .van-field__control {
       box-shadow: none;
       background: none;
@@ -1049,13 +1057,13 @@ export default {
     border-radius: 0.5rem;
   }
 }
-.dialogButton {
+::v-deep() .dialogButton {
   width: 100%;
   margin: 1rem 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  /deep/ .van-button {
+  .van-button {
     .van-button__content {
       color: #000;
     }
@@ -1064,9 +1072,9 @@ export default {
     color: #000;
   }
 }
-.dialogNot .va {
+::v-deep() .dialogNot .va {
   overflow: visible;
-  /deep/ .van-cell__value:not(.van-field__value) {
+  .van-cell__value:not(.van-field__value) {
     overflow: visible;
     .cell {
       width: 100%;
@@ -1080,12 +1088,12 @@ export default {
     }
   }
 }
-.ve {
-  /deep/ .van-cell__value {
+::v-deep() .ve {
+  .van-cell__value {
     margin-right: 1.3rem;
   }
 }
-/deep/ .Dp.van-dialog {
+::v-deep() .Dp.van-dialog {
   text-align: center;
   padding: 0.5rem;
   border-radius: 0.2rem;
@@ -1106,27 +1114,27 @@ export default {
     height: 10rem;
   }
 }
-.dialogTime {
-  /deep/ .van-dialog__header {
+::v-deep() .dialogTime {
+  .van-dialog__header {
     padding: 0.7rem;
     background-color: #ffcd11;
   }
-  /deep/ .van-dialog {
+  .van-dialog {
     border-radius: 1rem;
   }
 }
-.vanButton {
+::v-deep() .vanButton {
   display: flex;
   justify-content: space-around;
-  /deep/ .van-button {
+  .van-button {
     width: 35%;
     text-align: center;
   }
-  /deep/ .van-button__content {
+  .van-button__content {
     color: #000;
   }
 }
-.dialogNot {
+::v-deep() .dialogNot {
   .checkIcon {
     display: flex;
     border-radius: 0.5rem;
@@ -1169,8 +1177,8 @@ export default {
     right: 0;
   }
   border-radius: 0.5rem;
-  /deep/ .van-cell__title,
-  /deep/ .van-field__label {
+  .van-cell__title,
+  .van-field__label {
     color: #000;
     padding-left: 1.5rem;
     font-size: 0.8rem;
@@ -1186,13 +1194,13 @@ export default {
       background-color: #fad23f;
     }
   }
-  /deep/ .van-cell__value:not(.van-field__value) {
+  .van-cell__value:not(.van-field__value) {
     text-align: left;
     font-size: 0.8rem;
     flex: none;
     width: 30%;
   }
-  /deep/ .van-field__control {
+  .van-field__control {
     font-size: 0.8rem;
     padding-left: 0.5rem;
     background: rgba(249, 249, 250, 1);
@@ -1214,12 +1222,12 @@ export default {
     border-bottom: 0.1rem solid #dadada;
   }
 }
-.search {
+::v-deep() .search {
   text-align: center;
   background: linear-gradient(to right, #fee568 0%, #fbd01f 100%);
   padding: 0.8rem 0;
   height: 2.2rem;
-  /deep/ .van-field {
+  .van-field {
     margin: 0 auto;
     width: 90%;
     height: 100%;
@@ -1227,7 +1235,7 @@ export default {
     align-items: center;
   }
 }
-/deep/ .van-popup--bottom {
+::v-deep() .van-popup--bottom {
   width: 90%;
   left: 5%;
   border-radius: 0.3rem;
@@ -1237,7 +1245,7 @@ export default {
     height: 2.6rem;
   }
 }
-.stations {
+::v-deep() .stations {
   overflow: hidden !important;
   font-size: 1rem;
   font-weight: 600;
@@ -1267,7 +1275,7 @@ export default {
       }
     }
     justify-content: space-between;
-    /deep/ .van-cell {
+    .van-cell {
       &__value {
         text-align: left;
         color: #656565;
@@ -1279,7 +1287,7 @@ export default {
       display: block;
     }
   }
-  /deep/ .van-cell {
+  .van-cell {
     padding: 0.1rem 1rem;
     &__title {
       font-size: 0.75rem;

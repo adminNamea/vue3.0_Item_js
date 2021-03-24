@@ -27,7 +27,7 @@
         title="故障讯息"
         is-link
         @click="$router.push({ name: 'partsProblem' })"
-        :value="form.partsIssue == 0 ? '未录入' : '已录入'"
+        :value="form.partsIssue == 1 ? '已录入' : '未录入'"
       ></van-cell>
     </card>
     <card :hed="false" :top="false">
@@ -88,8 +88,9 @@
       >
         <van-uploader
           :preview-options="{ closeable: true }"
-          :max-count="3"
+          :max-count="9"
           @delete="deleteImg"
+          multiple
           v-model="f.fileList"
           :after-read="(file) => afterRead(file, key)"
         >
@@ -101,8 +102,9 @@
             <van-field
               @click.stop="1"
               class="preview-cover van-ellipsis"
+              :rules="[{ required: true }]"
               v-model="img.image_des"
-              placeholder="请输入描述"
+              placeholder="图片描述"
             />
           </template>
         </van-uploader>
@@ -135,25 +137,22 @@
       <van-field
         v-model="form.resultan_damage"
         label="导致被损害的零件说明"
-        placeholder="请输入（必填）"
-        :rules="[{ required: true }]"
+        placeholder="请输入"
       />
       <van-field
         v-model="form.internal_note"
         label="内部特别说明"
-        placeholder="请输入（必填）"
-        :rules="[{ required: true }]"
+        placeholder="请输入"
       />
       <van-field
         v-model="form.related_serial_number"
         label="内部自身的序列号"
-        placeholder="请输入（必填）"
-        :rules="[{ required: true }]"
+        placeholder="请输入"
       />
     </card>
     <card :hed="false" :top="false">
       <h3>
-        <span>是否卡特零件标识（必填）</span>
+        <span>是否卡特零件标识</span>
         <div>
           <div @click="form.cat_itemindicator = 1">
             是
@@ -175,6 +174,7 @@
 
 <script>
 import card from "@/components/card/index.vue";
+import { Toast } from "vant";
 
 export default {
   components: {
@@ -187,9 +187,16 @@ export default {
       },
       type: Object,
     },
+    keep: {
+      default() {
+        return () => {};
+      },
+      type: Function,
+    },
   },
   data() {
     return {
+      uarry: [],
       icon: require("@/assets/img/del.png"),
       // 选中图标
       checkedIcon: require("@/assets/img/choice-blue.png"),
@@ -199,13 +206,56 @@ export default {
       currentDate: new Date(),
     };
   },
+  watch: {
+    uarry(v) {
+      if (v.length === 0) {
+        this.keep(false);
+      }
+    },
+  },
   methods: {
     deleteImg(file) {
-      this.form.delImg.push(file.image_path_aliyun);
+      Toast.loading({
+        duration: 0,
+        overlay: true,
+        message: "请稍后...",
+        forbidClick: true,
+      });
+      this.form.image.forEach((v, i) => {
+        if (v.image_path_aliyun === file.image_path_aliyun) {
+          this.form.image.splice(i, 1);
+        }
+      });
+      this.delOSS(file.image_path_aliyun).finally(() => {
+        Toast.clear();
+        this.keep(false);
+      });
     },
-    afterRead(v, key) {
-      v.type = key;
-      v.image_des = "图片描述";
+    async afterRead(f, key) {
+      let arr = [f];
+      if (f.length) {
+        arr = [...f];
+      }
+      for (const v of arr) {
+        v.message = "等待上传...";
+        v.status = "uploading";
+        this.uarry.push(1);
+      }
+      for (const v of arr) {
+        v.type = key;
+        v.message = "上传中...";
+        this.$set(v, "image_des", "");
+        await this.putOSS(v, "reportImg", this.form.drive_hour)
+          .then((image_path_aliyun) => {
+            this.uarry.shift();
+            v.status = "done";
+            v.image_path_aliyun = image_path_aliyun;
+          })
+          .catch(() => {
+            v.status = "failed";
+            v.message = "上传失败";
+          });
+      }
     },
     dialogConfirm() {
       this.form.delivery_date = this.filterTime(this.currentDate);
@@ -214,9 +264,15 @@ export default {
 };
 </script>
 
-<style lang="scss"  scoped>
+<style lang="scss" scoped>
 .w_report {
   font-family: AlibabaPuHuiTi;
+}
+::v-deep() .van-uploader .van-icon-cross {
+  transform: scale(1);
+  font-size: 1.5rem;
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACMAAAAjCAYAAAAe2bNZAAAERUlEQVRYR81YUSi0aRR+3o+NiZjWJP0JpXCjtHOFaJrPaH5uNuzKjQsUcSNj2ZWIZJc1ckMULtzILtobVsZMIlzNptwspfDbTRrb0NgZLfNt5915Nf8w/8y/tdt3apppvnPe87znPOec9/0YPkL0ev0nWq1WBmAEoAeQqyjKp4wxjaIoXsbYHwCOATgBONxut93pdP4VrQsWjaLJZHrj9/stAOoB6KKxCei4ACxIkmS12Wy/R7L7IJjCwkKNRqPpY4y1A4gPXiwjIwNZWVnQ6XSIi4vDw8MDXC4Xzs7OcHFxEerXpyjKhNfrHTw4OPCGAxUWTFlZWb7f7/+BMZYnjHNzc1FZWYni4mIkJyeH3ejt7S329vawtraG42PK2j+iKMqvkiR9ubW1dfSa8atgZFk2K4ryI2MskYwyMzPR2toKvZ5oAtzf3+Pw8BCnp6e4vr6Gz+dDfHw8UlNTkZ2djYKCAiQkJHBdp9OJqakpnJ+fC0AextgXdrt9IxTQCzAEBMBPAOJIuaamBk1NTYiNjeW7XFpawv7+Ph4fH8NGhnSLiopQW1sLiibpzs7OYnl5Wdg8APg8FNB7YAKp2aeISJKEzs5OlJeXw+PxYHJyEjabLRIHXzw3mUxoa2tDYmIiNjc3MTY2Br/fTynzSJJUFJyyZzABsv4iONLV1cWBEBl7enpwdXX10UCEQVpaGoaHh0GkJ0Cjo6PPHPJ6vZ8JUj+DMRqN3zLGvhapaWlp4UDa29txd3f3r4EIw6SkJExMTHBA09PTzylTFOU7h8PxDelxMIE+ckrlS2SdmZnhpCRAFBFKGVXQ0dER3G531MC0Wi3y8/N5ZVFqKEIEhMje3NwsSO2TJCmb+hAHI8uyFUAH/R4ZGeFVQ9+CIyUlJejv78fl5SUsFgtubm4iAkpJSYHVakV6ejoGBgawu7vLbYhD3d3dvMroOyDjdrvdwgItnrqjjphPRKWqIdIJoR1SiGnhaAAFAyF9SnVwRMkH+SIfgT7kcrvdb5jBYDDHxMT8TI47OjpQUVGBwcFB7OzsvLf7UAfhIhSNXmlpKfr6+rC+vo7x8XHh5y2TZZmo/RX9s7KywvtJdXX1q30kkqNIz4VX8kG+qP+Qr4B8T2DsNIWJ5fPz85xsxI9wEs5htEDEusQjKoqGhgYxyxzMaDS+Y4yli9AtLCyAPh+SUMfUQ6gXRcspWru+vp5/gijxG4H5k84jVVVVfP5Qh9zYeDE2XmALBiQeRkNuoWs2m3mHp7m1urpKHdlLaVJIoa6uDo2NjRgaGsL29nbE0iWFnJwcvpgQ2szJyUlUtgaDAb29vZibm8Pi4iK3UVdkVMUZVVWTqvqMWjrw09PTW3XNJiop1UztwFine5E6zjMESDUnPQKjqjMwAVLN7UAMFNXcm4IBqeJGKQC9dtfOy8vjx9L/9a4tAKnmLUTwoUQV72dCT0n/9ZurvwFcCNLyEBAVRAAAAABJRU5ErkJggg==");
+  background-size: 100%;
 }
 .timeTile {
   display: flex;
@@ -261,12 +317,12 @@ h3 {
   color: #ffffff;
 }
 ::v-deep() .van-uploader__preview-delete {
-  background: rgba(0, 0, 0, 0);
-  top: -0.8rem;
-  right: -0.5rem;
-  .van-icon-cross::before {
-    content: url("del.png");
-  }
+  background-color: rgba(0, 0, 0, 0);
+  top: -0.4rem;
+  right: -0.2rem;
+}
+::v-deep() .van-uploader__preview {
+  margin: 0 0.5rem 3rem 0;
 }
 ::v-deep() .van-uploader__preview-image {
   height: 4rem;
@@ -276,16 +332,12 @@ h3 {
   }
   overflow: visible;
 }
-::v-deep() .upLoad {
+.upLoad {
   overflow: visible;
   margin-left: -0.5rem;
-  height: 6.5rem;
   text-align: left;
 }
-::v-deep() .van-uploader__wrapper {
-  flex-wrap: nowrap;
-}
-.preview-cover {
+::v-deep() .preview-cover {
   position: absolute;
   bottom: -2.3rem;
   border-radius: 0.3rem;
@@ -293,7 +345,7 @@ h3 {
   padding: 0;
   background: rgba(249, 249, 250, 1);
   box-shadow: rgba(0, 0, 0, 0.25) 0 -1px 0 0;
-  ::v-deep() .van-field {
+  .van-field {
     &__value {
       padding: 0 0.2rem;
     }
@@ -322,8 +374,8 @@ h3 {
   padding-left: 1rem;
 }
 
-.textarea {
-  ::v-deep() .van-field__control {
+::v-deep() .textarea {
+  .van-field__control {
     height: 5rem;
   }
 }

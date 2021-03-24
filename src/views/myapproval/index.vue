@@ -15,46 +15,56 @@
 </template>
 
 <script>
+import { useStore } from "vuex";
+
 export default {
-  data() {
-    return {
-      homeData: [
-        {
-          img: require('@/assets/img/添加费用.png'),
-          name: '添加费用',
-          url: 'addFees',
-        },
-        {
-          img: require('@/assets/img/我发起的工单.png'),
-          name: '我发起的工单',
-          url: 'myByOrdey',
-        },
-        {
-          img: require('@/assets/img/我发起的费用.png'),
-          name: '我发起的费用',
-          url: 'myByFees',
-        },
-        {
-          img: require('@/assets/img/工单审批.png'),
-          name: '工单审批',
-          url: 'orderApproval',
-        },
-        {
-          img: require('@/assets/img/费用审批.png'),
-          name: '费用审批',
-          url: 'feesApproval',
-        },
-        {
-          img: require('@/assets/img/工卡审批.png'),
-          name: '工卡审批',
-          url: 'cardApproval',
-        },
-      ],
-    };
+  setup() {
+    const { isRole } = useStore().state;
+    const homeData = [
+      {
+        img: require("@/assets/img/添加费用.png"),
+        name: "添加费用",
+        url: "addFees",
+      },
+      {
+        img: require("@/assets/img/我发起的工单.png"),
+        name: "我发起的工单",
+        url: "myByOrdey",
+      },
+      {
+        img: require("@/assets/img/我发起的费用.png"),
+        name: "我发起的费用",
+        url: "myByFees",
+      },
+      {
+        img: require("@/assets/img/工单审批.png"),
+        name: "工单审批",
+        url: "orderApproval",
+        role: true,
+      },
+      {
+        img: require("@/assets/img/费用审批.png"),
+        name: "费用审批",
+        url: "feesApproval",
+        role: true,
+      },
+      {
+        img: require("@/assets/img/工卡审批.png"),
+        name: "工卡审批",
+        url: "cardApproval",
+        role: true,
+      },
+    ].filter((v) => {
+      if (v.role) {
+        return isRole;
+      }
+      return true;
+    });
+    return { homeData };
   },
   methods: {
     to(item) {
-      if (item.url !== 'out') {
+      if (item.url !== "out") {
         this.$router.push({ name: item.url });
       } else {
         this.outLogin();

@@ -76,9 +76,9 @@ export default {
           Dialog({ message });
         });
     },
-    getPartsIssueList(item) {
+    getPartsIssueList(param) {
       this.$api
-        .getPartsIssueList(item)
+        .getPartsIssueList(param)
         .then((res) => {
           this.rightData = res.map((v) => ({ ...v, text: v.issue_name }));
         })

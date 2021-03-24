@@ -1,6 +1,6 @@
 <template>
   <div class="select" :style="{ height: hs }">
-    <van-overlay :show="show" @click="onClick" />
+    <van-overlay v-model:show="show" @click="onClick" />
     <div class="cell" @click.stop="onClick" :style="is ? 'z-index:3' : ''">
       <div class="title" :style="{ height: hs }">
         <div>

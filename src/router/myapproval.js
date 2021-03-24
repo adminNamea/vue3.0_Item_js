@@ -78,4 +78,28 @@ export default [
       title: '我的审批',
     },
     component: () => import(/* webpackChunkName: "myapproval" */'@/views/myapproval/index.vue'),
+  },
+  {
+    name: 'take5ListDetails',
+    path: '/myapproval/take5ListDetails',
+    meta: {
+      title: 'take5详情'
+    },
+    component: () => import(/* webpackChunkName: "myapproval" */'@/views/myapproval/take5ListDetails.vue')
+  },
+  {
+    name: 'take5List',
+    path: '/myapproval/take5List',
+    meta: {
+      title: 'take5列表'
+    },
+    component: () => import(/* webpackChunkName: "myapproval" */'@/views/myapproval/take5List.vue')
+  },
+  {
+    name: 'itemDetails',
+    path: '/myapproval/itemDetails',
+    meta: {
+      title: '项目详情'
+    },
+    component: () => import(/* webpackChunkName: "myapproval" */'@/views/myapproval/itemDetails.vue')
   }];

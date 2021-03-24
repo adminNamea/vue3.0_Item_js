@@ -71,7 +71,7 @@
       </div>
     </a-dialog>
     <van-popup
-      v-model="showPopup1"
+      v-model:show="showPopup1"
       position="bottom"
       :style="{ height: '77%' }"
     >
@@ -96,7 +96,7 @@
       </div>
     </van-popup>
     <van-popup
-      v-model="showPopup2"
+      v-model:show="showPopup2"
       position="bottom"
       :style="{ height: '77%' }"
     >
@@ -140,6 +140,9 @@
           </div>
           <van-cell title="选择时间：" is-link>
             <calendarSelect
+              @openDate="(v) => nextOrPrev(station.station_id, v)"
+              @nextOrPrev="(v) => nextOrPrev(station.station_id, v)"
+              :details="details"
               v-model:sDate="station.sdate"
               v-model:eDate="station.edate"
             ></calendarSelect>
@@ -179,7 +182,7 @@
         </card>
       </div>
     </card>
-    <div class="vanButton" style="margin-top: 1rem">
+    <div class="vanButton" v-sticky="false">
       <van-button round block color="#D0D0D0" @click="$router.go(-1)"
         >取消</van-button
       >
@@ -275,9 +278,15 @@ export default {
       // 要删除的工位
       delItem: {},
       delShow: false,
+      details: {},
     };
   },
   methods: {
+    nextOrPrev(station_id, month) {
+      this.$api.getStationInfo({ station_id, month }).then((res) => {
+        this.details = res.details;
+      });
+    },
     select(item) {
       if (item.value !== 7) {
         this.$emit("update:comName", "other");
@@ -478,14 +487,14 @@ export default {
   width: 100%;
   text-align: left;
 }
-.card {
+::v-deep() .card {
   .cardTltle {
     border-radius: 0.5rem 0.5rem 0 0;
   }
   .van-cell {
     border-radius: 1rem;
   }
-  ::v-deep() .visible {
+  .visible {
     overflow: visible;
     .van-cell__value {
       overflow: visible;
@@ -522,13 +531,13 @@ export default {
     height: 2.6rem;
   }
 }
-.vanButton {
+::v-deep() .vanButton {
   display: flex;
   justify-content: space-around;
-  ::v-deep() .van-button {
+  .van-button {
     width: 35%;
   }
-  ::v-deep() .van-button__content {
+  .van-button__content {
     color: #000;
   }
 }
@@ -561,8 +570,8 @@ export default {
     border-bottom: 1px solid #dadada;
   }
 }
-.card {
-  ::v-deep() .van-cell__value {
+::v-deep() .card {
+  .van-cell__value {
     display: flex;
     align-items: center;
     width: 70%;
@@ -570,13 +579,13 @@ export default {
     flex-wrap: wrap;
   }
 }
-.dialogButton {
+::v-deep() .dialogButton {
   width: 100%;
   margin: 1rem 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  ::v-deep() .van-button {
+  .van-button {
     .van-button__content {
       color: #000;
     }
@@ -585,19 +594,19 @@ export default {
     color: #000;
   }
 }
-.dialogBody,
-.dialogTitle {
-  ::v-deep() .van-cell {
+::v-deep() .dialogBody,
+::v-deep() .dialogTitle {
+  .van-cell {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: start;
   }
-  ::v-deep() .van-cell__title {
+  .van-cell__title {
     font-size: 0.7rem;
     flex: none;
     width: 80%;
   }
-  ::v-deep() .van-cell__value {
+  .van-cell__value {
     font-size: 0.7rem;
     display: flex;
   }
@@ -605,7 +614,7 @@ export default {
     border-bottom: 0.05rem solid rgba(67, 67, 67, 0.4);
   }
 }
-.dialogSearch {
+::v-deep() .dialogSearch {
   text-align: center;
   padding: 0.8rem 0;
   height: 2.2rem;
@@ -621,7 +630,7 @@ export default {
     width: 2.5rem;
     float: right;
   }
-  ::v-deep() .van-field {
+  .van-field {
     width: 70%;
     height: 100%;
     display: flex;

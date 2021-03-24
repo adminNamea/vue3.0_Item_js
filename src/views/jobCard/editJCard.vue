@@ -111,85 +111,54 @@
         type="date"
       />
     </van-dialog>
-    <card
-      style="overflow: visible; padding: 0.2rem 1.2rem"
-      :top="false"
-      :hed="false"
-      class="top"
-    >
-      <van-cell title="时间筛选:">
-        <span class="round" @click="showDate" style="color: #000">{{
-          date
-        }}</span>
-      </van-cell>
-      <van-cell title="假期属性:">
-        <span
-          class="round"
-          @click="is_holiday = 0"
-          :class="{ active: is_holiday === 0 }"
-          >非假期</span
-        >
-        <span
-          class="round"
-          @click="is_holiday = 1"
-          :class="{ active: is_holiday === 1 }"
-          >休息日</span
-        >
-        <span
-          class="round"
-          @click="is_holiday = 2"
-          :class="{ active: is_holiday === 2 }"
-          >假期</span
-        >
-      </van-cell>
-      <van-cell title="是否上矿:">
-        <span
-          class="round"
-          @click="mine_type == 2 ? (is_mine = 0) : ''"
-          :class="{ active: mine_type == 0 || is_mine == 0 }"
-          >不上矿</span
-        >
-        <span
-          class="round"
-          @click="mine_type == 2 ? (is_mine = 1) : ''"
-          :class="{ active: mine_type == 1 || is_mine == 1 }"
-          >上矿</span
-        >
-      </van-cell>
-    </card>
-    <card
-      style="overflow: visible; padding: 0.2rem 1.2rem; min-height: 3rem"
-      :top="false"
-      :hed="false"
-      class="top"
-    >
-      <van-cell title="添加工卡:">
-        <span
-          class="round"
-          @click="addJCard(4)"
-          :class="{ active: status === 4 }"
-          >间接活动</span
-        >
-        <span
-          class="round"
-          @click="addJCard(5)"
-          :class="{ active: status === 5 }"
-          >工单</span
-        >
-        <span
-          class="round"
-          @click="addJCard(3)"
-          :class="{ active: status === 3 }"
-          >请假</span
-        >
-        <span
-          class="round"
-          @click="addJCard(0)"
-          :class="{ active: status === 0 }"
-          >其他操作</span
-        >
-      </van-cell>
-    </card>
+    <div v-sticky="true">
+      <card
+        style="overflow: visible; padding: 0.2rem 1rem; margin-top: 0"
+        :top="false"
+        :hed="false"
+        class="top"
+      >
+        <van-cell title="时间筛选:">
+          <span class="round" @click="showDate" style="color: #000">{{
+            date
+          }}</span>
+        </van-cell>
+        <van-cell title="假期属性:">
+          <span
+            class="round"
+            @click="is_holiday = 0"
+            :class="{ active: is_holiday === 0 }"
+            >非假期</span
+          >
+          <span
+            class="round"
+            @click="is_holiday = 1"
+            :class="{ active: is_holiday === 1 }"
+            >休息日</span
+          >
+          <span
+            class="round"
+            @click="is_holiday = 2"
+            :class="{ active: is_holiday === 2 }"
+            >假期</span
+          >
+        </van-cell>
+        <van-cell title="是否上矿:">
+          <span
+            class="round"
+            @click="mine_type == 2 ? (is_mine = 0) : ''"
+            :class="{ active: mine_type == 0 || is_mine == 0 }"
+            >不上矿</span
+          >
+          <span
+            class="round"
+            @click="mine_type == 2 ? (is_mine = 1) : ''"
+            :class="{ active: mine_type == 1 || is_mine == 1 }"
+            >上矿</span
+          >
+        </van-cell>
+      </card>
+    </div>
     <card
       v-for="(v, i) in stationList"
       :key="i"
@@ -197,6 +166,7 @@
       :top="false"
       :hed="false"
       style="overflow: hidden; margin-top: 0.5rem"
+      :style="i == 0 ? 'margin-top:0' : ''"
     >
       <img
         v-if="v.is_copy == 1"
@@ -205,14 +175,12 @@
       />
       <van-cell title="时间：" class="flex">
         <van-field
-          style="flex: 1.2"
           :formatter="formatter"
           v-model="v.start_time"
           @blur="isOverlap(v, i)"
         />
         <van-icon class="min" :name="toIcon" />
         <van-field
-          style="flex: 1.2"
           :formatter="formatter"
           v-model="v.end_time"
           @blur="isOverlap(v, i)"
@@ -221,53 +189,55 @@
           v.type == 3 ? "请假" : v.type == 4 ? "间接活动" : "工单"
         }}</span>
         <template #right-icon>
-          <van-icon size="1.5rem" :name="icon" @click="del(v, i)" />
+          <van-icon class="delxx" size="4vw" :name="icon" @click="del(v, i)" />
         </template>
       </van-cell>
-      <van-field
+      <van-cell
         v-if="v.type == 5"
-        label="项目："
-        readonly
-        @click="typeSelect(v, '项目列表', 'orderItem')"
-        v-model="v.item_name"
+        title="项目："
+        class="inputCell"
+        @click="typeSelect('项目列表', 'orderItem', v)"
+        :value="v.item_name || ''"
       >
         <template #right-icon>
           <van-icon class="min" :name="toIcon" />
         </template>
-      </van-field>
-      <van-field
+      </van-cell>
+      <van-cell
         v-if="v.type == 5"
-        label="项目类型："
-        readonly
-        @click="typeSelect(v, '项目类型', 'work_record_category_group')"
-        v-model="v.group_description"
+        title="项目类型："
+        class="inputCell"
+        @click="typeSelect('项目类型', 'work_record_category_group', v)"
+        :value="v.group_description || ''"
       >
         <template #right-icon>
           <van-icon class="min" :name="toIcon" />
         </template>
-      </van-field>
-      <van-field
+      </van-cell>
+      <van-cell
         v-if="v.type == 3 || v.type == 4"
-        label="类型："
-        readonly
-        @click="typeSelect(v, '请假类型', 'event_description')"
-        v-model="v.description_name"
+        title="类型："
+        class="inputCell"
+        @click="
+          typeSelect(v.type == 3 ? '请假类型' : '类型', 'event_description', v)
+        "
+        :value="v.description_name || ''"
       >
         <template #right-icon>
           <van-icon class="min" :name="toIcon" />
         </template>
-      </van-field>
-      <van-field
+      </van-cell>
+      <van-cell
         v-if="v.type == 5 || v.type == 4"
-        label="加班类型："
-        @click="typeSelect(v, '加班类型', 'work_record_ot')"
-        readonly
-        v-model="v.ot_name"
+        title="加班类型："
+        class="inputCell"
+        @click="typeSelect('加班类型', 'work_record_ot', v)"
+        :value="v.ot_name || ''"
       >
         <template #right-icon>
           <van-icon class="min" :name="toIcon" />
         </template>
-      </van-field>
+      </van-cell>
       <van-field
         v-if="v.group_id == 7 || v.group_id == 8"
         label="出发地："
@@ -296,10 +266,52 @@
       image="error"
       description="暂无数据"
     />
-    <div style="margin-top: 1rem" v-if="stationList.length > 0">
+    <div v-sticky="false">
+      <card
+        style="
+          overflow: visible;
+          padding: 0 1rem;
+          min-height: 8vw;
+          margin-bottom: 1rem;
+          margin-top: 0;
+        "
+        :top="false"
+        :hed="false"
+        class="top"
+      >
+        <van-cell title="添加工卡:">
+          <span
+            class="round"
+            @click="addJCard(4)"
+            :class="{ active: status === 4 }"
+            >间接活动</span
+          >
+          <span
+            class="round"
+            @click="addJCard(5)"
+            :class="{ active: status === 5 }"
+            >工单</span
+          >
+          <span
+            class="round"
+            @click="addJCard(3)"
+            :class="{ active: status === 3 }"
+            >请假</span
+          >
+          <span
+            class="round"
+            @click="addJCard(0)"
+            v-if="!getRequest().date"
+            :class="{ active: status === 0 }"
+            >其他操作</span
+          >
+        </van-cell>
+      </card>
       <van-button
+        v-if="stationList.length > 0"
         round
         block
+        style="height: 7vw; font-size: 3vw"
         color="linear-gradient(to right, #FFCD11, #FFE775)"
         native-type="button"
         @click="onSubmit"
@@ -349,15 +361,42 @@ export default {
       mine_type: this.$store.state.mine_type,
       is_mine:
         this.$store.state.mine_type === 2 ? 0 : this.$store.state.mine_type,
+      work_record_ot: [],
+      event_description3: [],
+      event_description4: [],
+      work_record_category_group: [],
+      orderItem: [],
     };
   },
   created() {
-    if (sessionStorage.getItem("cardItem")) {
-      const obj = sessionStorage.getItem("cardItem");
-      this.date = JSON.parse(obj).date;
+    const cardItem = JSON.parse(sessionStorage.getItem("cardItem"));
+    if (cardItem && cardItem.date) {
+      this.date = cardItem.date;
       this.currentDate = new Date(this.date);
     }
+    if (this.getRequest().date) {
+      this.date = this.getRequest().date;
+    }
     this.search();
+    this.$api.work_record_ot().then((res) => {
+      this.work_record_ot = res.map((v) => ({ ...v, name: v.ot_name }));
+      this.work_record_ot.push({ name: "无", ot_name: "", record_ot_id: null });
+    });
+    this.$api.event_description(3).then((res) => {
+      this.event_description3 = res.map((v) => ({ ...v, name: v.description }));
+    });
+    this.$api.event_description(4).then((res) => {
+      this.event_description4 = res.map((v) => ({ ...v, name: v.description }));
+    });
+    this.$api.work_record_category_group().then((res) => {
+      this.work_record_category_group = res.map((v) => ({
+        ...v,
+        name: v.group_description,
+      }));
+    });
+    this.$api.allOrderItem().then((res) => {
+      this.orderItem = res;
+    });
     this.getworkRecordDetails();
   },
   methods: {
@@ -378,8 +417,9 @@ export default {
         this.$api
           .copyWorkRecord({ date: this.date, user_id })
           .then((res) => {
-            const arr = res.data || [];
-            this.stationList.push(...arr);
+            const arr = res || [];
+            this.stationList = arr;
+            console.log(res);
             Dialog({ message: "操作成功" });
             this.showPerson = false;
           })
@@ -445,8 +485,9 @@ export default {
       this.$api
         .addWorkRecord(obj)
         .then((res) => {
-          Dialog({ message: res.msg });
-          this.getworkRecordDetails();
+          Dialog.alert({ message: res.msg }).then(() => {
+            this.$router.go(-1);
+          });
         })
         .catch((message) => {
           Dialog({ message });
@@ -467,7 +508,7 @@ export default {
         }
         item.start_time += a;
       }
-      if (item.end_time !== "" && item.end_time <= item.start_time) {
+      if (item.end_time !== "" && item.end_time < item.start_time) {
         Dialog({ message: "结束时间必须大于开始时间" });
         return false;
       }
@@ -480,38 +521,32 @@ export default {
             Dialog({ message: "当前工卡时间重叠" });
             return false;
           }
-        } else if (item.start_time <= v.end_time) {
+        } else if (item.start_time < v.end_time) {
           Dialog({ message: "当前工卡时间重叠" });
           return false;
         }
       });
     },
     itemClick(v) {
-      v.record_ot_id && (this.editItem.record_ot_id = v.record_ot_id);
+      v.record_ot_id !== undefined &&
+        (this.editItem.record_ot_id = v.record_ot_id);
       v.order_item_id && (this.editItem.order_item_id = v.order_item_id);
       v.group_id && (this.editItem.group_id = v.group_id);
       v.description_id && (this.editItem.event_description = v.description_id);
-      v.ot_name && this.$set(this.editItem, "ot_name", v.ot_name);
+      v.ot_name !== undefined && (this.editItem.ot_name = v.ot_name);
       v.group_description &&
-        this.$set(this.editItem, "group_description", v.group_description);
-      v.description &&
-        this.$set(this.editItem, "description_name", v.description);
-      v.item_name && this.$set(this.editItem, "item_name", v.item_name);
+        (this.editItem.group_description = v.group_description);
+      v.description && (this.editItem.description_name = v.description);
+      v.item_name && (this.editItem.item_name = v.item_name);
       this.showPopup = false;
     },
-    typeSelect(item, name, f) {
-      this.editItem = item;
-      this.$api[f](item.type)
-        .then((res) => {
-          this.list = res.map((v) => ({
-            ...v,
-            name: v.description || v.ot_name || v.group_description,
-            group_id: v.group_id,
-          }));
-        })
-        .catch((message) => {
-          Dialog({ message });
-        });
+    typeSelect(name, f, v) {
+      this.editItem = v;
+      if (f === "event_description") {
+        this.list = this[f + v.type];
+      } else {
+        this.list = this[f];
+      }
       this.popupTitle = name;
       this.showPopup = true;
     },
@@ -531,7 +566,7 @@ export default {
             .deWorkRecord(this.delItem.record_id)
             .then(() => {
               Dialog({ message: "删除成功" });
-              this.stationList.splice(this.delItem.index, 1);
+              this.getworkRecordDetails();
             })
             .catch((message) => {
               Dialog({ message });
@@ -544,63 +579,84 @@ export default {
       let sdate;
       let edate;
       if (value.length > 5) {
-        const v = new Date(value);
-        if (v !== "Invalid Date") {
-          sdate = this.filterTime(value, "HH");
-          edate = this.filterTime(value, "SS");
-          value = sdate + String(edate);
-        } else {
-          value = "0000";
-        }
-      } else if (value.length > 0) {
+        sdate = this.filterTime(value, "HH");
+        edate = this.filterTime(value, "MM");
+        return sdate + String(edate);
+      }
+      if (value.length > 0) {
         sdate = value.substr(0, 2);
-        if (typeof sdate === "number") {
+        if (!Number.isNaN(sdate)) {
           sdate = sdate > 23 ? 23 : sdate;
         } else {
           sdate = "00";
         }
         edate = value.substr(2, 2);
-        if (typeof edate === "number") {
+        if (!Number.isNaN(edate)) {
           edate = edate > 59 ? 59 : edate;
         } else {
           edate = "00";
         }
-        value = sdate + String(edate);
+        return sdate + String(edate);
       }
       return value;
     },
     addJCard(type) {
-      if (type) {
-        const obj = {
-          data: this.stationList.map((v) => ({ ...v })),
-          is_holiday: this.is_holiday,
-          is_mine: this.is_mine,
-          start_date: this.date,
-        };
-        obj.data.forEach((v) => {
-          const sdate = `${this.date} ${v.start_time.substr(
-            0,
-            2
-          )}:${v.start_time.substr(2, 2)}:00`;
-          const edate = `${this.date} ${v.end_time.substr(
-            0,
-            2
-          )}:${v.end_time.substr(2, 2)}:00`;
-          v.start_time = this.filterTime(sdate);
-          v.end_time = this.filterTime(edate);
-        });
-        if (obj.data.length > 0) {
-          this.$api
-            .addWorkRecord(obj)
-            .then((res) => {
-              console.log(res.msg);
-            })
-            .catch((message) => {
-              Dialog({ message });
-            });
+      const obj = {
+        data: this.stationList.map((v) => ({ ...v })),
+        is_holiday: this.is_holiday,
+        is_mine: this.is_mine,
+        start_date: this.date,
+      };
+      let start_time = "";
+      let is_copy = 0;
+      const urlReq = this.getRequest();
+      if (urlReq) {
+        is_copy = urlReq.is_copy;
+      }
+      obj.data.forEach((v, index) => {
+        const sdate = `${this.date} ${v.start_time.substr(
+          0,
+          2
+        )}:${v.start_time.substr(2, 2)}:00`;
+        const edate = `${this.date} ${v.end_time.substr(
+          0,
+          2
+        )}:${v.end_time.substr(2, 2)}:00`;
+        v.start_time = this.filterTime(sdate);
+        v.end_time = this.filterTime(edate);
+        if (index + 1 === obj.data.length) {
+          start_time = edate;
         }
+        if (v.is_copy === 1) {
+          is_copy = true;
+        }
+      });
+      if (obj.data.length > 0 && !is_copy) {
+        this.$api
+          .addWorkRecord(obj)
+          .then(() => {
+            this.getworkRecordDetails().then(() => {
+              if (type !== 0) {
+                this.stationList.push({
+                  start_time,
+                  end_time: "",
+                  type,
+                  del: true,
+                  path_length: "",
+                  path_end: "",
+                  path_store: "",
+                });
+              } else {
+                this.otherShow = true;
+              }
+            });
+          })
+          .catch((message) => {
+            Dialog({ message });
+          });
+      } else if (type !== 0) {
         this.stationList.push({
-          start_time: "",
+          start_time,
           end_time: "",
           type,
           del: true,
@@ -611,7 +667,6 @@ export default {
       } else {
         this.otherShow = true;
       }
-
       this.status = type;
     },
     other(v) {
@@ -628,20 +683,31 @@ export default {
         date: this.date,
       });
     },
-    getworkRecordDetails(obj) {
-      this.$api.workRecordDetails(obj).then((res) => {
+    async getworkRecordDetails(obj) {
+      let data = obj;
+      if (this.getRequest().date) {
+        data = { ...obj, ...this.getRequest() };
+      }
+      await this.$api.workRecordDetails(data).then((res) => {
         this.stationList = res.data || [];
       });
     },
     // 时间选择
     showDate() {
-      this.showTime = true;
+      if (!this.getRequest().date) {
+        this.showTime = true;
+      }
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.delxx {
+  position: relative;
+  top: -0.5rem;
+  right: -0.35rem;
+}
 .min {
   transform: scale(0.6);
 }
@@ -671,16 +737,23 @@ export default {
 }
 ::v-deep() .card {
   .van-field {
+    overflow: visible;
     &__label {
       color: #333333;
       align-items: center;
       margin: 0;
-      font-size: 0.8rem;
+      font-size: 2.5vw;
+    }
+    &__body {
+      width: 100%;
     }
     &__value {
       color: #666666;
-      font-size: 0.8rem;
-      padding-left: 0.5rem;
+      font-size: 2.5vw;
+      padding: 0.5vw 1vw;
+      @media all and (max-width: 500px) {
+        padding: 0 1vw;
+      }
       background: rgba(249, 249, 250, 1);
       box-shadow: rgba(0, 0, 0, 0.25) 0 -1px 0 0;
       border-radius: 0.08rem;
@@ -690,7 +763,37 @@ export default {
     display: none;
   }
 }
+.inputCell {
+  font-size: 2.5vw;
+  .min {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    @media all and (max-width: 500px) {
+      bottom: 1.1rem;
+    }
+  }
+  .van-cell__title {
+    flex: none;
+    width: 15.5vw;
+  }
+  .van-cell__value {
+    text-align: left;
+    color: #666666;
+    font-size: 2.5vw;
+    padding: 0.5vw 1vw;
+    @media all and (max-width: 500px) {
+      padding: 0 1vw;
+    }
+    background: rgba(249, 249, 250, 1);
+    box-shadow: rgba(0, 0, 0, 0.25) 0 -1px 0 0;
+    border-radius: 0.08rem;
+  }
+}
 ::v-deep() .textarea {
+  .van-cell__title {
+    font-size: 2.5vw;
+  }
   .van-field__control {
     height: 5rem;
   }
@@ -699,21 +802,27 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  font-size: 2.5vw;
   .van-cell {
+    padding: 0 0.5rem 0 0;
+    &:nth-child(3) {
+      padding: 0 0.5rem 0 0.5rem;
+    }
     &__value {
       display: flex;
+      overflow: visible;
       align-items: center;
       justify-content: space-between;
       span {
         color: rgba(1, 159, 187, 1);
-        flex: 3;
-        text-align: right;
-        padding-right: 5rem;
+        white-space: nowrap;
+        text-align: left;
+        width: 25%;
       }
     }
     &__title {
       flex: none;
-      width: 4rem;
+      width: 15.5vw;
     }
   }
 }
@@ -726,36 +835,35 @@ export default {
 }
 ::v-deep() .top {
   .van-cell {
-    font-size: 1.1rem;
+    font-size: 3vw;
     overflow: visible;
     align-items: center;
-    padding: 0.6rem 0;
+    padding: 1vw 0;
     .round {
       white-space: nowrap;
       background: #ffffff;
       border: 0.05rem solid rgba(0, 0, 0, 0.08);
       box-shadow: 0 0 0.2rem 0 rgba(0, 0, 0, 0.08);
-      border-radius: 0.8rem;
-      height: 1.6rem;
-      margin-right: 0.2rem;
-      margin-left: 0.2rem;
+      border-radius: 4vw;
+      height: 5vw;
+      margin-right: 2%;
       display: flex;
       justify-content: center;
       align-items: center;
       flex: 1;
+      &:last-child {
+        margin-right: 0;
+      }
     }
     &__title {
-      width: 22%;
+      width: 18vw;
       flex: none;
       white-space: nowrap;
       overflow: visible;
-      font-weight: 600;
     }
     &__value {
       display: flex;
       align-items: center;
-      flex: none;
-      width: 80%;
     }
     &::after {
       display: none;
@@ -800,7 +908,7 @@ export default {
   }
 }
 .popupBody {
-  height: 90%;
+  height: 85.8%;
   overflow: auto;
   .imgCell {
     img {
@@ -824,7 +932,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 0.7rem;
+    font-size: 2vw;
     span {
       font-family: PingFang SC;
       font-weight: bold;

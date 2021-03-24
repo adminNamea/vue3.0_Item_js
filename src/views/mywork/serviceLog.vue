@@ -36,7 +36,10 @@
       <van-icon v-if="index > 0" :name="icon" />
       <div class="line"></div>
       <div class="body">
-        <h3 :style="index == 0 ? 'margin: 0.3rem 0;' : ''">
+        <h3
+          :style="index == 0 ? 'margin: 0.3rem 0;' : ''"
+          v-if="index == 0 ? !approval : true"
+        >
           <span
             :style="item.is_up ? 'color: #02A0BC' : 'color: #E6686C'"
             v-if="index > 0"
@@ -50,22 +53,22 @@
         </h3>
         <span
           v-if="index > 0"
-          @click="item.is_up ? timeShow(item) : ''"
+          @click="item.is_up && item.editStatus ? timeShow(item) : ''"
+          :style="item.editStatus ? 'text-decoration: underline' : ''"
           class="right"
           >{{ item.date }}</span
         >
         <van-field
-          :style="item.is_up ? 'width: 80%' : 'width: 100%'"
+          :style="item.is_up ? 'width: 75%' : 'width: 100%'"
           v-if="index > 0"
           type="textarea"
           v-model="item.log_value"
           :readonly="!item.editStatus"
           :class="{ textarea: true, editText: item.editStatus }"
-          @blur="edit(item)"
         />
-        <div class="btn" v-if="index > 0 && item.is_up">
-          <div class="edit" @click="item.editStatus = !item.editStatus">
-            编辑
+        <div class="btn" v-if="index > 0 && item.is_up && !approval">
+          <div class="edit" @click="edit(item)">
+            {{ item.editStatus ? "确认" : "编辑" }}
           </div>
           <div class="delete" @click="del(item.order_log_id)">删除</div>
         </div>
@@ -86,7 +89,6 @@ export default {
       this.$api
         .addOrderLog(this.order_id)
         .then(() => {
-          Dialog({ message: "添加成功" });
           this.init();
         })
         .catch((message) => {
@@ -102,7 +104,6 @@ export default {
         .upOrderLog(this.thisItem)
         .then(() => {
           Dialog({ message: "时间修改成功" });
-          this.init();
         })
         .catch((message) => {
           Dialog({ message });
@@ -127,15 +128,18 @@ export default {
       }
     },
     edit(item) {
-      this.$api
-        .upOrderLog(item)
-        .then(() => {
-          Dialog({ message: "修改成功" });
-          this.init();
-        })
-        .catch((message) => {
-          Dialog({ message });
-        });
+      if (item.editStatus) {
+        this.$api
+          .upOrderLog(item)
+          .then(() => {
+            Dialog({ message: "修改成功" });
+            this.init();
+          })
+          .catch((message) => {
+            Dialog({ message });
+          });
+      }
+      item.editStatus = !item.editStatus;
     },
     timeShow(item) {
       this.thisItem = item;
@@ -148,7 +152,9 @@ export default {
           res.forEach((v) => {
             v.editStatus = false;
           });
+
           this.logList = [{}, ...res];
+          console.log(this.logList);
         })
         .catch((message) => {
           Dialog({ message });
@@ -168,11 +174,15 @@ export default {
       order_id: sessionStorage.getItem("order_id"),
       icon: require("@/assets/img/dot.png"),
       logList: [],
+      approval: Number(sessionStorage.getItem("approval")),
     };
   },
 };
 </script>
 <style lang="scss" scoped>
+.serviceLog {
+  margin-top: 1rem;
+}
 ::v-deep() .dialog.delDialog {
   .info {
     display: inline-block;
@@ -183,14 +193,14 @@ export default {
     height: 10rem;
   }
 }
-.vanButton {
+::v-deep() .vanButton {
   display: flex;
   justify-content: space-around;
-  ::v-deep() .van-button {
+  .van-button {
     border-radius: 0.3rem;
     width: 35%;
   }
-  ::v-deep() .van-button__content {
+  .van-button__content {
     color: #ffffff;
   }
 }
@@ -258,7 +268,7 @@ h3 {
 .btn {
   position: absolute;
   right: 0.6rem;
-  top: 3rem;
+  top: 45%;
 }
 .edit,
 .delete {
@@ -279,9 +289,9 @@ h3 {
 ::v-deep() .van-cell::after {
   display: none;
 }
-.textarea {
+::v-deep() .textarea {
   margin-bottom: 0.5rem;
-  ::v-deep() .van-field__control {
+  .van-field__control {
     height: 3.35rem;
     padding: 0 0.15rem;
     min-height: 2rem;

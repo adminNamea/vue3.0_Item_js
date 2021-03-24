@@ -1,75 +1,90 @@
 <template>
   <div class="order">
-    <van-dialog
-      :close-on-click-overlay="true"
-      v-model:show="showTime"
-      @confirm="dialogConfirm"
-      title="时间筛选"
-      show-cancel-button
-    >
-      <div class="timeTile">
-        <div>年</div>
-        <div>月</div>
-        <div>日</div>
-      </div>
-      <van-datetime-picker
-        v-model="currentDate"
-        :show-toolbar="false"
-        type="date"
-      />
-    </van-dialog>
+    <div v-sticky="true">
+      <card style="overflow: visible" :top="false" :hed="false" class="top">
+        <van-dialog
+          :close-on-click-overlay="true"
+          v-model:show="showTime"
+          @confirm="dialogConfirm"
+          title="时间筛选"
+          show-cancel-button
+        >
+          <div class="timeTile">
+            <div>年</div>
+            <div>月</div>
+            <div>日</div>
+          </div>
+          <van-datetime-picker
+            v-model="currentDate"
+            :show-toolbar="false"
+            type="date"
+          />
+        </van-dialog>
+        <van-cell title="时间筛选:">
+          <span class="round" @click="showDate" style="color: #000">{{
+            date
+          }}</span>
+        </van-cell>
+        <van-cell title="状态筛选:">
+          <span
+            class="round"
+            @click="statuCheck(0)"
+            :class="{ active: status === 0 }"
+            >未完成</span
+          >
+          <span
+            class="round"
+            @click="statuCheck(1)"
+            :class="{ active: status === 1 }"
+            >未审批</span
+          >
+          <span
+            class="round"
+            @click="statuCheck(2)"
+            :class="{ active: status === 2 }"
+            >已审批</span
+          >
+        </van-cell>
+      </card>
+    </div>
     <card
-      style="overflow: visible; padding: 0.2rem 1rem"
       :top="false"
       :hed="false"
-      class="top"
-    >
-      <van-cell title="时间筛选:">
-        <span class="round" @click="showDate" style="color: #000">{{
-          date
-        }}</span>
-      </van-cell>
-      <van-cell title="状态筛选:">
-        <span
-          class="round"
-          @click="statuCheck(0)"
-          :class="{ active: status === 0 }"
-          >未完成{{ status === 0 ? "：" + stationList.length : "" }}</span
-        >
-        <span
-          class="round"
-          @click="statuCheck(1)"
-          :class="{ active: status === 1 }"
-          >已完成{{ status === 1 ? "：" + stationList.length : "" }}</span
-        >
-        <span
-          class="round"
-          @click="statuCheck(2)"
-          :class="{ active: status === 2 }"
-          >已审批{{ status === 2 ? "：" + stationList.length : "" }}</span
-        >
-      </van-cell>
-    </card>
-    <card
-      class="station"
-      :top="false"
-      :hed="false"
+      style="min-height: 1rem"
       v-if="stationList.length > 0"
     >
-      <van-cell
-        v-for="(item, index) in stationList"
-        :key="index"
-        @click="cardClick(item)"
-        :title="item.name_cn"
-        is-link
-        :value="
-          item.status == 0
-            ? '未录入'
-            : item.status == 1
-            ? '已录入未满8小时'
-            : '已录入满8小时'
-        "
-      ></van-cell>
+      <div v-if="status === 0">
+        <van-cell
+          v-for="(item, index) in stationList"
+          :key="index"
+          @click="cardClick(item)"
+          :title="item.name_cn"
+          is-link
+          class="va"
+          :value="
+            item.status == 0
+              ? '未录入'
+              : item.status == 1
+              ? '已录入未满8小时'
+              : '已录入满8小时'
+          "
+        ></van-cell>
+      </div>
+      <div v-else>
+        <van-cell
+          v-for="(item, index) in nameList"
+          :key="index"
+          value-class="va1"
+        >
+          <span
+            v-for="(v, i) in item"
+            :key="i"
+            @click="cardClick(v)"
+            style="color: #3b54d4"
+            >{{ v.name_cn }}</span
+          >
+        </van-cell>
+      </div>
     </card>
     <van-empty v-else image="error" description="暂无数据" />
   </div>
@@ -78,11 +93,13 @@
 import card from "@/components/card/index.vue";
 
 export default {
+  name: "cardApproval",
   components: {
     card,
   },
   data() {
     return {
+      nameList: {},
       showTime: false,
       currentDate: new Date(),
       stationList: [],
@@ -90,13 +107,8 @@ export default {
       status: 0,
     };
   },
-  created() {
-    if (sessionStorage.getItem("cardItem")) {
-      const obj = sessionStorage.getItem("cardItem");
-      this.date = JSON.parse(obj).date;
-      this.currentDate = new Date(this.date);
-    }
-    this.statuCheck(0);
+  activated() {
+    this.statuCheck(this.status);
   },
   methods: {
     // 时间筛选
@@ -118,6 +130,25 @@ export default {
     getWorkRecord(obj) {
       this.$api.workRecord(obj).then((res) => {
         this.stationList = res;
+        this.nameList = {};
+        if (this.status !== 0) {
+          if (window.innerWidth > 375) {
+            const length = Math.ceil(res.length / 3);
+            for (let i = 0; i <= length; i++) {
+              const a = res[i * 3 + 0] || {};
+              const b = res[i * 3 + 1] || {};
+              const c = res[i * 3 + 2] || {};
+              this.nameList[i] = [a, b, c];
+            }
+          } else {
+            const length = Math.ceil(res.length / 2);
+            for (let i = 0; i < length; i++) {
+              const a = res[i * 2 + 0] || {};
+              const b = res[i * 2 + 1] || {};
+              this.nameList[i] = [a, b];
+            }
+          }
+        }
       });
     },
     // 时间选择
@@ -139,67 +170,27 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.timeTile {
+.va1 {
   display: flex;
-  justify-content: space-around;
-  margin-bottom: 1rem;
-  margin-top: 1rem;
-  font-size: 0.8rem;
+  span {
+    flex: 1;
+    &:nth-child(2) {
+      text-align: center;
+    }
+    &:nth-child(3) {
+      text-align: right;
+    }
+  }
 }
 .top {
-  ::v-deep() .van-cell {
-    font-size: 1.1rem;
-    overflow: visible;
-    padding: 0.5rem 0 0 0;
-    .round {
-      white-space: nowrap;
-      background: #ffffff;
-      border: 0.05rem solid rgba(0, 0, 0, 0.08);
-      box-shadow: 0 0 0.2rem 0 rgba(0, 0, 0, 0.08);
-      border-radius: 0.8rem;
-      height: 1.6rem;
-      margin-right: 2.5%;
-      margin-left: 0.5rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex: 1;
-    }
-    &__title {
-      width: 22%;
-      flex: none;
-      white-space: nowrap;
-      overflow: visible;
-      font-weight: 600;
-    }
-    &__value {
-      display: flex;
-      align-items: center;
-      flex: none;
-      width: 80%;
-    }
-    &::after {
-      display: none;
-    }
-    .active {
-      color: #000;
-      background: linear-gradient(267deg, #fbd01f, #fee568);
-    }
-  }
+  @include myStyle;
+  padding: 0 1rem 1rem 1rem;
+  margin-top: 0;
 }
-::v-deep() .van-dialog__header {
-  padding: 0.7rem;
-  background-color: #ffcd11;
+body .card {
+  margin-top: 0;
 }
-::v-deep() .van-dialog {
-  border-radius: 1rem;
-}
-.station {
-  display: flex;
-  justify-content: space-between;
-  min-height: 3rem !important;
-  ::v-deep() .body {
-    width: 100%;
-  }
+.va {
+  font-size: 2.5vw;
 }
 </style>

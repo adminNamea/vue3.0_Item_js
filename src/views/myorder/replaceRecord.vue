@@ -1,16 +1,20 @@
 <template>
   <div class="replaceRecord">
-    <div class="flxe" v-for="(item,index) in logList" :key="index">
+    <div class="flxe" v-for="(item, index) in logList" :key="index">
       <van-icon :name="icon" />
       <div class="line"></div>
-      <h3>{{item.user_name}}</h3>
-      <span class="right">{{item.create_time}}</span>
+      <h3>{{ item.user_name }}</h3>
+      <span class="right">{{ item.create_time }}</span>
     </div>
-    <van-empty v-if="logList.length==0" image="error" description="暂无记录" />
+    <van-empty
+      v-if="logList.length == 0"
+      image="error"
+      description="暂无记录"
+    />
   </div>
 </template>
 <script>
-import { Dialog } from 'vant';
+import { Dialog } from "vant";
 
 export default {
   created() {
@@ -27,7 +31,7 @@ export default {
   },
   data() {
     return {
-      icon: require('@/assets/img/dot.png'),
+      icon: require("@/assets/img/dot.png"),
       logList: [],
     };
   },

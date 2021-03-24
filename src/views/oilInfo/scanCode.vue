@@ -42,7 +42,7 @@
     </van-popup>
     <van-dialog
       :close-on-click-overlay="true"
-      v-model="showTime"
+      v-model:show="showTime"
       @confirm="dialogConfirm"
       :title="timeType === 1 ? '取样日期' : '寄出日期'"
       show-cancel-button
@@ -213,7 +213,7 @@
         type="textarea"
       />
     </card>
-    <div class="b_fixed" v-if="itemDetails.order_id">
+    <div v-sticky v-if="itemDetails.order_id">
       <van-button
         round
         block
@@ -325,13 +325,13 @@ export default {
   left: 5%;
   border-radius: 0.3rem;
 }
-.search {
+::v-deep() .search {
   display: flex;
   align-items: center;
   background: linear-gradient(to right, #fee568 0%, #fbd01f 100%);
   padding: 0.5rem 1rem;
   height: 2rem;
-  ::v-deep() .van-field {
+  .van-field {
     border-radius: 0.3rem;
     margin: 0 auto;
     width: 90%;
@@ -369,30 +369,28 @@ export default {
     }
   }
 }
-.card {
-  ::v-deep() {
-    .van-cell {
-      &__title {
-        color: #000;
-        padding-left: 1.5rem;
-        font-size: 0.8rem;
-        &::before {
-          content: "";
-          position: absolute;
-          left: 1.1rem;
-          top: 1rem;
-          border-radius: 50%;
-          width: 0.7rem;
-          height: 0.7rem;
-          background-color: #fad23f;
-        }
+::v-deep() .card {
+  .van-cell {
+    &__title {
+      color: #000;
+      padding-left: 1.5rem;
+      font-size: 0.8rem;
+      &::before {
+        content: "";
+        position: absolute;
+        left: 1.1rem;
+        top: 1rem;
+        border-radius: 50%;
+        width: 0.7rem;
+        height: 0.7rem;
+        background-color: #fad23f;
       }
-      &__value {
-        font-size: 0.8rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
+    }
+    &__value {
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
   }
 }
@@ -444,8 +442,8 @@ p {
     border-radius: 0.08rem;
   }
 }
-.textarea {
-  ::v-deep() .van-field {
+::v-deep() .textarea {
+  .van-field {
     &__label {
       flex: none;
     }

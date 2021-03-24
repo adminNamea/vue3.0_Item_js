@@ -4,7 +4,7 @@
       <div class="left">合同中的客户信息</div>
       <van-field
         v-model="form.total_hour"
-        label="设备工作小时数"
+        label="机器工作小时数"
         placeholder="请输入（必填）"
         :rules="[{ required: true }]"
       />
@@ -53,7 +53,7 @@
       <van-cell
         value-class="cen"
         title="下一次的保养时间"
-        value="自动填写"
+        :value="form.maintenance_time"
       ></van-cell>
     </card>
   </div>
@@ -98,14 +98,6 @@ export default {
         .catch((message) => {
           Dialog({ message });
         });
-    },
-    deleteImg(file) {
-      this.form.image.forEach((img, index) => {
-        if (img.image_path_aliyun === file.image_path_aliyun) {
-          this.form.image.splice(index, 1);
-          return false;
-        }
-      });
     },
     checkde(i) {
       const status = this.form.maintenance_list.find((v, index) => {
@@ -186,9 +178,9 @@ h3 {
   padding-left: 1rem;
 }
 
-.textarea {
+::v-deep() .textarea {
   align-items: flex-start;
-  ::v-deep() .van-field__control {
+  .van-field__control {
     height: 5rem;
   }
 }

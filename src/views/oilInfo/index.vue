@@ -19,7 +19,7 @@
     </van-popup>
     <van-dialog
       :close-on-click-overlay="true"
-      v-model="showTime"
+      v-model:show="showTime"
       @confirm="dialogConfirm"
       title="时间筛选"
       show-cancel-button
@@ -35,42 +35,40 @@
         type="date"
       />
     </van-dialog>
-    <card
-      style="overflow: visible; padding: 0.2rem 1rem"
-      :top="false"
-      :hed="false"
-    >
-      <van-cell title="时间筛选:">
-        <span class="round" @click="showDate(1)" style="color: #000">{{
-          sdate
-        }}</span>
-        <van-icon :name="require('@/assets/img/to.png')" />
-        <span class="round" @click="showDate(2)" style="color: #000">{{
-          edate
-        }}</span>
-      </van-cell>
-      <van-cell title="状态筛选:">
-        <span
-          class="round"
-          @click="statuCheck(0)"
-          :class="{ active: is_create === 0 }"
-          >未生成报告</span
-        >
-        <span
-          class="round"
-          @click="statuCheck(1)"
-          :class="{ active: is_create === 1 }"
-          >已生成报告</span
-        >
-      </van-cell>
-    </card>
-    <div class="cardFlex">
-      <van-cell @click="showPopup = true" title="按部件查看:">
-        <img class="img" src="@/assets/img/查看.png" />
-      </van-cell>
-      <van-cell @click="scanCode" title="扫描条形码:">
-        <img class="img" src="@/assets/img/扫码.png" />
-      </van-cell>
+    <div v-sticky="true">
+      <card style="overflow: visible" :top="false" :hed="false" class="top">
+        <van-cell title="时间筛选:">
+          <span class="round" @click="showDate(1)" style="color: #000">{{
+            sdate
+          }}</span>
+          <van-icon :name="require('@/assets/img/to.png')" />
+          <span class="round" @click="showDate(2)" style="color: #000">{{
+            edate
+          }}</span>
+        </van-cell>
+        <van-cell title="状态筛选:">
+          <span
+            class="round"
+            @click="statuCheck(0)"
+            :class="{ active: is_create === 0 }"
+            >未生成报告</span
+          >
+          <span
+            class="round"
+            @click="statuCheck(1)"
+            :class="{ active: is_create === 1 }"
+            >已生成报告</span
+          >
+        </van-cell>
+      </card>
+      <div class="cardFlex">
+        <van-cell @click="showPopup = true" title="按部件查看:">
+          <img class="img" src="@/assets/img/查看.png" />
+        </van-cell>
+        <van-cell @click="scanCode" title="扫描条形码:">
+          <img class="img" src="@/assets/img/扫码.png" />
+        </van-cell>
+      </div>
     </div>
     <card
       v-for="(item, index) in stationList"
@@ -110,6 +108,7 @@ import { Dialog } from "vant";
 import { biz } from "dingtalk-jsapi";
 
 export default {
+  name: "oilInfo",
   components: {
     card,
   },
@@ -128,18 +127,17 @@ export default {
   },
   created() {
     this.$api.sosPart().then((res) => {
-      this.list = res;
+      this.list = [{ part_name: "全部", part_id: 0 }, ...res];
     });
-    this.sdate =
-      sessionStorage.getItem("sdate") ||
-      this.filterTime(
-        new Date(new Date().getTime() - 3600 * 24 * 30 * 1000),
-        "YYYY-mm-dd"
-      );
-    this.edate =
-      sessionStorage.getItem("edate") ||
-      this.filterTime(new Date(), "YYYY-mm-dd");
+    this.sdate = this.filterTime(
+      new Date(new Date().getTime() - 3600 * 24 * 30 * 1000),
+      "YYYY-mm-dd"
+    );
+    this.edate = this.filterTime(new Date(), "YYYY-mm-dd");
     this.statuCheck(0);
+  },
+  activated() {
+    this.statuCheck(this.is_create);
   },
   methods: {
     // 时间筛选
@@ -188,28 +186,50 @@ export default {
     scanCode() {
       biz.util
         .scan({
-          type: String, // type 为 all、qrCode、barCode，默认是all。
+          onSuccess: ({ text }) => {
+            sessionStorage.setItem("sos_number_code", text);
+            this.$api
+              .sosDetails()
+              .then(({ edit }) => {
+                if (edit === 0) {
+                  this.$router.push({ name: "oilInfoDetails" });
+                } else {
+                  this.$router.push({ name: "scanCode" });
+                }
+              })
+              .catch((err) => {
+                // eslint-disable-next-line no-alert
+                alert(JSON.stringify(err));
+              });
+          },
+          onFail(err) {
+            if (err.errorMessage !== "") {
+              Dialog({ message: JSON.stringify(err) });
+            }
+          },
         })
-        .then(({ text }) => {
-          sessionStorage.setItem("sos_number_code", text);
-          this.$api
-            .sosDetails()
-            .then(({ edit }) => {
-              if (edit === 0) {
-                this.$router.push({ name: "oilInfoDetails" });
-              } else {
-                this.$router.push({ name: "scanCode" });
-              }
-            })
-            .catch((err) => Dialog(err));
-        })
-        .catch(() => Dialog({ message: "请在钉钉手机端使用" }));
+        .catch((message) => {
+          Dialog({ message });
+        });
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.card.top {
+  @include myStyle;
+  padding: 0 2vw 2vw 2vw;
+  min-height: 1vw;
+  margin-top: 0;
+}
+.timeTile {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  font-size: 0.8rem;
+}
 ::v-deep() .van-popup--bottom {
   width: 90%;
   left: 5%;
@@ -228,8 +248,9 @@ export default {
     flex: 1;
     background: rgba(255, 255, 255, 1);
     border-radius: 0.5rem;
+    font-size: 3vw;
     display: flex;
-    padding: 0.5rem 1rem;
+    padding: 2vw;
     align-items: center;
     margin-top: 1rem;
     box-shadow: 0px 3px 11px 1px rgba(0, 0, 0, 0.08);
@@ -244,27 +265,17 @@ export default {
       justify-content: flex-end;
     }
     .img {
-      height: 2rem;
+      height: 6vw;
     }
   }
 }
-::v-deep() .van-icon {
-  transform: scale(0.5);
-}
-.timeTile {
-  display: flex;
-  justify-content: space-around;
-  margin-bottom: 1rem;
-  margin-top: 1rem;
-  font-size: 0.8rem;
-}
-.search {
+::v-deep() .search {
   display: flex;
   align-items: center;
   background: linear-gradient(to right, #fee568 0%, #fbd01f 100%);
   padding: 0.5rem 1rem;
   height: 2rem;
-  ::v-deep() .van-field {
+  .van-field {
     border-radius: 0.3rem;
     margin: 0 auto;
     width: 90%;
@@ -277,95 +288,26 @@ export default {
   }
 }
 .stations {
-  font-size: 0.8rem;
+  font-size: 2.5vw;
   padding-bottom: 0.5rem;
   .flex {
-    font-size: 0.8rem;
     padding: 0.5rem 0 0 1rem;
     display: flex;
-    align-items: center;
     flex-wrap: wrap;
     span {
+      word-break: break-all;
       flex: 1;
     }
   }
   .hed {
-    font-size: 1rem;
+    font-size: 3vw;
     color: #ffffff;
+    height: 5.5vw;
+    display: flex;
+    align-items: center;
     font-weight: 600;
-    padding: 0.2rem 1rem;
+    padding: 0 1rem;
     background: #434343;
-  }
-}
-.card {
-  ::v-deep() .van-cell {
-    font-size: 1.1rem;
-    overflow: visible;
-    padding: 0.5rem 0 0 0;
-    .round {
-      white-space: nowrap;
-      background: #ffffff;
-      border: 0.05rem solid rgba(0, 0, 0, 0.08);
-      box-shadow: 0 0 0.2rem 0 rgba(0, 0, 0, 0.08);
-      border-radius: 0.8rem;
-      height: 1.6rem;
-      margin-right: 2.5%;
-      margin-left: 1rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex: 1;
-    }
-    &__title {
-      width: 22%;
-      white-space: nowrap;
-      flex: none;
-      overflow: visible;
-      font-weight: 600;
-    }
-    &__value {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex: none;
-      width: 80%;
-    }
-    &::after {
-      display: none;
-    }
-    .active {
-      color: #000;
-      background: linear-gradient(267deg, #fbd01f, #fee568);
-    }
-  }
-}
-::v-deep() .van-field {
-  padding: 1rem 0 1rem 1rem;
-  &__value {
-    width: 90%;
-    background: #ffffff;
-    box-shadow: 0 0 0.2rem 0 rgba(0, 0, 0, 0.08);
-    border-radius: 0.8rem;
-    padding: 0.2rem 0 0.2rem 0.5rem;
-  }
-}
-.flex {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  .van-button {
-    height: 2rem;
-    width: 6.5rem;
-  }
-  .select {
-    width: 20%;
-    ::v-deep() .cell {
-      font-weight: normal;
-      border: 0.05rem solid rgba(0, 0, 0, 0.08);
-      border-radius: 1rem;
-      width: 5rem;
-      font-size: 0.81rem;
-    }
   }
 }
 </style>

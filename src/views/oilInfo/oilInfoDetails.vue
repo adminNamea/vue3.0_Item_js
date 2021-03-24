@@ -57,6 +57,12 @@ export default {
     };
   },
   created() {
+    if (!sessionStorage.getItem("sos_number_code")) {
+      sessionStorage.setItem(
+        "sos_number_code",
+        this.getRequest().sos_number_code
+      );
+    }
     this.$api.sosDetails().then((res) => {
       console.log(res);
       this.form = res;

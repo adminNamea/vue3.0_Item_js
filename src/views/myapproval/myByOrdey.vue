@@ -1,41 +1,45 @@
 <template>
   <div class="order">
-    <card
-      style="overflow: visible; padding: 0.2rem 1rem"
-      :top="false"
-      :hed="false"
-    >
-      <van-cell title="状态筛选:">
-        <span
-          class="round"
-          @click="statuCheck(1)"
-          :class="{ active: status === 1 }"
-          >未审批{{ status === 1 ? "：" + stationList.length : "" }}</span
-        >
-        <span
-          class="round"
-          @click="statuCheck(2)"
-          :class="{ active: status === 2 }"
-          >已审批{{ status === 2 ? "：" + stationList.length : "" }}</span
-        >
-        <span
-          class="round"
-          @click="statuCheck(3)"
-          :class="{ active: status === 3 }"
-          >被拒审{{ status === 3 ? "：" + stationList.length : "" }}</span
-        >
-      </van-cell>
-      <div class="flex">
-        <select-a :h="1.8" v-model="value" :options="options"></select-a>
-        <van-field v-model="keyword" placeholder="请输入搜索内容"> </van-field>
-        <van-button @click="search" round>搜索</van-button>
-      </div>
-    </card>
+    <div v-sticky="true">
+      <card
+        style="overflow: visible; padding: 0.2rem 1rem"
+        :top="false"
+        :hed="false"
+      >
+        <van-cell title="状态筛选:">
+          <span
+            class="round"
+            @click="statuCheck(1)"
+            :class="{ active: status === 1 }"
+            >未审批{{ status === 1 ? "：" + stationList.length : "" }}</span
+          >
+          <span
+            class="round"
+            @click="statuCheck(2)"
+            :class="{ active: status === 2 }"
+            >已审批{{ status === 2 ? "：" + stationList.length : "" }}</span
+          >
+          <span
+            class="round"
+            @click="statuCheck(3)"
+            :class="{ active: status === 3 }"
+            >被拒审{{ status === 3 ? "：" + stationList.length : "" }}</span
+          >
+        </van-cell>
+        <div class="flex">
+          <select-a :h="'5vw'" v-model="value" :options="options"></select-a>
+          <van-field v-model="keyword" placeholder="请输入搜索内容">
+          </van-field>
+          <van-button @click="search" round>搜索</van-button>
+        </div>
+      </card>
+    </div>
     <card
       v-for="(item, index) in stationList"
       :key="index"
       @click="cardClick(item)"
       class="station"
+      :style="index == 0 ? '' : 'margin-top: 1rem;'"
       :top="false"
       :hed="false"
     >
@@ -88,6 +92,7 @@ import card from "@/components/card/index.vue";
 import select from "@/components/select/index.vue";
 
 export default {
+  name: "myByOrdey",
   components: {
     card,
     "select-a": select,
@@ -107,13 +112,13 @@ export default {
       ],
     };
   },
-  created() {
-    this.statuCheck(1);
+  activated() {
+    this.statuCheck(this.status);
   },
   methods: {
     // 搜索
     search() {
-      this.getOrderList({ [this.value]: this.keyword, status: 0 });
+      this.getOrderList({ [this.value]: this.keyword, status: this.status });
     },
     statuCheck(status) {
       this.status = status;
@@ -123,11 +128,13 @@ export default {
     },
     getOrderList(obj) {
       this.$api.OrderApproval(obj).then((res) => {
+        console.log(res);
         this.stationList = res;
       });
     },
     cardClick(item) {
       this.$router.push({ name: "approvalDetails" });
+      sessionStorage.setItem("approval", 1);
       sessionStorage.setItem("myOrder", 1);
       sessionStorage.setItem("order_id", item.order_id);
     },
@@ -136,77 +143,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-::v-deep() .van-icon {
-  transform: scale(0.5);
-}
-::v-deep() .van-cell {
-  font-size: 1.1rem;
-  overflow: visible;
-  padding: 0.5rem 0 0 0;
-  .round {
-    white-space: nowrap;
-    background: #ffffff;
-    border: 0.05rem solid rgba(0, 0, 0, 0.08);
-    box-shadow: 0 0 0.2rem 0 rgba(0, 0, 0, 0.08);
-    border-radius: 0.8rem;
-    height: 1.6rem;
-    margin-right: 2.5%;
-    margin-left: 0.5rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex: 1;
-  }
-  &__title {
-    width: 22%;
-    flex: none;
-    white-space: nowrap;
-    overflow: visible;
-    font-weight: 600;
-  }
-  &__value {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex: none;
-    width: 80%;
-  }
-  &::after {
-    display: none;
-  }
-  .active {
-    color: #000;
-    background: linear-gradient(267deg, #fbd01f, #fee568);
-  }
-}
-
-::v-deep() .van-field {
-  padding: 1rem 0 1rem 1rem;
-  &__value {
-    width: 90%;
-    background: #ffffff;
-    box-shadow: 0 0 0.2rem 0 rgba(0, 0, 0, 0.08);
-    border-radius: 0.8rem;
-    padding: 0.2rem 0 0.2rem 0.5rem;
-  }
-}
-.flex {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  .van-button {
-    height: 2rem;
-    width: 6.5rem;
-  }
-  .select {
-    width: 20%;
-    ::v-deep() .cell {
-      font-weight: normal;
-      border: 0.05rem solid rgba(0, 0, 0, 0.08);
-      border-radius: 1rem;
-      width: 5rem;
-      font-size: 0.81rem;
-    }
-  }
-}
+@include myStyle;
 </style>

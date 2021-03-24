@@ -59,15 +59,15 @@
       </div>
       <van-cell title="工位：">
         <select-a
-          v-if="isWork != 'true'"
+          v-if="isWork != 'true' && !approval"
           :h="1.5"
           v-model="station.station_id"
           :options="stationList"
         ></select-a>
-        <span v-else style="width: 50%; font-size: 0.9rem">{{
+        <span v-else style="width: 25%; font-size: 2.5vw">{{
           filterStation(stationList, station.station_id)
         }}</span>
-        <div style="font-weight: bold">
+        <div>
           工位类型：
           <span style="color: #656565; font-size: 0.8rem">{{
             stationType[station.station_id]
@@ -76,11 +76,11 @@
       </van-cell>
       <van-cell title="预计使用时间：">
         <calendarSelect
-          :disable="isWork == 'true'"
+          :disable="isWork == 'true' || approval"
           v-model:eDate="station.edate"
           v-model:sDate="station.sdate"
         >
-          <template v-if="isWork != 'true'">
+          <template v-if="isWork != 'true' && !approval">
             <div class="dateSlot">
               <div>{{ station.sdate || "请选择" }}</div>
               <span>至</span>
@@ -93,12 +93,12 @@
         <div class="item" v-for="(item, i) in station.user" :key="i">
           {{ item.name_cn }}
           <van-icon
-            v-if="isWork != 'true'"
+            v-if="isWork != 'true' && !approval"
             :name="icon"
             @click="delCrew(item)"
           />
         </div>
-        <template v-if="isWork != 'true'" #right-icon>
+        <template v-if="isWork != 'true' && !approval" #right-icon>
           <img @click="showSelect(2)" class="iconAdd" :src="icon" />
         </template>
       </van-cell>
@@ -106,12 +106,12 @@
         <div class="item" v-for="(item, i) in station.item" :key="i">
           {{ item.item_name }}
           <van-icon
-            v-if="isWork != 'true'"
+            v-if="isWork != 'true' && !approval"
             :name="icon"
             @click="delProject(item)"
           />
         </div>
-        <template v-if="isWork != 'true'" #right-icon>
+        <template v-if="isWork != 'true' && !approval" #right-icon>
           <img @click="showSelect(1)" class="iconAdd" :src="icon" />
         </template>
       </van-cell>
@@ -123,11 +123,12 @@
       </div>
       <van-cell title="当前状态：">
         <select-a
-          :h="1.5"
+          :h="'4vw'"
+          :disable="approval"
           v-model="station.station_statu_id"
           :options="options"
         ></select-a>
-        <span style="font-weight: bold; color: #333333">历史状态：</span>
+        <span style="color: #333333">历史状态：</span>
       </van-cell>
       <div class="replaceRecord" style="height: 15rem; overflow: auto">
         <div
@@ -149,7 +150,7 @@
         </div>
       </div>
     </card>
-    <div style="margin-top: 1rem" v-if="isUser">
+    <div v-sticky="false" v-if="isUser && !approval">
       <van-button
         round
         block
@@ -209,6 +210,7 @@ export default {
       stationStatus: 1,
       // 工位类型
       stationType: {},
+      approval: Number(sessionStorage.getItem("approval")),
       isWork: sessionStorage.getItem("isWork"),
       value: 1,
       options: [
@@ -322,7 +324,7 @@ export default {
         }
       });
       this.station.order_item_id = this.station.item
-        .map(() => item.order_item_id)
+        .map((s) => s.order_item_id)
         .join(",");
     },
     // 删除人员
@@ -386,8 +388,9 @@ export default {
         .upOrderStation(this.station)
         .then((res) => {
           Toast.clear();
-          Dialog({ message: res.msg });
-          this.orderStationDetails();
+          Dialog.alert({ message: res.msg }).then(() => {
+            this.$router.go(-1);
+          });
         })
         .catch((message) => {
           Toast.clear();
@@ -413,12 +416,12 @@ export default {
     border-bottom: 0.1rem solid #dadada;
   }
 }
-.search {
+::v-deep() .search {
   text-align: center;
   background: linear-gradient(to right, #fee568 0%, #fbd01f 100%);
   padding-top: 0.5rem;
   height: 2.2rem;
-  ::v-deep() .van-field {
+  .van-field {
     margin: 0 auto;
     width: 90%;
     height: 100%;
@@ -443,13 +446,13 @@ export default {
 .station {
   position: relative;
   border-radius: 0.8rem;
-  padding-bottom: 1rem;
+  margin-top: 1rem;
 }
 .left {
-  margin: 3% 0 2% 0;
+  margin: 2vw 0 2vw 0;
   display: inline-block;
-  font-size: 1rem;
-  padding: 0.2rem 1rem;
+  font-size: 3vw;
+  padding: 0.2rem 2vw;
   left: 0;
   color: #fff;
   border-radius: 0 1rem 1rem 0;
@@ -497,11 +500,15 @@ export default {
 ::v-deep() .van-cell {
   overflow: visible;
   display: flex;
-  padding: 0.5rem 1.5rem;
+  align-items: center;
+  font-size: 2.5vw;
+  padding: 1vw 2vw;
+  &:last-child {
+    padding-bottom: 0;
+  }
   &__title {
     flex: none;
-    font-weight: bold;
-    width: 7rem;
+    width: 25vw;
   }
   &__value {
     align-items: center;
@@ -526,13 +533,15 @@ export default {
   .select {
     width: 50%;
     .cell {
-      width: 8rem;
+      width: 25vw;
       background: linear-gradient(0deg, #373737 0%, #2b2b2b 100%);
       color: #ffffff;
-      border-radius: 0.3rem;
-      font-size: 0.9rem;
-      .title {
-        height: 1.5rem;
+      border-radius: 1vw;
+      font-size: 2.5vw;
+      @media all and(max-width: 500px) {
+        .title {
+          padding: 0.5vw 1vw;
+        }
       }
     }
   }
@@ -541,54 +550,57 @@ export default {
   background: linear-gradient(0deg, #ffffff 0%, #ffffff 100%);
   border: 1px solid #434343;
   box-shadow: 0 0.1rem 1rem 0 rgba(0, 0, 0, 0.05);
-  border-radius: 0.4rem;
-  display: inline-block;
+  border-radius: 0.7vw;
+  display: flex;
+  align-items: center;
   position: relative;
-  padding: 0.1rem 0.5rem;
-  font-size: 0.7rem;
-  font-weight: 500;
-  margin-right: 1rem;
-  margin-bottom: 0.5rem;
+  padding: 0 0.5rem;
+  @media all and(max-width: 540px) {
+    border-radius: 1vw;
+    height: 5vw;
+  }
+  font-size: 2.5vw;
+  height: 4vw;
+  margin-right: 2vw;
 }
 .replaceRecord {
   margin-top: 5%;
-  font-weight: 400;
-  font-size: 0.7rem;
+  font-size: 2vw;
   .body {
     position: relative;
     width: 90%;
     display: flex;
-    padding: 1rem 1.5rem;
+    padding: 1vw 2vw;
     align-items: center;
     justify-content: space-between;
     .leftType {
       background: #f3f3f3;
       border-radius: 4rem;
-      padding: 0.3rem 0.7rem;
+      padding: 0.5vw 2.5vw;
     }
     .line {
       position: absolute;
       width: 0.08rem;
-      top: 0;
-      left: 25%;
+      left: 30%;
       height: 100%;
+      display: flex;
+      align-items: center;
       background: rgba(33, 33, 33, 0.1);
-      .van-icon {
-        position: relative;
-        left: -0.32rem;
-        top: 45%;
-        z-index: 1;
-      }
+      justify-content: center;
     }
     .cardTltle {
-      font-size: 0.8rem;
+      font-size: 2vw;
       position: relative;
       width: 64%;
       box-shadow: 0 0.3rem 1rem 0 rgba(0, 0, 0, 0.06);
       border-radius: 0.6rem;
       .content {
-        font-size: 0.6rem;
-        padding: 0.3rem 1rem;
+        padding: 0.5vw 2vw;
+        @media all and(max-width: 540px) {
+          white-space: nowrap;
+          transform: scale(0.8);
+          transform-origin: 0%;
+        }
       }
       .title {
         border-radius: 0.6rem 0.6rem 0 0;
@@ -596,10 +608,20 @@ export default {
         color: #fff;
         display: flex;
         align-items: center;
-        padding: 0.3rem 1rem;
+        padding: 0.5vw 2vw;
         height: 1rem;
-        font-size: 0.6rem;
+        font-size: 1.8vw;
         justify-content: space-between;
+        @media all and(max-width: 540px) {
+          span {
+            white-space: nowrap;
+            transform: scale(0.6);
+            transform-origin: 0%;
+            &:nth-child(1) {
+              width: 65%;
+            }
+          }
+        }
       }
     }
   }

@@ -1,7 +1,12 @@
 <template>
   <div>
     <!-- 删除提示框 -->
-    <a-dialog class="delDialog" :show="delShow" title="删除确认" :del="false">
+    <a-dialog
+      class="delDialog"
+      v-model:show="delShow"
+      title="删除确认"
+      :del="false"
+    >
       <span class="info">确认删除此工位？</span>
       <div class="vanButton" style="margin: 1rem">
         <van-button
@@ -25,7 +30,7 @@
     <h3>
       工单号：{{ order_number }}
       <img
-        v-if="isWork != 'true'"
+        v-if="isWork != 'true' && !approval"
         @click="$router.push({ name: 'addStationList' })"
         src="@/assets/img/添加图片.png"
       />
@@ -41,13 +46,11 @@
       <div class="left">{{ data.station_name }}({{ data.statu_name }})</div>
       <div class="date">
         <span>预计使用时间：</span>
-        <span style="font-size: 0.7rem; color: #656565"
-          >{{ data.sdate }}至{{ data.edate }}</span
-        >
+        <span style="color: #656565">{{ data.sdate }}至{{ data.edate }}</span>
       </div>
       <img
         class="delImg"
-        v-if="isWork != 'true'"
+        v-if="isWork != 'true' && !approval"
         @click.stop="delStation(data)"
         src="@/assets/img/del.png"
       />
@@ -80,6 +83,7 @@ export default {
   },
   data() {
     return {
+      approval: Number(sessionStorage.getItem("approval")),
       order_number: sessionStorage.getItem("order_number"),
       order_id: Number(sessionStorage.getItem("order_id")),
       delItem: {},
@@ -91,7 +95,6 @@ export default {
   methods: {
     stationClick(item) {
       this.$router.push({ name: "details" });
-      console.log(item);
       sessionStorage.setItem("order_station_id", item.order_station_id);
     },
     // 删除工位
@@ -129,6 +132,7 @@ export default {
 <style lang="scss" scoped>
 h3 {
   display: flex;
+  font-size: 4vw;
   justify-content: space-between;
   align-items: center;
   img {
@@ -150,28 +154,31 @@ h3 {
 .left {
   margin: 3% 0 2% 0;
   display: inline-block;
-  font-size: 1rem;
-  padding: 0.2rem 1rem;
+  font-size: 3vw;
+  padding: 0.2rem 3vw;
   left: 0;
   color: #fff;
   border-radius: 0 1rem 1rem 0;
   background: #434343;
 }
 .date {
-  font-size: 0.8rem;
+  font-size: 2.5vw;
   color: #333333;
   position: absolute;
-  right: 4rem;
-  top: 1.5rem;
+  right: 2vw;
+  top: 3.5vw;
 }
 ::v-deep() .van-cell {
   display: flex;
   align-items: center;
+  font-size: 2.5vw;
   padding: 0 1.5rem;
   &__title {
-    flex: none;
     font-weight: bold;
-    width: 6rem;
+    flex: 0.2;
+    @media all and (max-width: 500px) {
+      flex: 0.35;
+    }
   }
   &:not(.not)::after {
     display: none;
@@ -188,7 +195,7 @@ h3 {
   border-radius: 0.4rem;
   display: inline-block;
   padding: 0.1rem 0.5rem;
-  font-size: 0.7rem;
+  font-size: 2vw;
   font-weight: 500;
   margin: 0.2rem;
 }
@@ -202,13 +209,13 @@ h3 {
     height: 10rem;
   }
 }
-.vanButton {
+::v-deep() .vanButton {
   display: flex;
   justify-content: space-around;
-  ::v-deep() .van-button {
+  .van-button {
     width: 35%;
   }
-  ::v-deep() .van-button__content {
+  .van-button__content {
     color: #000;
   }
 }

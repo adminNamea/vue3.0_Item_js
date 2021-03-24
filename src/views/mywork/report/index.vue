@@ -30,10 +30,21 @@
         >返回首页</span
       >
     </card>
-    <van-form @submit="onSubmit">
-      <component :form="form" v-if="comName != ''" :is="comName"></component>
-      <div v-else>下面的内容接入</div>
-      <div class="b_fixed">
+    <van-form ref="form">
+      <component
+        :form="form"
+        :keep="keep"
+        v-if="comName != ''"
+        :is="comName"
+      ></component>
+      <iframe
+        v-else
+        frameborder="0"
+        scrolling="yes"
+        style="width: 100%; min-height: 30rem; margin-top: 1rem"
+        :src="jdyUrl"
+      ></iframe>
+      <div v-sticky="false" class="b_fixed" v-if="comName != ''">
         <van-button
           round
           block
@@ -44,6 +55,7 @@
         >
         <van-button
           round
+          @click="onSubmit"
           block
           color="linear-gradient(to right, #FFCD11, #FFE775)"
           native-type="submit"
@@ -101,8 +113,7 @@ export default {
   data() {
     return {
       form: {
-        delImg: [],
-        cat_itemindicator: 0,
+        cat_itemindicator: 1,
         // 类型，2：发现 5：工况 6：机器铭牌 7：小时数 8：发动机铭牌 9：失效零件 10：更换零件
         image: [],
         maintenance_list: [],
@@ -112,7 +123,15 @@ export default {
       },
       comName: "",
       itemDetails: {},
+      jdyUrl: "",
     };
+  },
+  mounted() {
+    if (this.comName === "") {
+      this.$api.loginJdy().then((url) => {
+        this.jdyUrl = url;
+      });
+    }
   },
   created() {
     const report = JSON.parse(sessionStorage.getItem("reportData"));
@@ -129,43 +148,23 @@ export default {
         forbidClick: true,
       });
       const obj = { ...this.form, add_type };
+      obj.image = [];
       for (const type in obj.uploader) {
         for await (const data of obj.uploader[type].fileList) {
-          if (data.file) {
-            const image_path_aliyun = await this.putOSS(data);
+          if (data.image_path_aliyun) {
             obj.image.push({
-              image_path_aliyun,
+              image_path_aliyun: data.image_path_aliyun,
               image_des: data.image_des,
               type: data.type,
             });
           }
         }
       }
-      const delImgName = [];
-      obj.delImg.forEach((path) => {
-        delImgName.push(path);
-        obj.image.forEach((v, i) => {
-          if (v.image_path_aliyun === path) {
-            obj.image.splice(i, 1);
-            return false;
-          }
-        });
-      });
-      await this.delOSS(delImgName);
-      const arr = [];
-      for await (const data of obj.project_msg) {
-        let { msg } = data;
-        if (!msg) {
-          msg = await this.putOSS({ file: data.url });
-        }
-        arr.push({ msg, item_project_list_id: data.item_project_list_id });
-      }
-      obj.project_msg = arr;
       delete obj.uploader;
       delete obj.projectFileList;
       return obj;
     },
-    async keep() {
+    async keep(isk = true) {
       const api =
         this.comName === "reportW"
           ? "backItemReport"
@@ -177,10 +176,11 @@ export default {
       if (!api) return;
       const res = await this.uploadOSS(0);
       console.log(res);
-      this.form.delImg = [];
       this.$api[api](res)
         .then((r) => {
-          Dialog({ message: r.msg });
+          if (isk) {
+            Dialog({ message: r.msg });
+          }
           this.getItemReport();
         })
         .catch((message) => {
@@ -191,6 +191,11 @@ export default {
         });
     },
     async onSubmit() {
+      const status = await this.$refs.form
+        .validate()
+        .then(() => true)
+        .catch(() => false);
+      if (!status) return false;
       const api =
         this.comName === "reportW"
           ? "addItemReport"
@@ -201,9 +206,10 @@ export default {
           : "";
       if (!api) return;
       const res = await this.uploadOSS(1);
+      console.log(res);
       this.$api[api](res)
-        .then(() => {
-          Dialog.alert({ message: res.msg }).then(() => {
+        .then((r) => {
+          Dialog.alert({ message: r.msg }).then(() => {
             this.$router.go(-1);
           });
         })

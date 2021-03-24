@@ -36,6 +36,7 @@
       <van-field
         v-model="form.customer_mobile"
         label="手机"
+        type="number"
         placeholder="请输入"
       />
       <van-field
@@ -46,8 +47,7 @@
       <van-field
         v-model="form.customer_address"
         label="邮政地址"
-        placeholder="请输入（必填）"
-        :rules="[{ required: true }]"
+        placeholder="请输入"
       />
       <van-field
         v-model="form.signer_name"
@@ -58,14 +58,14 @@
       <van-field
         v-model="form.signer_mobile"
         label="设备签收人电话"
+        type="number"
         placeholder="请输入（必填）"
         :rules="[{ required: true }]"
       />
       <van-field
         v-model="form.signer_email"
         label="设备签收人邮箱"
-        placeholder="请输入（必填）"
-        :rules="[{ required: true }]"
+        placeholder="请输入"
       />
       <van-field
         v-model="form.delivery_address"
@@ -88,35 +88,42 @@
         placeholder="请输入（必填）"
         :rules="[{ required: true }]"
       />
-      <van-field
-        v-for="(v, i) in form.part_name"
-        :key="i"
-        v-model="v.name"
-        label="设备部件名称"
-        class="bg"
-        placeholder="请输入零件编号/铭牌序列号"
-        :rules="[{ required: true }]"
-      >
-        <template #right-icon>
-          <van-icon
-            v-if="i == 0"
-            :name="addIcon"
-            @click="form.part_name.push({ name: '' })"
-          />
-          <van-icon
-            v-else
-            :name="delIcon"
-            @click="form.part_name.splice(i, 1)"
-          />
-        </template>
-      </van-field>
+      <div v-for="(v, i) in form.part_name" :key="i" class="partName">
+        <van-field
+          v-model="v.name"
+          label="设备部件名称"
+          class="bg"
+          placeholder="请输入"
+        >
+          <template #right-icon>
+            <van-icon
+              v-if="i == 0"
+              :name="addIcon"
+              @click="form.part_name.unshift({ name: '', number: '' })"
+            />
+            <van-icon
+              v-else
+              :name="delIcon"
+              @click="form.part_name.splice(i, 1)"
+            />
+          </template>
+        </van-field>
+        <van-field
+          v-model="v.number"
+          label="零件编号/铭牌序列号"
+          class="bg"
+          placeholder="请输入"
+        >
+        </van-field>
+      </div>
     </card>
     <card :hed="false" :top="false">
       <div class="left">交机项目清单</div>
       <van-cell
         v-for="(v, i) in listData"
         :key="i"
-        :value-class="{ textarea: v.data_type == 3 }"
+        value-class="textarea"
+        :class="{ bg: v.data_type == 2 }"
         :style="v.data_type != 0 ? 'align-items: flex-start' : ''"
         @click="checkde(String(v.id))"
       >
@@ -126,20 +133,21 @@
           width="100%"
           height="100%"
           fit="scale-down"
-          :src="autograph(v.id).url"
+          :src="autograph"
         >
           <template #loading>
             <span></span>
           </template>
         </van-image>
         <template v-if="v.data_type == 2" #title>
-          文件，礼品和工具套件签收
-          <span style="color: rgba(0, 0, 0, 0.5)">（添加签收单照片）</span>
+          {{ v.tltie }}
+          <span style="color: rgba(0, 0, 0, 0.5)">（{{ v.remarks }}）</span>
           <br />
           <br />
           <van-uploader
             :preview-options="{ closeable: true }"
-            :max-count="3"
+            :max-count="9"
+            multiple
             @delete="(file) => deleteImg(file, v.id)"
             v-model="form.projectFileList"
             :after-read="(file) => afterRead(file, v.id)"
@@ -167,8 +175,8 @@
 <script>
 import card from "@/components/card/index.vue";
 import select from "@/components/select/index.vue";
-import SignCanvas from "@/components/SignCanvas/index.vue";
-import { Dialog } from "vant";
+import SignCanvas from "sign-canvas";
+import { Dialog, Toast } from "vant";
 
 export default {
   components: {
@@ -182,6 +190,12 @@ export default {
         return {};
       },
       type: Object,
+    },
+    keep: {
+      default() {
+        return () => {};
+      },
+      type: Function,
     },
   },
   data() {
@@ -219,19 +233,28 @@ export default {
       checkedIcon: require("@/assets/img/choice-blue.png"),
       // 未选中图标
       noCheckedIcon: require("@/assets/img/choice-gray.png"),
-      item_project_list_id: "",
+      surl: null,
+      uarry: [],
     };
+  },
+  watch: {
+    uarry(v) {
+      if (v.length === 0) {
+        this.keep(false);
+      }
+    },
+  },
+  computed: {
+    autograph() {
+      const data =
+        this.form.project_msg.find((v) => v.item_project_list_id === 21) || {};
+      return data.url || this.surl;
+    },
   },
   created() {
     this.getItemProjectList();
   },
   methods: {
-    autograph(id) {
-      this.item_project_list_id = id;
-      const data =
-        this.form.project_msg.find((v) => v.item_project_list_id === id) || {};
-      return data;
-    },
     getItemProjectList() {
       this.$api
         .getItemProjectList({ project_type: 2 })
@@ -243,15 +266,21 @@ export default {
         });
     },
     deleteImg(file, id) {
+      Toast.loading({
+        duration: 0,
+        overlay: true,
+        message: "请稍后...",
+        forbidClick: true,
+      });
       this.form.project_msg.forEach((img, index) => {
         if (img.item_project_list_id === id) {
           if (img.msg && img.msg === file.msg) {
-            this.form.project_msg.splice(index, 1);
-            this.form.delImg.push(img.msg);
-          } else if (file.file && file.file.name === img.name) {
+            this.delOSS(img.msg).finally(() => {
+              Toast.clear();
+              this.keep(false);
+            });
             this.form.project_msg.splice(index, 1);
           }
-          return false;
         }
       });
     },
@@ -275,39 +304,87 @@ export default {
      */
     async saveAsImg() {
       this.show = false;
-      if (this.value) {
-        const a = this.form.project_msg.find(
-          (v) => v.item_project_list_id === this.item_project_list_id
-        );
-        if (a) {
-          a.url = this.value;
-          if (a.msg) {
-            this.form.delImg.push(a.msg);
-            a.msg = "";
+      Toast.loading({
+        duration: 0,
+        overlay: true,
+        message: "请稍后...",
+        forbidClick: true,
+      });
+      this.surl = this.value;
+      const a = this.form.project_msg.find(
+        (v) => v.item_project_list_id === 21
+      );
+      if (a) {
+        await this.delOSS(a.msg);
+        this.form.project_msg.forEach((img, index) => {
+          if (img.item_project_list_id === 21) {
+            this.form.project_msg.splice(index, 1);
           }
-        } else {
-          this.form.project_msg.push({
-            item_project_list_id: this.item_project_list_id,
-            url: this.value,
-          });
-        }
-      } else {
-        this.deleteImg(this.item_project_list_id);
+        });
+      }
+      if (this.value) {
+        const msg = await this.putOSS({ content: this.value }, "reportImg");
+        this.form.project_msg.push({
+          item_project_list_id: 21,
+          msg,
+        });
+        Toast.clear();
       }
     },
-    afterRead(v, id) {
-      this.form.project_msg.push({
-        item_project_list_id: id,
-        url: v.file,
-        name: v.file.name,
-      });
+    async afterRead(f, id) {
+      let arr = [f];
+      if (f.length) {
+        arr = [...f];
+      }
+      for (const v of arr) {
+        v.message = "等待上传...";
+        v.status = "uploading";
+        this.uarry.push(1);
+      }
+      for (const v of arr) {
+        v.message = "上传中...";
+        await this.putOSS(v, "reportImg")
+          .then((msg) => {
+            v.status = "done";
+            this.uarry.shift();
+            v.msg = msg;
+            this.form.project_msg.push({
+              item_project_list_id: id,
+              msg,
+            });
+          })
+          .catch(() => {
+            v.status = "failed";
+            v.message = "上传失败";
+          });
+      }
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.bg {
+.partName {
+  position: relative;
+  .van-cell::after {
+    display: none;
+  }
+  &::after {
+    position: absolute;
+    box-sizing: border-box;
+    content: " ";
+    pointer-events: none;
+    right: 16px;
+    bottom: 0;
+    left: 16px;
+    border-bottom: 1px solid #dadada;
+  }
+}
+::v-deep() .van-cell::after {
+  transform: scale(1);
+  border-bottom: 1px solid #dadada;
+}
+::v-deep() .bg {
   .van-icon {
     transform: scale(1.4);
   }
@@ -361,12 +438,13 @@ h3 {
   color: #ffffff;
 }
 ::v-deep() .van-uploader__preview-delete {
-  background: rgba(0, 0, 0, 0);
-  top: -0.8rem;
-  right: -0.5rem;
-  .van-icon-cross::before {
-    content: url("del.png");
-  }
+  background-color: rgba(0, 0, 0, 0);
+  top: -0.3rem;
+  right: -0.1rem;
+}
+::v-deep() .van-uploader .van-icon-cross {
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACMAAAAjCAYAAAAe2bNZAAAERUlEQVRYR81YUSi0aRR+3o+NiZjWJP0JpXCjtHOFaJrPaH5uNuzKjQsUcSNj2ZWIZJc1ckMULtzILtobVsZMIlzNptwspfDbTRrb0NgZLfNt5915Nf8w/8y/tdt3apppvnPe87znPOec9/0YPkL0ev0nWq1WBmAEoAeQqyjKp4wxjaIoXsbYHwCOATgBONxut93pdP4VrQsWjaLJZHrj9/stAOoB6KKxCei4ACxIkmS12Wy/R7L7IJjCwkKNRqPpY4y1A4gPXiwjIwNZWVnQ6XSIi4vDw8MDXC4Xzs7OcHFxEerXpyjKhNfrHTw4OPCGAxUWTFlZWb7f7/+BMZYnjHNzc1FZWYni4mIkJyeH3ejt7S329vawtraG42PK2j+iKMqvkiR9ubW1dfSa8atgZFk2K4ryI2MskYwyMzPR2toKvZ5oAtzf3+Pw8BCnp6e4vr6Gz+dDfHw8UlNTkZ2djYKCAiQkJHBdp9OJqakpnJ+fC0AextgXdrt9IxTQCzAEBMBPAOJIuaamBk1NTYiNjeW7XFpawv7+Ph4fH8NGhnSLiopQW1sLiibpzs7OYnl5Wdg8APg8FNB7YAKp2aeISJKEzs5OlJeXw+PxYHJyEjabLRIHXzw3mUxoa2tDYmIiNjc3MTY2Br/fTynzSJJUFJyyZzABsv4iONLV1cWBEBl7enpwdXX10UCEQVpaGoaHh0GkJ0Cjo6PPHPJ6vZ8JUj+DMRqN3zLGvhapaWlp4UDa29txd3f3r4EIw6SkJExMTHBA09PTzylTFOU7h8PxDelxMIE+ckrlS2SdmZnhpCRAFBFKGVXQ0dER3G531MC0Wi3y8/N5ZVFqKEIEhMje3NwsSO2TJCmb+hAHI8uyFUAH/R4ZGeFVQ9+CIyUlJejv78fl5SUsFgtubm4iAkpJSYHVakV6ejoGBgawu7vLbYhD3d3dvMroOyDjdrvdwgItnrqjjphPRKWqIdIJoR1SiGnhaAAFAyF9SnVwRMkH+SIfgT7kcrvdb5jBYDDHxMT8TI47OjpQUVGBwcFB7OzsvLf7UAfhIhSNXmlpKfr6+rC+vo7x8XHh5y2TZZmo/RX9s7KywvtJdXX1q30kkqNIz4VX8kG+qP+Qr4B8T2DsNIWJ5fPz85xsxI9wEs5htEDEusQjKoqGhgYxyxzMaDS+Y4yli9AtLCyAPh+SUMfUQ6gXRcspWru+vp5/gijxG4H5k84jVVVVfP5Qh9zYeDE2XmALBiQeRkNuoWs2m3mHp7m1urpKHdlLaVJIoa6uDo2NjRgaGsL29nbE0iWFnJwcvpgQ2szJyUlUtgaDAb29vZibm8Pi4iK3UVdkVMUZVVWTqvqMWjrw09PTW3XNJiop1UztwFine5E6zjMESDUnPQKjqjMwAVLN7UAMFNXcm4IBqeJGKQC9dtfOy8vjx9L/9a4tAKnmLUTwoUQV72dCT0n/9ZurvwFcCNLyEBAVRAAAAABJRU5ErkJggg==");
+  background-size: 100%;
 }
 ::v-deep() .van-uploader__preview-image {
   width: 4rem;
@@ -376,16 +454,13 @@ h3 {
   }
   overflow: visible;
 }
-::v-deep() .upLoad {
+.upLoad {
   overflow: visible;
   margin-left: -0.5rem;
   height: 6.5rem;
   text-align: left;
 }
-::v-deep() .van-uploader__wrapper {
-  flex-wrap: nowrap;
-}
-.preview-cover {
+::v-deep() .preview-cover {
   position: absolute;
   bottom: -2.3rem;
   border-radius: 0.3rem;

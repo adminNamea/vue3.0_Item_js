@@ -37,11 +37,7 @@
           class="item"
           v-for="(v, i) in itemList"
           :key="i"
-          @click="
-            ResumeTypeList.order_item_name = v.item_name;
-            ResumeTypeList.order_item_id = v.order_item_id;
-            showOrder = false;
-          "
+          @click="thisItemClick(v)"
         >
           <p>
             <span style="font-size: 0.8rem; color: #333333"
@@ -58,7 +54,7 @@
     <van-dialog
       class="dialogTime"
       :close-on-click-overlay="true"
-      v-model="showTime"
+      v-model:show="showTime"
       @confirm="dialogConfirm"
       title="开始时间"
       show-cancel-button
@@ -124,6 +120,24 @@
           />
         </template>
       </van-field>
+      <van-cell v-for="(v, i) in list8" :key="i" :title="v.type_name">
+        <div class="zc">
+          <div>
+            0
+            <van-icon
+              @click="v.cost = 0"
+              :name="v.cost == 0 ? checkedIcon : noCheckedIcon"
+            />
+          </div>
+          <div>
+            {{ v.type_name == "早餐津贴" ? 20 : 40 }}
+            <van-icon
+              @click="ysClick(v)"
+              :name="ysxf(v) ? checkedIcon : noCheckedIcon"
+            />
+          </div>
+        </div>
+      </van-cell>
     </card>
     <card :hed="false" :top="false">
       <div class="leftBlock">
@@ -176,9 +190,13 @@
           <van-icon size="1rem" :name="addIcon" @click="additem(5)" />
         </template>
       </van-cell>
-      <div v-for="v in list5" :key="v.type_id">
+      <div
+        v-for="(v, i) in list5"
+        :key="v.type_id"
+        :class="i + 1 == list5.length ? 'bold' : ''"
+      >
         <van-field
-          class="bg"
+          class="bg divider"
           type="number"
           v-model="v.cost"
           :label="v.type_name"
@@ -189,7 +207,9 @@
           </template>
         </van-field>
         <van-field v-model="v.note" label="备注" placeholder="请填写" />
+        <span></span>
       </div>
+
       <van-cell title="特殊津贴" class="bg">
         <template #right-icon>
           <van-icon size="1rem" :name="addIcon" @click="additem(6)" />
@@ -257,7 +277,11 @@
         />
       </div>
     </card>
-    <div class="b_fixed" v-if="ResumeTypeList.order_item_id">
+    <div
+      v-sticky="false"
+      class="b_fixed"
+      v-if="ResumeTypeList.order_item_id && !fees && dateFees == 0"
+    >
       <van-button
         round
         block
@@ -273,23 +297,46 @@
         >提交</van-button
       >
     </div>
+    <div v-sticky="false" v-if="fees">
+      <van-button
+        round
+        block
+        color="linear-gradient(to right, #FFCD11, #FFE775)"
+        @click="submit"
+        >修改</van-button
+      >
+    </div>
   </div>
 </template>
 
 <script>
 import card from "@/components/card/index.vue";
-import { Dialog } from "vant";
+import { Dialog, Toast } from "vant";
+import { onUnmounted } from "vue";
 
 export default {
+  setup() {
+    onUnmounted(() => {
+      sessionStorage.removeItem("feesList");
+    });
+  },
   components: {
     card,
   },
   created() {
-    this.search();
-    this.orderResumeType();
+    Toast.loading({
+      message: "加载中...",
+      forbidClick: true,
+      duration: 0,
+      overlay: true,
+    });
+    this.orderResumeType().then(() => {
+      this.search();
+    });
   },
   data() {
     return {
+      dateFees: 0,
       showPopup: false,
       popupTitle: "辛劳津贴",
       itemList: [],
@@ -309,11 +356,26 @@ export default {
       tList: [],
       // 辛劳津贴数据
       xList: [],
+      // 修改费用列表
+      fees: JSON.parse(sessionStorage.getItem("feesList")),
     };
   },
   computed: {
     list1() {
-      return this.ResumeTypeList.list.filter((v) => v.parentid === 1);
+      return this.ResumeTypeList.list.filter(
+        (v) =>
+          v.parentid === 1 &&
+          v.type_id !== 5 &&
+          v.type_id !== 7 &&
+          v.type_id !== 6
+      );
+    },
+    list8() {
+      return this.ResumeTypeList.list.filter(
+        (v) =>
+          v.parentid === 1 &&
+          (v.type_id === 5 || v.type_id === 7 || v.type_id === 6)
+      );
     },
     list2() {
       return this.ResumeTypeList.list.filter((v) => v.parentid === 2);
@@ -325,10 +387,10 @@ export default {
       return this.ResumeTypeList.list.filter((v) => v.parentid === 4);
     },
     list5() {
-      return this.ResumeTypeList.list.filter((v) => v.parentid === 5);
+      return this.ResumeTypeList.list.filter((v) => v.parentid === 5).reverse();
     },
     list6() {
-      return this.ResumeTypeList.list.filter((v) => v.parentid === 6);
+      return this.ResumeTypeList.list.filter((v) => v.parentid === 6).reverse();
     },
     list7() {
       return this.ResumeTypeList.list.filter((v) => v.parentid === 7);
@@ -338,6 +400,27 @@ export default {
     },
   },
   methods: {
+    ysClick(v) {
+      if (v.type_name === "早餐津贴") {
+        v.cost = 20;
+      } else {
+        v.cost = 40;
+      }
+    },
+    ysxf(v) {
+      if (v.type_name === "早餐津贴") {
+        return v.cost === 20;
+      }
+      return v.cost === 40;
+    },
+    // 选择当日工单
+    thisItemClick(v) {
+      this.ResumeTypeList.order_item_name = v.item_name;
+      this.ResumeTypeList.order_item_id = v.order_item_id;
+      this.checkReimbursement();
+      this.showOrder = false;
+    },
+    // 选择津贴项目
     itemClick(v) {
       this.ResumeTypeList.list.push(v);
       this.showPopup = false;
@@ -358,28 +441,78 @@ export default {
         this.popupTitle = "特殊津贴";
         this.showPopup = true;
       } else {
-        this.ResumeTypeList.list.push({
+        this.ResumeTypeList.list.unshift({
           parentid: type,
           type_name: "",
           cost: 0,
         });
       }
     },
-    orderResumeType() {
-      this.$api
+    async orderResumeType() {
+      await this.$api
         .orderResumeType()
         .then((res) => {
-          console.log();
+          const { fees } = this;
           this.xList = res.list.filter((v) => v.parentid === 5 && !v.cost);
           this.tList = res.list.filter((v) => v.parentid === 6 && !v.cost);
           res.list = res.list.filter(
             (v) => (v.parentid !== 6 && v.parentid !== 5) || v.cost
           );
-          if (res.list.filter((v) => v.parentid === 7).length === 0) {
-            res.list.push({ parentid: 7, type_name: "", cost: 0 });
-          }
-          if (res.list.filter((v) => v.parentid === 3).length === 0) {
-            res.list.push({ parentid: 3, type_name: "", cost: 0 });
+          if (!fees) {
+            const arr = res.cost_list.filter((v) => v.parentid === 3);
+            const arr1 = res.cost_list.filter((v) => v.parentid === 7);
+            if (arr.length === 0) {
+              res.list.push({
+                parentid: 3,
+                type_name: "",
+                cost: 0,
+              });
+            } else {
+              res.list.push(...arr);
+            }
+            if (arr1.length === 0) {
+              res.list.push({
+                parentid: 7,
+                type_name: "",
+                cost: 0,
+              });
+            } else {
+              res.list.push(...arr1);
+            }
+          } else {
+            res.order_item_id = fees.order_item_id;
+            res.order_item_name = fees.item_name;
+            // 判断有无其他费用
+            let isq = false;
+            let isq1 = false;
+            fees.list.forEach((v) => {
+              const item = res.list.find((v1) => v1.type_name === v.type_name);
+              if (v.parentid === 7) {
+                isq = true;
+              } else if (v.parentid === 3) {
+                isq1 = true;
+              }
+              if (item) {
+                res.date = v.date;
+                item.cost = v.cost;
+                item.is_company_pay = v.is_company_pay;
+              } else {
+                res.list.push(v);
+              }
+            });
+            if (!isq) {
+              res.list.push({
+                parentid: 7,
+                type_name: "",
+                cost: 0,
+              });
+            } else if (!isq1) {
+              res.list.push({
+                parentid: 3,
+                type_name: "",
+                cost: 0,
+              });
+            }
           }
           this.ResumeTypeList = res;
         })
@@ -389,16 +522,42 @@ export default {
     },
     search() {
       this.$api
-        .orderItem({ keyword: this.keyword })
+        .allOrderItem({ keyword: this.keyword })
         .then((res) => {
+          const order_item_id = sessionStorage.getItem("order_item_id");
+          if (order_item_id && order_item_id !== "undefined") {
+            const obj = res.find((v) => v.order_item_id === order_item_id);
+            if (obj) {
+              this.ResumeTypeList.order_item_id = order_item_id;
+              this.ResumeTypeList.order_item_name = obj.item_name;
+            }
+          }
           this.itemList = res;
         })
         .catch((message) => {
           Dialog({ message });
-        });
+        })
+        .finally(() => Toast.clear());
+    },
+    checkReimbursement() {
+      this.$api
+        .checkReimbursement(
+          this.ResumeTypeList.date,
+          this.ResumeTypeList.order_item_id
+        )
+        .then((res) => {
+          if (res.data === 1 && this.ResumeTypeList.order_item_id) {
+            Dialog({ message: "该工单的当日费用已提交，请重新确认" });
+          } else if (res.data === 1) {
+            Dialog({ message: "当日已提交费用" });
+          }
+          this.dateFees = res.data;
+        })
+        .catch((msg) => console.log(msg));
     },
     dialogConfirm() {
       this.ResumeTypeList.date = this.filterTime(this.currentDate);
+      this.checkReimbursement();
     },
     keep() {
       const resume = this.ResumeTypeList.list.filter((v) => {
@@ -422,6 +581,21 @@ export default {
           Dialog({ message });
         });
     },
+    editFees(obj) {
+      this.$api
+        .editResumeAproval({
+          ...obj,
+          resume_aproval_id: this.fees.resume_aproval_id,
+        })
+        .then((res) => {
+          Dialog.alert({ message: res.msg }).then(() => {
+            this.$router.replace({ name: "myByFees" });
+          });
+        })
+        .catch((message) => {
+          Dialog({ message });
+        });
+    },
     submit() {
       const resume = this.ResumeTypeList.list.filter((v) => {
         if (v.parentid === 3 || v.parentid === 7) {
@@ -429,32 +603,54 @@ export default {
         }
         return v.cost !== "";
       });
-      console.log(resume);
       const obj = {
         date: this.ResumeTypeList.date,
         order_item_id: this.ResumeTypeList.order_item_id,
         resume,
       };
-      this.$api
-        .addResumeAproval(obj)
-        .then((res) => {
-          Dialog.alert({ message: res.msg }).then(() => {
-            this.$router.go(-1);
+      if (this.fees) {
+        this.editFees(obj);
+      } else {
+        this.$api
+          .addResumeAproval(obj)
+          .then((res) => {
+            Dialog.alert({ message: res.msg }).then(() => {
+              this.$router.go(-1);
+            });
+          })
+          .catch((message) => {
+            Dialog({ message });
           });
-        })
-        .catch((message) => {
-          Dialog({ message });
-        });
+      }
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.bg {
-  ::v-deep() .van-icon {
+.zc {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-right: 2rem;
+  div {
+    display: flex;
+    align-items: center;
+    i {
+      margin-left: 0.2rem;
+    }
+  }
+}
+::v-deep() .bg {
+  .van-icon {
     transform: scale(1.4);
   }
+}
+.bold.van-cell::after {
+  border-bottom: 2px solid #666666;
+}
+.divider::after {
+  display: none;
 }
 .addFees {
   font-family: AlibabaPuHuiTi;
@@ -463,7 +659,7 @@ export default {
   height: 90%;
   overflow: auto;
 }
-.search {
+::v-deep() .search {
   display: flex;
   align-items: center;
   background: linear-gradient(to right, #fee568 0%, #fbd01f 100%);
@@ -474,7 +670,7 @@ export default {
     padding: 0 1rem;
     margin: 0;
   }
-  ::v-deep() .van-field {
+  .van-field {
     margin: 0 auto;
     width: 90%;
     height: 100%;
@@ -493,11 +689,15 @@ export default {
   border-radius: 0.3rem;
 }
 ::v-deep() .van-cell {
+  justify-content: space-between;
   align-items: center;
   overflow: visible;
   &__value {
     overflow: visible;
   }
+}
+::v-deep() .van-cell::after {
+  transform: scale(1);
 }
 .item {
   width: 90%;
@@ -526,12 +726,12 @@ export default {
     width: 48%;
   }
 }
-.dialogTime {
-  ::v-deep() .van-dialog__header {
+::v-deep() .dialogTime {
+  .van-dialog__header {
     padding: 0.7rem;
     background-color: #ffcd11;
   }
-  ::v-deep() .van-dialog {
+  .van-dialog {
     border-radius: 1rem;
   }
   .timeTile {
@@ -569,8 +769,16 @@ export default {
 .not {
   border-radius: 0.3rem;
 }
-.card {
-  ::v-deep() .van-field {
+::v-deep() .card {
+  .van-cell__title {
+    color: #333333;
+    align-items: center;
+    flex: none;
+    margin: 0;
+    font-size: 0.8rem;
+    width: 55%;
+  }
+  .van-field {
     &__label {
       color: #333333;
       align-items: center;

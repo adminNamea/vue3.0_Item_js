@@ -57,8 +57,8 @@ export default {
 };
 </script>
 <style lang='scss' scoped>
-.checkIcon {
-  /deep/ .van-cell__value {
+::v-deep() .checkIcon {
+  .van-cell__value {
     display: flex;
     flex: none;
     justify-content: space-between;
@@ -76,7 +76,7 @@ export default {
     }
   }
 }
-/deep/.van-cell .van-cell__title {
+::v-deep() .van-cell .van-cell__title {
   color: #000;
   padding-left: 1.5rem;
   font-size: 0.8rem;
@@ -92,10 +92,10 @@ export default {
     background-color: #fad23f;
   }
 }
-/deep/ .van-cell__value {
+::v-deep() .van-cell__value {
   font-size: 0.8rem;
 }
-/deep/ .van-field__control {
+::v-deep() .van-field__control {
   font-size: 0.8rem;
   padding-left: 0.5rem;
   background: rgba(249, 249, 250, 1);
@@ -111,10 +111,10 @@ p {
     margin-right: 1.5rem;
   }
 }
-.textarea {
+::v-deep() .textarea {
   height: 7rem;
-  /deep/ .van-field__body,
-  /deep/ .van-field__control {
+  .van-field__body,
+  .van-field__control {
     height: 100%;
     overflow: visible;
   }

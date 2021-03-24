@@ -11,7 +11,10 @@
       </div>
       <div class="flex">
         <span>提交人：{{ itemDetails.name_cn }}</span>
-        <span>状态：{{ itemDetails.is_agree == 1 ? "同意" : "未同意" }}</span>
+        <span>状态：{{ itemDetails.is_agree == 1 ? "已同意" : "未同意" }}</span>
+      </div>
+      <div class="flex">
+        <span>报销时间：{{ itemDetails.date }}</span>
       </div>
       <span
         class="end"
@@ -27,22 +30,33 @@
             >{{ v.parentName }}：{{ v.type_name }}</span
           ><span>金额：{{ v.cost }}</span>
         </p>
-        <p>
-          <span>报销时间：{{ v.date }}</span
-          ><span>是否公司代付：{{ v.is_company_pay == 1 ? "是" : "否" }}</span>
+        <p v-if="v.is_company_pay == 1">
+          <span></span><span>是否公司代付：是</span>
         </p>
       </div>
     </card>
     <card :hed="false" :top="false">
       <div class="left">备注</div>
       <van-field
-        v-model="note"
-        label="审批步骤"
+        v-model="itemDetails.faile_note"
+        label="审批备注"
+        :readonly="myFees == 1 || itemDetails.is_aproval == 1"
         class="textarea"
         type="textarea"
       />
     </card>
-    <div class="b_fixed" v-if="myFees != 1">
+    <div
+      v-sticky="false"
+      class="b_fixed"
+      v-if="myFees != 1 && itemDetails.is_aproval != 1"
+    >
+      <van-button
+        round
+        block
+        color="linear-gradient(to right, #FFCD11, #FFE775)"
+        @click="onSubmit(0)"
+        >不同意</van-button
+      >
       <van-button
         round
         block
@@ -50,12 +64,19 @@
         @click="onSubmit(1)"
         >同意</van-button
       >
+    </div>
+    <div
+      v-sticky="false"
+      v-if="
+        myFees == 1 && itemDetails.is_agree == 0 && itemDetails.is_aproval == 1
+      "
+    >
       <van-button
         round
         block
         color="linear-gradient(to right, #FFCD11, #FFE775)"
-        @click="onSubmit(0)"
-        >不同意</van-button
+        @click="upFees"
+        >去修改</van-button
       >
     </div>
   </div>
@@ -72,17 +93,25 @@ export default {
   data() {
     return {
       itemDetails: {},
-      note: "",
       myFees: sessionStorage.getItem("myFees"),
     };
   },
   created() {
+    if (!this.myFees) {
+      this.myFees = this.getRequest().myFees;
+    }
+    if (!sessionStorage.getItem("resume_aproval_id")) {
+      sessionStorage.setItem(
+        "resume_aproval_id",
+        this.getRequest().resume_aproval_id
+      );
+    }
     this.init();
   },
   methods: {
     onSubmit(is_agree) {
       this.$api
-        .approval({ faile_note: this.note, is_agree })
+        .approval({ faile_note: this.itemDetails.faile_note, is_agree })
         .then((res) => {
           Dialog.alert({ message: res.msg }).then(() => {
             this.$router.go(-1);
@@ -91,6 +120,12 @@ export default {
         .catch((message) => {
           Dialog({ message });
         });
+    },
+    upFees() {
+      sessionStorage.setItem("feesList", JSON.stringify(this.itemDetails));
+      this.$router.push({
+        name: "addFees",
+      });
     },
     init() {
       this.$api
@@ -134,7 +169,7 @@ export default {
 }
 .card {
   overflow: visible !important;
-  padding: 0 1rem 1rem 1rem;
+  padding: 0 1rem 0.5rem 1rem;
 }
 .right {
   position: absolute;
@@ -152,11 +187,14 @@ p {
   font-size: 1.1rem;
 }
 .item {
-  padding-bottom: 1rem;
+  padding-bottom: 0;
   border-bottom: 0.01rem solid rgba(0, 0, 0, 0.1);
+  &:last-child {
+    border-bottom: 0;
+  }
   p {
     margin: 0;
-    padding-top: 1rem;
+    padding-top: 0.5rem;
     display: flex;
     align-items: center;
     font-size: 0.65rem;
@@ -165,12 +203,15 @@ p {
       font-family: PingFang SC;
       font-weight: bold;
       color: #666666;
+      &:nth-child(1) {
+        flex: 2;
+      }
     }
   }
 }
-.textarea {
+::v-deep() .textarea {
   padding-left: 0;
-  ::v-deep() .van-field__control {
+  .van-field__control {
     color: #666666;
     font-size: 0.8rem;
     padding-left: 0.5rem;

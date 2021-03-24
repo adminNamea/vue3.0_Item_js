@@ -46,7 +46,7 @@
       </div>
     </del-dialog>
     <!-- 删除提示框 -->
-    <del-dialog class="delDialog" :show="delShow" title="删除确认">
+    <del-dialog class="delDialog" v-model:show="delShow" title="删除确认">
       <span class="info">确认删除项目（{{ delItem.item_name }}）？</span>
       <div class="vanButton" style="margin: 1rem">
         <van-button size="small" round block color="#FFCD11" @click="del(false)"

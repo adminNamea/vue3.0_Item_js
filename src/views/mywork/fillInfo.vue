@@ -1,22 +1,29 @@
 <template>
   <div class="fillInfo">
-    <van-form @submit="onSubmit">
-      <card :hed="false">
-        <p>填写回访联系人信息</p>
-        <van-field v-model="log_contacts" label="联系人姓名：" />
-        <van-field v-model="log_phone" label="电话：" />
-        <van-field v-model="log_machine_no" label="机器编号：" />
-      </card>
-      <div class="b_fixed">
-        <van-button
-          round
-          block
-          color="linear-gradient(to right, #FFCD11, #FFE775)"
-          native-type="submit"
-          >提交</van-button
-        >
-      </div>
-    </van-form>
+    <card :hed="false">
+      <p>填写回访联系人信息</p>
+      <van-field
+        :readonly="approval"
+        v-model="log_contacts"
+        label="联系人姓名："
+      />
+      <van-field :readonly="approval" v-model="log_phone" label="电话：" />
+      <van-field
+        :readonly="approval"
+        v-model="log_machine_no"
+        label="机器编号："
+      />
+    </card>
+    <van-button
+      v-if="!approval"
+      v-sticky
+      round
+      block
+      @click="onSubmit"
+      color="linear-gradient(to right, #FFCD11, #FFE775)"
+      native-type="submit"
+      >提交</van-button
+    >
   </div>
 </template>
 <script>
@@ -29,6 +36,7 @@ export default {
   },
   data() {
     return {
+      approval: Boolean(Number(sessionStorage.getItem("approval"))),
       log_contacts: sessionStorage.getItem("log_contacts"),
       log_machine_no: sessionStorage.getItem("log_machine_no"),
       log_phone: sessionStorage.getItem("log_phone"),

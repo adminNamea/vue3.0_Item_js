@@ -32,8 +32,8 @@
       box-shadow: 0 0 0.2vw 0 rgba(0, 0, 0, 0.08);
       border-radius: 5vw;
       height: 5vw;
-      margin-right: 2.5%;
-      margin-left: 0.5rem;
+      margin-right: 1.5%;
+      margin-left: 1.5%;
       &:last-child{
         margin-right:0;
       }
@@ -82,7 +82,7 @@
   .body .flex {
     align-items: baseline;
   }
-  .flex {
+  ::v-deep() .flex {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -90,11 +90,12 @@
       height:5vw;
       flex:1;
       font-size: 3vw;
+      top: -0.5rem;
       white-space: nowrap;
     }
-    .select {
+     .select {
       flex:1;
-      ::v-deep() .cell {
+       .cell {
         font-weight: normal;
         border: 0.05rem solid rgba(0, 0, 0, 0.08);
         border-radius: 5vw;

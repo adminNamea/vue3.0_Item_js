@@ -2,7 +2,7 @@
   <div class="approvalDetails">
     <van-dialog
       :close-on-click-overlay="true"
-      v-model:show="show"
+      v-model="show"
       :showConfirmButton="false"
     >
       <div
@@ -40,7 +40,7 @@
         >
       </div>
       <div class="body">
-        <div class="flex">
+        <div class="flex minP">
           <van-cell
             title="工单号:"
             :value="orderDetails.order_number"
@@ -50,7 +50,7 @@
             :value="orderDetails.ax_number"
           ></van-cell>
         </div>
-        <div class="flex">
+        <div class="flex minP" v-if="orderDetails.is_dispatch !== 0">
           <van-cell
             title="主修:"
             :value="orderDetails.major_user && orderDetails.major_user.name_cn"
@@ -67,7 +67,7 @@
         <div class="flex">
           <van-cell
             title="服务车牌号:"
-            :value="orderDetails.service_car"
+            :value="orderDetails.service_car || ''"
           ></van-cell>
         </div>
         <div class="flex">
@@ -125,10 +125,10 @@
       <div class="left">工单信息</div>
       <van-cell
         class="not"
-        @click="$router.push({ name: 'take5' })"
+        @click="$router.push({ name: 'take5List' })"
         title="安全5步法"
         is-link
-        value="未录入"
+        :value="orderDetails.take == 0 ? '未录入' : '已录入'"
       ></van-cell>
       <van-cell
         class="not"
@@ -148,7 +148,7 @@
         class="not"
         title="工单状态"
         is-link
-        :value="orderDetails.status_name"
+        :value="orderDetails.status_name || ''"
       ></van-cell>
       <van-cell class="not" title="TA1" is-link value="去填写"></van-cell>
       <div v-if="orderDetails.order_type == 7" @click="toStationList">
@@ -201,27 +201,22 @@
         </div>
       </div>
       <van-cell title="现场发现：" style="padding: 1rem">
-        <img
-          v-for="(v, index) in orderDetails.spot_img_aliyun"
-          :key="index"
-          style="height: 4rem; width: 4rem"
-          :src="v.url"
-        />
-      </van-cell>
-      <van-cell
-        v-if="myOrder == 1"
-        title="备注和建议："
-        :value="orderDetails.repair_way"
-      >
+        <van-uploader
+          :preview-options="{ closeable: true }"
+          :max-count="0"
+          :deletable="false"
+          v-model="orderDetails.spot_img_aliyun"
+        >
+        </van-uploader>
       </van-cell>
       <van-field
-        v-else
         v-model="orderDetails.order_reason"
         label="备注"
+        :readonly="true"
         class="textarea"
         type="textarea"
       />
-      <div class="left">项目</div>
+      <div class="left" v-if="orderDetails.item.length > 0">项目</div>
       <van-cell
         title-class="not"
         style="padding: 1rem"
@@ -229,15 +224,27 @@
         :key="index"
         @click="to(obj.order_item_id)"
         :title="obj.item_name"
-        is-link
-      >
-        <span>预计工时：{{ obj.item_cost_time }}小时</span>
+        ><div class="timeValue">
+          <div>
+            <p>预计工时：{{ obj.item_cost_time }}小时</p>
+            <p>
+              实际工时：工作（{{ obj.work_time }}）；行车（{{ obj.car_time }}）
+            </p>
+          </div>
+          <i class="van-icon van-icon-arrow van-cell__right-icon"> </i>
+        </div>
       </van-cell>
+      <div class="left">审批</div>
+      <van-field
+        v-model="orderDetails.faile_note"
+        @change="noteChange"
+        label="审批备注"
+        :readonly="!(myOrder != 1 && orderDetails.aproval_status_id != 2)"
+        class="textarea"
+        type="textarea"
+      />
     </card>
-    <div
-      v-if="myOrder == 1 && orderDetails.aproval_status_id != 2"
-      style="margin-top: 1rem"
-    >
+    <div v-sticky="false" v-if="myOrder == 1 && orderDetails.status_id == 7">
       <van-button
         round
         block
@@ -250,20 +257,21 @@
     <div
       v-if="myOrder != 1 && orderDetails.aproval_status_id != 2"
       class="b_fixed"
+      v-sticky="false"
     >
-      <van-button
-        round
-        block
-        color="linear-gradient(to right, #FFCD11, #FFE775)"
-        @click="onSubmit(1)"
-        >同意</van-button
-      >
       <van-button
         round
         block
         color="linear-gradient(to right, #FFCD11, #FFE775)"
         @click="onSubmit(2)"
         >不同意</van-button
+      >
+      <van-button
+        round
+        block
+        color="linear-gradient(to right, #FFCD11, #FFE775)"
+        @click="onSubmit(1)"
+        >同意</van-button
       >
     </div>
   </div>
@@ -288,15 +296,25 @@ export default {
     };
   },
   created() {
+    if (!this.myOrder) {
+      this.myOrder = this.getRequest().myOrder;
+    }
+    if (!this.order_id) {
+      this.order_id = this.getRequest().order_id;
+      sessionStorage.setItem("order_id", this.order_id);
+    }
     this.getOrderDetails();
   },
   methods: {
+    noteChange() {
+      sessionStorage.setItem("note", this.orderDetails.faile_note);
+    },
     onSubmit(is_adopt) {
       this.$api
         .confirmOrderApproval({
           order_id: this.order_id,
           is_adopt,
-          faile_note: this.orderDetails.a_faile_note,
+          faile_note: this.orderDetails.faile_note,
         })
         .then((res) => {
           Dialog.alert({ message: res.msg }).then(() => {
@@ -324,7 +342,8 @@ export default {
       if (this.orderDetails.status_name === "已派工") {
         return;
       }
-      this.$router.push({ name: "orderProject", params: { order_item_id } });
+      sessionStorage.setItem("order_item_id", order_item_id);
+      this.$router.push({ name: "itemDetails" });
     },
     upSatatus(type) {
       if (type < this.orderDetails.status_id) {
@@ -345,19 +364,24 @@ export default {
     // 查询工单数据
     getOrderDetails() {
       this.$api.orderDetails(this.order_id).then((res) => {
+        console.log(res);
+        if (res.faile_note === "" && sessionStorage.getItem("note")) {
+          res.faile_note = sessionStorage.getItem("note");
+        }
         this.orderDetails = res;
       });
-    },
-    // 图片上传
-    afterRead(fileList) {
-      console.log(fileList);
-      console.log(this.fileList);
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.timeValue {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+}
 .preview-cover {
   position: absolute;
   box-sizing: border-box;
@@ -402,12 +426,12 @@ export default {
     border-bottom: 0.1rem solid #dadada;
   }
 }
-.search {
+::v-deep() .search {
   text-align: center;
   background: linear-gradient(to right, #fee568 0%, #fbd01f 100%);
   padding: 0.8rem 0;
   height: 2.2rem;
-  ::v-deep() .van-field {
+  .van-field {
     margin: 0 auto;
     width: 90%;
     height: 100%;
@@ -425,7 +449,7 @@ export default {
     height: 2.6rem;
   }
 }
-.stations {
+::v-deep() .stations {
   overflow: hidden !important;
   font-size: 1rem;
   font-weight: 600;
@@ -437,25 +461,28 @@ export default {
     &:last-child .van-cell {
       padding-bottom: 0;
     }
-    .van-cell:nth-child(1) {
-      flex: 1.5;
-    }
-    .van-cell:nth-child(2) {
-      flex: 1;
-      .van-cell__title {
-        width: 4rem;
+    display: flex;
+    @media all and (min-width: 550px) {
+      .van-cell:nth-child(2) {
+        .van-cell__title {
+          width: 5rem;
+        }
       }
     }
-    display: flex;
     justify-content: space-between;
-    ::v-deep() .van-cell {
+    .van-cell {
       &__value {
         text-align: left;
         color: #656565;
       }
     }
   }
-  ::v-deep() .van-cell {
+  .minP {
+    @media all and (max-width: 550px) {
+      display: block;
+    }
+  }
+  .van-cell {
     padding: 0.1rem 1rem;
     &__title {
       font-size: 0.75rem;
@@ -554,8 +581,8 @@ p {
   align-items: center;
   background-color: #ffcd11;
 }
-.textarea {
-  ::v-deep() .van-field__control {
+::v-deep() .textarea {
+  .van-field__control {
     height: 5rem;
     color: #666666;
     font-size: 0.8rem;

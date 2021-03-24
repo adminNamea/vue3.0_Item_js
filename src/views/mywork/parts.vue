@@ -20,7 +20,7 @@
         {{ v }}
       </van-field>
     </card>
-    <div style="margin-top: 1rem">
+    <div v-sticky>
       <van-button
         round
         block
